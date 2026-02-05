@@ -15,5 +15,5 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
-  "ignorePatterns": ["node_modules", "dist", "build"]
+  "ignorePatterns": ["node_modules", "dist", "build", "generated"]
 }
