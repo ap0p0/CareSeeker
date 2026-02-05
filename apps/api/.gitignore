@@ -1,0 +1,28 @@
+# compiled output
+/dist
+/node_modules
+/build
+
+# Prisma
+/generated
+
+# env
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# test
+/coverage
+*.log
+npm-debug.log*
+pnpm-debug.log*

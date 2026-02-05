@@ -1,0 +1,69 @@
+# ======================
+# ENVIRONMENT VARIABLES
+# ======================
+.env
+.env.*
+!.env.example
+
+# ======================
+# NODE / PACKAGE MANAGERS
+# ======================
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ======================
+# BUILD OUTPUTS
+# ======================
+dist/
+build/
+out/
+coverage/
+
+# ======================
+# VITE
+# ======================
+apps/web/dist/
+apps/web/.vite/
+
+# ======================
+# NESTJS
+# ======================
+apps/api/dist/
+
+# ======================
+# PRISMA
+# ======================
+apps/api/prisma/migrations/**/migration_lock.toml
+apps/api/prisma/migrations/**/*.log
+
+# ======================
+# LOGS
+# ======================
+logs/
+*.log
+
+# ======================
+# OS / EDITORS
+# ======================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ======================
+# TEMP / CACHE
+# ======================
+.tmp/
+.temp/
+.cache/
+
+# ======================
+# TEST / MISC
+# ======================
+*.swp
+*.swo
