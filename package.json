@@ -2,6 +2,9 @@
   "name": "careseeker",
   "private": true,
   "packageManager": "pnpm@9",
+  "engines": {
+    "node": "20.20.0"
+  },
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
