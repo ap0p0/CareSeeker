@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "target": "ES2021",
-    "lib": ["ES2021"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2023",
 
     "rootDirs": ["./src", "./generated"],
     "outDir": "./dist",
@@ -17,8 +16,6 @@
 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
 
