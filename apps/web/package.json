@@ -5,14 +5,25 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "cross-env VITE_APP_VARIANT=core tsc -b && cross-env VITE_APP_VARIANT=core vite build",
+    "build:core": "cross-env VITE_APP_VARIANT=core tsc -b && cross-env VITE_APP_VARIANT=core vite build",
+    "build:client": "cross-env VITE_APP_VARIANT=client tsc -b && cross-env VITE_APP_VARIANT=client vite build",
+    "build:provider": "cross-env VITE_APP_VARIANT=provider tsc -b && cross-env VITE_APP_VARIANT=provider vite build",
+    "build:admin": "cross-env VITE_APP_VARIANT=admin tsc -b && cross-env VITE_APP_VARIANT=admin vite build",
+    "start:core": "cross-env VITE_APP_VARIANT=core vite",
+    "start:client": "cross-env VITE_APP_VARIANT=client vite",
+    "start:seeker": "cross-env VITE_APP_VARIANT=client vite",
+    "start:provider": "cross-env VITE_APP_VARIANT=provider vite",
+    "start:admin": "cross-env VITE_APP_VARIANT=admin vite",
+    "start:all": "kill-port 3000 3001 3002 3003 3004 && concurrently -n core,client,provider,admin,proxy -c blue,green,yellow,magenta,cyan \"cross-env VITE_APP_VARIANT=core vite --port 3001\" \"cross-env VITE_APP_VARIANT=client vite --port 3002\" \"cross-env VITE_APP_VARIANT=provider vite --port 3003\" \"cross-env VITE_APP_VARIANT=admin vite --port 3004\" \"node scripts/dev-proxy.js\"",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.94.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -20,10 +31,14 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "http-proxy": "^1.18.1",
+    "kill-port": "^2.0.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

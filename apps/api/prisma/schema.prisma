@@ -11,17 +11,32 @@ datasource db {
 }
 
 enum UserRole {
-  ADMIN
   SEEKER
   PROVIDER
+  ADMIN
 }
 
-model User {
-  id         String   @id @default(uuid())
-  supabaseId String   @unique
-  email      String
-  role       UserRole @default(SEEKER)
+/// Provider verification state. Only relevant when role = PROVIDER.
+/// Admins manage this via backend; never self-assignable.
+enum ProviderVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+/// Application-level user. Exists because Supabase auth.users only handles
+/// authentication (identity). Roles, verification, and app-specific state
+/// live here and are controlled server-side.
+///
+/// - id: Supabase auth.users.id (canonical user identifier)
+/// - role: Application role; admin is NEVER self-assignable (enforced on create/update)
+/// - providerVerificationStatus: For providers only; null for seeker/admin
+model User {
+  id                         String                     @id // Supabase auth.users.id
+  email                      String
+  role                       UserRole                   @default(SEEKER)
+  providerVerificationStatus ProviderVerificationStatus?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

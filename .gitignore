@@ -46,6 +46,11 @@ logs/
 *.log
 
 # ======================
+# CURSOR
+# ======================
+.cursor/rules/react-component-style.mdc
+
+# ======================
 # OS / EDITORS
 # ======================
 .DS_Store
