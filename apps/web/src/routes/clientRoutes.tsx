@@ -7,13 +7,11 @@ import { SeekerRoute, SEEKER_ROUTE_PATHS } from "./enums";
 import ClientDashboard from "../services/client/pages/ClientDashboard";
 import ClientNotFound from "../services/client/pages/NotFound";
 import PlaceholderPage from "../components/PlaceholderPage";
-import AuthTestPage from "../services/client/pages/AuthTestPage";
 
 export const clientRouter = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route index element={<ClientDashboard />} />
-      <Route path="auth-test" element={<AuthTestPage />} />
       <Route
         path={SEEKER_ROUTE_PATHS[SeekerRoute.ActiveJobs]}
         element={<PlaceholderPage title="Active Jobs" />}
