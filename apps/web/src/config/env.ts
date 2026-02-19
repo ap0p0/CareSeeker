@@ -6,11 +6,9 @@
 export const env = {
   supabase: {
     url: import.meta.env.VITE_SUPABASE_URL as string | undefined,
-    anonKey:
-      (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ??
-      (import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY as
-        | string
-        | undefined),
+    anonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY as
+      | string
+      | undefined,
   },
   /**
    * Public base URL for the current deployment (e.g. https://client.careseeker.com).
