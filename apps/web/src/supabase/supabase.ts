@@ -14,6 +14,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Returns the URL to redirect to after auth (OAuth, magic link, etc.).
+ *
  * Uses VITE_PUBLIC_BASE_URL when set; otherwise falls back to window.location.origin.
  */
 export function getAuthRedirectBaseUrl(): string {
