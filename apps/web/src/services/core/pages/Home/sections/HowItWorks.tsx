@@ -8,6 +8,11 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
+import {
+  howItWorksCtaBaseSx,
+  readMoreButtonSx,
+  scrollButtonDockSx,
+} from "./sectionButtonStyles";
 
 const steps = [
   { number: 1, title: "Share", description: "Tell us what you need." },
@@ -23,23 +28,32 @@ const steps = [
   },
 ] as const;
 
-const HowItWorks = () => {
+type HowItWorksProps = {
+  onReadMore?: () => void;
+};
+
+const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
   return (
     <Box
       component="section"
       sx={{
-        width: "100%",
-        minHeight: "100vh",
+        width: "100vw",
+        maxWidth: "100vw",
+        minHeight: "100dvh",
+        position: "relative",
         display: "flex",
         alignItems: "center",
         background: "linear-gradient(to top, #f0e8f2 0%, #fbf9fc 100%)",
-        py: { xs: 6, md: 10 },
+        py: { xs: 3, md: 5 },
+        pb: { xs: "68px", md: "80px" },
+        scrollSnapAlign: "start",
+        scrollSnapStop: "always",
       }}
     >
       <Box sx={{ width: "100%" }}>
         <Container maxWidth="md">
           <Typography
-            variant="h5"
+            variant="h3"
             fontWeight={500}
             textAlign="center"
             sx={{ color: (t) => t.palette.custom.blue }}
@@ -52,7 +66,7 @@ const HowItWorks = () => {
           <Typography
             color="text.secondary"
             textAlign="center"
-            sx={{ maxWidth: 720, mx: "auto", my: 3 }}
+            sx={{ maxWidth: 680, mx: "auto", my: 2.25, fontSize: "0.95rem" }}
           >
             CareSeeker matches families and trusted, skilled caregivers based on
             real compatibility — so you can choose with confidence.
@@ -64,7 +78,7 @@ const HowItWorks = () => {
               flexWrap: "wrap",
               justifyContent: "center",
               gap: 2,
-              mb: { xs: 6, md: 8 },
+              mb: { xs: 4.5, md: 6 },
             }}
           >
             <Button
@@ -72,13 +86,14 @@ const HowItWorks = () => {
               to={BASE_ROUTE_PATHS[BaseRoute.GetCare]}
               variant="contained"
               sx={{
-                bgcolor: (t) => t.palette.custom.pink,
-                color: "white",
-                px: 5,
-                borderRadius: 999,
+                ...howItWorksCtaBaseSx,
+                bgcolor: "#b89fc1",
                 "&:hover": {
-                  bgcolor: (t) => t.palette.custom.pink,
-                  opacity: 0.9,
+                  bgcolor: "#a58cad",
+                  transform: "scale(1.05)",
+                  color: "#000",
+                  textDecoration: "underline",
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
                 },
               }}
               size="large"
@@ -91,13 +106,14 @@ const HowItWorks = () => {
               variant="contained"
               size="large"
               sx={{
-                px: 5,
-                borderRadius: 999,
-                bgcolor: (t) => t.palette.custom.blue,
-                color: "white",
+                ...howItWorksCtaBaseSx,
+                bgcolor: "#5ea6d4",
                 "&:hover": {
-                  bgcolor: (t) => t.palette.custom.blue,
-                  opacity: 0.9,
+                  bgcolor: "#4b94c3",
+                  transform: "scale(1.05)",
+                  color: "#000",
+                  textDecoration: "underline",
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
                 },
               }}
             >
@@ -108,10 +124,10 @@ const HowItWorks = () => {
 
         <Container maxWidth="lg">
           <Typography
-            variant="h4"
+            variant="h5"
             fontWeight={500}
             textAlign="center"
-            sx={{ mb: 4 }}
+            sx={{ mb: 3 }}
           >
             Smarter Matching.{" "}
             <Box
@@ -122,7 +138,7 @@ const HowItWorks = () => {
             </Box>
           </Typography>
 
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
             {steps.map((step) => (
               <Grid key={step.number} size={{ xs: 12, sm: 4 }}>
                 <Card
@@ -135,27 +151,27 @@ const HowItWorks = () => {
                 >
                   <CardContent
                     sx={{
-                      p: 4,
-                      "&:last-child": { pb: 4 },
+                      p: { xs: 2.5, md: 4 },
+                      "&:last-child": { pb: { xs: 2.5, md: 4 } },
                       textAlign: "center",
                     }}
                   >
                     <Typography
-                      variant="h3"
+                      variant="h4"
                       fontWeight={600}
-                      sx={{ lineHeight: 1, mb: 1, color: "text.primary" }}
+                      sx={{ lineHeight: 1, mb: 1, color: "white" }}
                     >
                       {step.number}
                     </Typography>
                     <Typography
-                      variant="h5"
+                      variant="h6"
                       fontWeight={500}
-                      sx={{ my: 3, color: (t) => t.palette.custom.blue }}
+                      sx={{ my: 2, color: (t) => t.palette.custom.blue }}
                     >
                       {step.title}
                     </Typography>
                     <Typography
-                      sx={{ fontSize: 16, fontWeight: 500, my: 3 }}
+                      sx={{ fontSize: 15, fontWeight: 500, my: 2 }}
                       variant="body1"
                       color="white"
                     >
@@ -167,25 +183,12 @@ const HowItWorks = () => {
             ))}
           </Grid>
 
-          <Typography textAlign="center" variant="h4" fontWeight={700}>
-            That's it.
-          </Typography>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Box sx={scrollButtonDockSx}>
             <Button
-              component={RouterLink}
-              to={BASE_ROUTE_PATHS[BaseRoute.AboutUs]}
+              onClick={onReadMore}
               variant="text"
               endIcon={<ArrowDownwardIcon />}
-              sx={{
-                color: (t) => t.palette.custom.blue,
-                fontWeight: 700,
-                textDecoration: "underline",
-                textUnderlineOffset: 4,
-                "&:hover": {
-                  textDecoration: "underline",
-                  bgcolor: "transparent",
-                },
-              }}
+              sx={readMoreButtonSx}
             >
               Read more
             </Button>

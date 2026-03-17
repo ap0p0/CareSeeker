@@ -5,8 +5,7 @@ import Grid from "@mui/material/Grid2";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { Link as RouterLink } from "react-router-dom";
-import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
+import { readMoreButtonSx, scrollButtonDockSx } from "./sectionButtonStyles";
 
 const items = [
   { id: 1, lead: "Compatibility-based", rest: " matching" },
@@ -15,22 +14,34 @@ const items = [
   { id: 4, lead: "Independent or fully managed", rest: " support" },
 ] as const;
 
-const WhyCareSeeker = () => {
+type WhyCareSeekerProps = {
+  onReadMore?: () => void;
+};
+
+const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
   return (
     <Box
       component="section"
       sx={{
-        width: "100%",
+        width: "100vw",
+        maxWidth: "100vw",
+        minHeight: "100dvh",
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
         bgcolor: "#fbf9fc",
-        py: { xs: 8, md: 12 },
+        py: { xs: 4, md: 6 },
+        pb: { xs: "68px", md: "80px" },
+        scrollSnapAlign: "start",
+        scrollSnapStop: "always",
       }}
     >
-      <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: { xs: 6, md: 8 } }}>
+      <Container maxWidth="lg" sx={{ width: "100%" }}>
+        <Box sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
           <Typography
-            variant="h2"
+            variant="h3"
             fontWeight={600}
-            sx={{ fontSize: { xs: "2.5rem", md: "3.5rem" } }}
+            sx={{ fontSize: { xs: "2rem", md: "3rem" } }}
           >
             Why{" "}
             <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
@@ -38,7 +49,11 @@ const WhyCareSeeker = () => {
             </Box>
             ?
           </Typography>
-          <Typography variant="h6" fontWeight={500} color="text.secondary">
+          <Typography
+            variant="subtitle1"
+            fontWeight={500}
+            color="text.secondary"
+          >
             Because{" "}
             <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
               Trust
@@ -54,7 +69,7 @@ const WhyCareSeeker = () => {
             display: { xs: "none", md: "block" },
             maxWidth: 980,
             mx: "auto",
-            py: 3,
+            py: 2,
           }}
         >
           <Box
@@ -80,7 +95,7 @@ const WhyCareSeeker = () => {
             }}
           />
 
-          <Grid container spacing={0} sx={{ minHeight: 360 }}>
+          <Grid container spacing={0} sx={{ minHeight: 300 }}>
             {items.map((item) => (
               <Grid
                 key={item.id}
@@ -89,8 +104,8 @@ const WhyCareSeeker = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  px: 6,
-                  py: 5,
+                  px: 4,
+                  py: 3.5,
                 }}
               >
                 <Typography variant="body1" fontWeight={500}>
@@ -134,7 +149,7 @@ const WhyCareSeeker = () => {
         <Typography
           textAlign="center"
           color="text.secondary"
-          sx={{ mt: { xs: 6, md: 8 } }}
+          sx={{ mt: { xs: 4, md: 5 }, fontSize: "0.95rem" }}
         >
           You choose the level of protection and service{" "}
           <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
@@ -142,22 +157,12 @@ const WhyCareSeeker = () => {
           </Box>
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <Box sx={scrollButtonDockSx}>
           <Button
-            component={RouterLink}
-            to={BASE_ROUTE_PATHS[BaseRoute.AboutUs]}
+            onClick={onReadMore}
             variant="text"
             endIcon={<ArrowDownwardIcon />}
-            sx={{
-              color: (t) => t.palette.custom.blue,
-              fontWeight: 700,
-              textDecoration: "underline",
-              textUnderlineOffset: 4,
-              "&:hover": {
-                textDecoration: "underline",
-                bgcolor: "transparent",
-              },
-            }}
+            sx={readMoreButtonSx}
           >
             Read more
           </Button>
