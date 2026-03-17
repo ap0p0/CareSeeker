@@ -20,7 +20,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.5.0",
+    "@mui/lab": "^6.0.0-beta.14",
+    "@mui/material": "^6.5.0",
+    "@mui/system": "^6.5.0",
+    "@mui/x-data-grid": "^7.22.0",
+    "@mui/x-date-pickers": "^7.22.0",
     "@supabase/supabase-js": "^2.94.1",
+    "dayjs": "^1.11.13",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0"

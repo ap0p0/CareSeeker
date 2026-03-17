@@ -1,7 +1,12 @@
 import { defineConfig, type ResolvedConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-const VALID_VARIANTS: readonly string[] = ["core", "client", "provider", "admin"];
+const VALID_VARIANTS: readonly string[] = [
+  "core",
+  "client",
+  "provider",
+  "admin",
+];
 
 function validateAppVariant() {
   return {
@@ -25,5 +30,11 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: true,
+  },
+  resolve: {
+    dedupe: ["@emotion/react", "@emotion/styled"],
+  },
+  optimizeDeps: {
+    include: ["@emotion/react", "@emotion/styled"],
   },
 });
