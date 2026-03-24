@@ -11,6 +11,7 @@ export enum BaseRoute {
   GetCare = "getCare",
   GiveCare = "giveCare",
   Login = "login",
+  Register = "register",
 }
 
 export const BASE_ROUTE_PATHS: Record<BaseRoute, string> = {
@@ -19,6 +20,7 @@ export const BASE_ROUTE_PATHS: Record<BaseRoute, string> = {
   [BaseRoute.GetCare]: "/get-care",
   [BaseRoute.GiveCare]: "/give-care",
   [BaseRoute.Login]: "/login",
+  [BaseRoute.Register]: "/register",
 };
 
 // ─── Admin Routes (admin.careseeker.com/...) ─────────────────────────────────
