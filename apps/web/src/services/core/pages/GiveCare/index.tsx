@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import Alert from "@mui/material/Alert";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -14,6 +15,10 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import providerWaitlistHeroImage from "../../../../assets/core-images/provider-waitlist-hero.png";
+import {
+  PresignupApiError,
+  submitProviderPresignup,
+} from "../../api/presignups";
 
 const usStates = [
   "Alabama",
@@ -188,13 +193,20 @@ const GiveCare = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const cityOptions = useMemo(
     () => (stateValue ? (stateCityOptions[stateValue] ?? []) : []),
     [stateValue]
   );
 
-  const hasValidState = Boolean(stateValue && usStates.includes(stateValue));
+  const hasValidState = Boolean(
+    stateValue && (usStates as readonly string[]).includes(stateValue)
+  );
   const hasValidCity = city.trim().length > 0;
   const phoneDigits = phone.replace(/\D/g, "");
   const hasValidPhone = phoneDigits.length === 0 || phoneDigits.length === 10;
@@ -295,9 +307,51 @@ const GiveCare = () => {
               <Stack
                 component="form"
                 spacing={{ xs: 1.55, md: 1.1 }}
-                onSubmit={(event) => {
+                onSubmit={async (event) => {
                   event.preventDefault();
                   setIsSubmitted(true);
+                  if (!canSubmit || isSubmitting) return;
+
+                  setIsSubmitting(true);
+                  setFeedback(null);
+
+                  try {
+                    await submitProviderPresignup({
+                      name: name.trim(),
+                      surname: surname.trim(),
+                      email: email.trim(),
+                      state: (stateValue ?? "").trim(),
+                      city: city.trim(),
+                      phone: phone.trim() || undefined,
+                      accepted: true,
+                    });
+
+                    setFeedback({
+                      type: "success",
+                      message:
+                        "You have successfully joined the provider waitlist.",
+                    });
+                    setName("");
+                    setSurname("");
+                    setEmail("");
+                    setStateValue(null);
+                    setCity("");
+                    setPhone("");
+                    setAccepted(false);
+                    setIsSubmitted(false);
+                  } catch (error) {
+                    const errorMessage =
+                      error instanceof PresignupApiError
+                        ? error.message
+                        : "Something went wrong. Please try again.";
+
+                    setFeedback({
+                      type: "error",
+                      message: errorMessage,
+                    });
+                  } finally {
+                    setIsSubmitting(false);
+                  }
                 }}
               >
                 <TextField
@@ -308,6 +362,7 @@ const GiveCare = () => {
                   autoComplete="given-name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
+                  disabled={isSubmitting}
                   sx={inputSx}
                 />
                 <TextField
@@ -318,6 +373,7 @@ const GiveCare = () => {
                   autoComplete="family-name"
                   value={surname}
                   onChange={(event) => setSurname(event.target.value)}
+                  disabled={isSubmitting}
                   sx={inputSx}
                 />
                 <TextField
@@ -329,6 +385,7 @@ const GiveCare = () => {
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  disabled={isSubmitting}
                   sx={inputSx}
                 />
 
@@ -339,6 +396,7 @@ const GiveCare = () => {
                     setStateValue(newValue);
                     setCity("");
                   }}
+                  disabled={isSubmitting}
                   sx={inputSx}
                   renderInput={(params) => (
                     <TextField
@@ -361,7 +419,7 @@ const GiveCare = () => {
                   inputValue={city}
                   onInputChange={(_, newInputValue) => setCity(newInputValue)}
                   onChange={(_, newValue) => setCity(newValue ?? "")}
-                  disabled={!stateValue}
+                  disabled={!stateValue || isSubmitting}
                   sx={inputSx}
                   renderInput={(params) => (
                     <TextField
@@ -400,6 +458,7 @@ const GiveCare = () => {
                   onChange={(event) =>
                     setPhone(formatPhoneNumber(event.target.value))
                   }
+                  disabled={isSubmitting}
                   error={showPhoneError}
                   helperText={
                     showPhoneError
@@ -439,6 +498,7 @@ const GiveCare = () => {
                     <Checkbox
                       checked={accepted}
                       onChange={(event) => setAccepted(event.target.checked)}
+                      disabled={isSubmitting}
                       sx={{
                         color: (t) => t.palette.custom.blue,
                         "&.Mui-checked": {
@@ -460,7 +520,7 @@ const GiveCare = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  disabled={!canSubmit}
+                  disabled={!canSubmit || isSubmitting}
                   sx={{
                     mt: { xs: 0.45, md: 0.15 },
                     py: { xs: 1.2, md: 0.95 },
@@ -491,8 +551,13 @@ const GiveCare = () => {
                     },
                   }}
                 >
-                  Join Provider Waitlist
+                  {isSubmitting ? "Submitting..." : "Join Provider Waitlist"}
                 </Button>
+                {feedback && (
+                  <Alert severity={feedback.type} sx={{ borderRadius: 2 }}>
+                    {feedback.message}
+                  </Alert>
+                )}
               </Stack>
 
               <Typography

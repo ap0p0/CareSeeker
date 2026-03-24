@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -12,6 +13,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import getCareHeroImage from "../../../../assets/core-images/get-care-hero.png";
+import { PresignupApiError, submitSeekerPresignup } from "../../api/presignups";
 
 const inputSx = {
   "& .MuiOutlinedInput-root": {
@@ -57,6 +59,62 @@ const backToHomeButtonSx = {
 
 const GetCare = () => {
   const [accepted, setAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!accepted || isSubmitting) return;
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const name = String(formData.get("name") ?? "").trim();
+    const surname = String(formData.get("surname") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+
+    if (!name || !surname || !email) {
+      setFeedback({
+        type: "error",
+        message: "Please complete all required fields.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    try {
+      await submitSeekerPresignup({
+        name,
+        surname,
+        email,
+        accepted: true,
+      });
+
+      setFeedback({
+        type: "success",
+        message: "You have successfully joined the care seeker waitlist.",
+      });
+      form.reset();
+      setAccepted(false);
+    } catch (error) {
+      const errorMessage =
+        error instanceof PresignupApiError
+          ? error.message
+          : "Something went wrong. Please try again.";
+
+      setFeedback({
+        type: "error",
+        message: errorMessage,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Box
@@ -132,17 +190,14 @@ const GetCare = () => {
                 Be the first to know when we launch.
               </Typography>
 
-              <Stack
-                component="form"
-                spacing={1.6}
-                onSubmit={(event) => event.preventDefault()}
-              >
+              <Stack component="form" spacing={1.6} onSubmit={handleSubmit}>
                 <TextField
                   label="Name"
                   name="name"
                   required
                   fullWidth
                   autoComplete="given-name"
+                  disabled={isSubmitting}
                   sx={inputSx}
                 />
                 <TextField
@@ -151,6 +206,7 @@ const GetCare = () => {
                   required
                   fullWidth
                   autoComplete="family-name"
+                  disabled={isSubmitting}
                   sx={inputSx}
                 />
                 <TextField
@@ -160,6 +216,7 @@ const GetCare = () => {
                   required
                   fullWidth
                   autoComplete="email"
+                  disabled={isSubmitting}
                   sx={inputSx}
                 />
 
@@ -168,6 +225,7 @@ const GetCare = () => {
                     <Checkbox
                       checked={accepted}
                       onChange={(event) => setAccepted(event.target.checked)}
+                      disabled={isSubmitting}
                       sx={{
                         color: (t) => t.palette.custom.blue,
                         "&.Mui-checked": {
@@ -189,7 +247,7 @@ const GetCare = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  disabled={!accepted}
+                  disabled={!accepted || isSubmitting}
                   sx={{
                     mt: 0.5,
                     py: 1.2,
@@ -220,8 +278,13 @@ const GetCare = () => {
                     },
                   }}
                 >
-                  Join Waitlist
+                  {isSubmitting ? "Submitting..." : "Join Waitlist"}
                 </Button>
+                {feedback && (
+                  <Alert severity={feedback.type} sx={{ borderRadius: 2 }}>
+                    {feedback.message}
+                  </Alert>
+                )}
               </Stack>
             </Paper>
           </Grid>

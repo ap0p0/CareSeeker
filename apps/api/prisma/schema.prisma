@@ -24,6 +24,11 @@ enum ProviderVerificationStatus {
   REJECTED
 }
 
+enum PresignupType {
+  SEEKER
+  PROVIDER
+}
+
 /// Application-level user. Exists because Supabase auth.users only handles
 /// authentication (identity). Roles, verification, and app-specific state
 /// live here and are controlled server-side.
@@ -39,4 +44,21 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Presignup {
+  id       String        @id @default(cuid())
+  type     PresignupType
+  name     String
+  surname  String
+  email    String        @unique
+  state    String?
+  city     String?
+  phone    String?
+  accepted Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("presignups")
 }

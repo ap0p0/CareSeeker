@@ -10,6 +10,21 @@ export const env = {
       | string
       | undefined,
   },
+  apiBaseUrl: (() => {
+    const configured = import.meta.env.VITE_API_BASE_URL as string | undefined;
+    if (configured && configured.trim().length > 0) {
+      return configured.trim().replace(/\/+$/, "");
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname.includes("localhost")
+    ) {
+      return "http://localhost:2000";
+    }
+
+    return "";
+  })(),
   /**
    * Public base URL for the current deployment (e.g. https://client.careseeker.com).
    * Used for auth redirect URLs. Falls back to window.location.origin in browser.
