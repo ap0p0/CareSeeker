@@ -11,7 +11,9 @@ export const env = {
       | undefined,
   },
   apiBaseUrl: (() => {
-    const configured = import.meta.env.VITE_API_BASE_URL as string | undefined;
+    const configured =
+      (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+      (import.meta.env.VITE_API_URL as string | undefined);
     if (configured && configured.trim().length > 0) {
       return configured.trim().replace(/\/+$/, "");
     }
