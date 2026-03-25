@@ -12,9 +12,13 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1:3003',
   'http://localhost:3000',
   'https://admin.careseeker.app',
+  'https://www.admin.careseeker.app',
   'https://client.careseeker.app',
+  'https://www.client.careseeker.app',
   'https://provider.careseeker.app',
+  'https://www.provider.careseeker.app',
   'https://careseeker.app',
+  'https://www.careseeker.app',
 ];
 
 const readAllowedOrigins = () => {
