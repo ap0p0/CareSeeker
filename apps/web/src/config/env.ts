@@ -11,6 +11,7 @@ export const env = {
       | undefined,
   },
   apiBaseUrl: (() => {
+    const defaultProductionApiBaseUrl = "https://backend.careseeker.app";
     const configured =
       (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
       (import.meta.env.VITE_API_URL as string | undefined);
@@ -25,7 +26,7 @@ export const env = {
       return "http://localhost:2000";
     }
 
-    return "";
+    return defaultProductionApiBaseUrl;
   })(),
   /**
    * Public base URL for the current deployment (e.g. https://client.careseeker.com).

@@ -38,8 +38,17 @@ export class PresignupApiError extends Error {
   }
 }
 
-const buildApiUrl = (path: string) =>
-  `${env.apiBaseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+const buildApiUrl = (path: string) => {
+  const baseUrl = env.apiBaseUrl?.trim();
+  if (!baseUrl) {
+    throw new PresignupApiError(
+      "API endpoint is not configured. Please set VITE_API_BASE_URL for this deployment.",
+      "UNKNOWN_ERROR"
+    );
+  }
+
+  return `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
+};
 
 const parseErrorResponse = async (
   response: Response
