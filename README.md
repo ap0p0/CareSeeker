@@ -31,9 +31,9 @@ pnpm run build:admin
 
 Each command outputs to `apps/web/dist/`. `VITE_APP_VARIANT` is set by the build script.
 
-### Run all apps locally (subdomain-style)
+### Run all apps locally (fixed ports)
 
-To test cross-app flows, run all four variants at once with subdomain routing:
+To run all four web variants locally with fixed ports:
 
 ```bash
 pnpm start:all
@@ -42,10 +42,14 @@ pnpm start:all
 Then open:
 
 - http://localhost:3000 (core)
-- http://client.localhost:3000 (client)
-- http://provider.localhost:3000 (provider)
-- http://admin.localhost:3000 (admin)
+- http://localhost:3001 (admin)
+- http://localhost:3002 (provider)
+- http://localhost:3003 (client)
 
-`*.localhost` resolves to 127.0.0.1 on most systems. HMR works across all apps.
+Run backend API on port 2000:
+
+```bash
+pnpm start:api
+```
 
 See `TODO.md` for Vercel and deployment setup.
