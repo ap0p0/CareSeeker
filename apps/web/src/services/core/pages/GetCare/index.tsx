@@ -13,7 +13,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import getCareHeroImage from "../../../../assets/core-images/get-care-hero.png";
-import { PresignupApiError, submitSeekerPresignup } from "../../api/presignups";
+import { PresignupApiError } from "../../../../queries/presignupsShared";
+import { useSubmitSeekerPresignupMutation } from "../../../../queries/presignupsSeeker";
 
 const inputSx = {
   "& .MuiOutlinedInput-root": {
@@ -59,11 +60,13 @@ const backToHomeButtonSx = {
 
 const GetCare = () => {
   const [accepted, setAccepted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  const submitSeekerPresignupMutation = useSubmitSeekerPresignupMutation();
+  const isSubmitting = submitSeekerPresignupMutation.isPending;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,11 +87,10 @@ const GetCare = () => {
       return;
     }
 
-    setIsSubmitting(true);
     setFeedback(null);
 
     try {
-      await submitSeekerPresignup({
+      await submitSeekerPresignupMutation.mutateAsync({
         name,
         surname,
         email,
@@ -111,8 +113,6 @@ const GetCare = () => {
         type: "error",
         message: errorMessage,
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

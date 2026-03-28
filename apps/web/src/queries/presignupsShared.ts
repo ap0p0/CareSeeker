@@ -1,21 +1,4 @@
-import { env } from "../../../config/env";
-
-export type SeekerPresignupPayload = {
-  name: string;
-  surname: string;
-  email: string;
-  accepted: boolean;
-};
-
-export type ProviderPresignupPayload = {
-  name: string;
-  surname: string;
-  email: string;
-  state: string;
-  city: string;
-  phone?: string;
-  accepted: boolean;
-};
+import { env } from "../config/env";
 
 export type PresignupApiErrorCode =
   | "VALIDATION_ERROR"
@@ -38,7 +21,7 @@ export class PresignupApiError extends Error {
   }
 }
 
-const buildApiUrl = (path: string) => {
+export const buildPresignupsApiUrl = (path: string): string => {
   const baseUrl = env.apiBaseUrl?.trim();
   if (!baseUrl) {
     throw new PresignupApiError(
@@ -50,7 +33,7 @@ const buildApiUrl = (path: string) => {
   return `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
 };
 
-const parseErrorResponse = async (
+export const parsePresignupErrorResponse = async (
   response: Response
 ): Promise<PresignupApiError> => {
   let payload: unknown = null;
@@ -86,11 +69,11 @@ const parseErrorResponse = async (
   return new PresignupApiError(message, "UNKNOWN_ERROR");
 };
 
-const submitPresignup = async <TPayload>(
+export const postPresignup = async <TPayload>(
   path: string,
   payload: TPayload
 ): Promise<void> => {
-  const response = await fetch(buildApiUrl(path), {
+  const response = await fetch(buildPresignupsApiUrl(path), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -99,12 +82,6 @@ const submitPresignup = async <TPayload>(
   });
 
   if (!response.ok) {
-    throw await parseErrorResponse(response);
+    throw await parsePresignupErrorResponse(response);
   }
 };
-
-export const submitSeekerPresignup = (payload: SeekerPresignupPayload) =>
-  submitPresignup("/presignups/seeker", payload);
-
-export const submitProviderPresignup = (payload: ProviderPresignupPayload) =>
-  submitPresignup("/presignups/provider", payload);
