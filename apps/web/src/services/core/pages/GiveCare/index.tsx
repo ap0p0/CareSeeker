@@ -15,10 +15,8 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import providerWaitlistHeroImage from "../../../../assets/core-images/provider-waitlist-hero.png";
-import {
-  PresignupApiError,
-  submitProviderPresignup,
-} from "../../api/presignups";
+import { PresignupApiError } from "../../../../queries/presignupsShared";
+import { useSubmitProviderPresignupMutation } from "../../../../queries/presignupsProvider";
 
 const usStates = [
   "Alabama",
@@ -193,11 +191,13 @@ const GiveCare = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  const submitProviderPresignupMutation = useSubmitProviderPresignupMutation();
+  const isSubmitting = submitProviderPresignupMutation.isPending;
 
   const cityOptions = useMemo(
     () => (stateValue ? (stateCityOptions[stateValue] ?? []) : []),
@@ -312,11 +312,10 @@ const GiveCare = () => {
                   setIsSubmitted(true);
                   if (!canSubmit || isSubmitting) return;
 
-                  setIsSubmitting(true);
                   setFeedback(null);
 
                   try {
-                    await submitProviderPresignup({
+                    await submitProviderPresignupMutation.mutateAsync({
                       name: name.trim(),
                       surname: surname.trim(),
                       email: email.trim(),
@@ -349,8 +348,6 @@ const GiveCare = () => {
                       type: "error",
                       message: errorMessage,
                     });
-                  } finally {
-                    setIsSubmitting(false);
                   }
                 }}
               >

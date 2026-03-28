@@ -1,0 +1,19 @@
+---
+description: TanStack useQuery result destructuring aliases
+globs: apps/web/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TanStack Query — `useQuery` destructuring
+
+When calling a query hook (or assigning its return to `query`), destructure like this:
+
+```typescript
+const {
+  data: queryData,
+  isLoading: isLoadingQuery,
+  isError: isErrorQuery,
+} = query;
+```
+
+Use these aliases consistently: **`queryData`**, **`isLoadingQuery`**, **`isErrorQuery`**.
