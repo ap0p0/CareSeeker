@@ -27,5 +27,8 @@ export default defineConfig([
         tsconfigRootDir: __dirname,
       },
     },
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
   },
 ])

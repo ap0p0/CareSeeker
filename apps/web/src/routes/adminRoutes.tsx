@@ -1,38 +1,63 @@
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
 } from "react-router-dom";
-import { AdminRoute, ADMIN_ROUTE_PATHS } from "./enums";
-import AdminDashboard from "../services/admin/pages/AdminDashboard";
+import { ADMIN_ROUTE_PATHS, AdminRoute } from "./enums";
+import { RequireAdmin } from "../services/admin/auth";
+import AdminLayout from "../services/admin/layout/AdminLayout";
+import AdminLoginPage from "../services/admin/pages/AdminLogin";
 import AdminNotFound from "../services/admin/pages/NotFound";
-import PlaceholderPage from "../components/PlaceholderPage";
+import DashboardPage from "../services/admin/pages/Dashboard";
+import CareseekerOverviewPage from "../services/admin/pages/CareseekerOverview";
+import CareProviderOverviewPage from "../services/admin/pages/CareProviderOverview";
+import OpenJobsOverviewPage from "../services/admin/pages/OpenJobsOverview";
+import PaymentsHistoryPage from "../services/admin/pages/PaymentsHistory";
+import ReportsPage from "../services/admin/pages/Reports";
 
 export const adminRouter = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route index element={<AdminDashboard />} />
-      <Route
-        path={ADMIN_ROUTE_PATHS[AdminRoute.Clients]}
-        element={<PlaceholderPage title="Clients" />}
-      />
-      <Route
-        path={ADMIN_ROUTE_PATHS[AdminRoute.Providers]}
-        element={<PlaceholderPage title="Providers" />}
-      />
-      <Route
-        path={ADMIN_ROUTE_PATHS[AdminRoute.Agencies]}
-        element={<PlaceholderPage title="Agencies" />}
-      />
-      <Route
-        path={ADMIN_ROUTE_PATHS[AdminRoute.Contracts]}
-        element={<PlaceholderPage title="Contracts" />}
-      />
-      <Route
-        path={ADMIN_ROUTE_PATHS[AdminRoute.Settings]}
-        element={<PlaceholderPage title="Settings" />}
-      />
-      <Route path="*" element={<AdminNotFound />} />
+      <Route path="login" element={<AdminLoginPage />} />
+      <Route element={<RequireAdmin />}>
+        <Route element={<AdminLayout />}>
+          <Route
+            index
+            element={
+              <Navigate
+                to={ADMIN_ROUTE_PATHS[AdminRoute.Dashboard]}
+                replace
+              />
+            }
+          />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="careseekers" element={<CareseekerOverviewPage />} />
+          <Route path="care-providers" element={<CareProviderOverviewPage />} />
+          <Route path="open-jobs" element={<OpenJobsOverviewPage />} />
+          <Route
+            path="jobs"
+            element={
+              <Navigate
+                to={ADMIN_ROUTE_PATHS[AdminRoute.OpenJobs]}
+                replace
+              />
+            }
+          />
+          <Route path="payments-history" element={<PaymentsHistoryPage />} />
+          <Route
+            path="payments"
+            element={
+              <Navigate
+                to={ADMIN_ROUTE_PATHS[AdminRoute.PaymentsHistory]}
+                replace
+              />
+            }
+          />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="*" element={<AdminNotFound />} />
+        </Route>
+      </Route>
     </>
   )
 );

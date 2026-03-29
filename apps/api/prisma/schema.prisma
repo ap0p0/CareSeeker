@@ -33,12 +33,16 @@ enum PresignupType {
 /// authentication (identity). Roles, verification, and app-specific state
 /// live here and are controlled server-side.
 ///
-/// - id: Supabase auth.users.id (canonical user identifier)
+/// - id: Same UUID as Supabase auth.users.id (`@db.Uuid`). After migrating, run
+///   `prisma/manual/supabase_user_fk.sql` on Supabase to add FK → auth.users(id).
 /// - role: Application role; admin is NEVER self-assignable (enforced on create/update)
 /// - providerVerificationStatus: For providers only; null for seeker/admin
 model User {
-  id                         String                     @id // Supabase auth.users.id
+  id                         String                     @id @db.Uuid // auth.users.id
   email                      String
+  username                   String                     @unique
+  name                       String
+  surname                    String
   role                       UserRole                   @default(SEEKER)
   providerVerificationStatus ProviderVerificationStatus?
 
