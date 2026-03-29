@@ -22,10 +22,15 @@ export class UsersService {
     });
     if (existing) return existing;
 
+    const username = `u_${supabaseId.replace(/-/g, '')}`;
+
     return this.prisma.user.create({
       data: {
         id: supabaseId,
         email: email ?? `user-${supabaseId}@placeholder.local`,
+        username,
+        name: 'Unknown',
+        surname: 'User',
         role: UserRole.SEEKER,
         // providerVerificationStatus remains null; admin sets it for providers
       },

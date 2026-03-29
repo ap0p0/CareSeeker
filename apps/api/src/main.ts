@@ -1,16 +1,21 @@
-import 'dotenv/config';
+import './load-env';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1:3000',
+  'http://localhost:3000',
+  'http://admin.localhost:3000',
+  'http://client.localhost:3000',
+  'http://provider.localhost:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3001',
   'http://localhost:3002',
   'http://127.0.0.1:3002',
   'http://localhost:3003',
   'http://127.0.0.1:3003',
-  'http://localhost:3000',
+  'http://localhost:3004',
+  'http://127.0.0.1:3004',
   'https://admin.careseeker.app',
   'https://www.admin.careseeker.app',
   'https://client.careseeker.app',

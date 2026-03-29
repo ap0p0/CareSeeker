@@ -1,6 +1,7 @@
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
@@ -10,6 +11,7 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Box,
+  Button,
   Divider,
   IconButton,
   List,
@@ -25,9 +27,10 @@ import {
 import Grid from "@mui/material/Grid2";
 import { useTheme } from "@mui/material/styles";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ADMIN_ROUTE_PATHS, AdminRoute } from "../../../routes/enums";
+import { useAdminAuth } from "../auth";
 
 const STORAGE_KEY = "careseeker.admin.sidebarCollapsed";
 
@@ -80,6 +83,8 @@ const AdminLayout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const navigate = useNavigate();
+  const { signOut } = useAdminAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === "1";
@@ -95,6 +100,16 @@ const AdminLayout = () => {
       /* ignore */
     }
   }, [collapsed]);
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    try {
+      await signOut();
+      navigate("/login", { replace: true });
+    } finally {
+      setLoggingOut(false);
+    }
+  }, [navigate, signOut]);
 
   const bottomNavValue = useMemo(() => {
     const match = navItems.find(
@@ -207,7 +222,41 @@ const AdminLayout = () => {
               </IconButton>
             </Toolbar>
             <Divider />
-            <Box sx={{ flex: 1, overflow: "auto" }}>{navList}</Box>
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Box sx={{ flex: 1, overflow: "auto" }}>{navList}</Box>
+              <Divider />
+              <List dense disablePadding sx={{ py: 1 }}>
+                <ListItemButton
+                  onClick={() => void handleLogout()}
+                  disabled={loggingOut}
+                  sx={{ borderRadius: 1, mx: 0.5 }}
+                >
+                  <Tooltip
+                    title={collapsed ? "Log out" : ""}
+                    placement="right"
+                    disableHoverListener={!collapsed}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: collapsed ? 0 : 40,
+                        justifyContent: "center",
+                        mr: collapsed ? 0 : undefined,
+                      }}
+                    >
+                      <LogoutOutlinedIcon />
+                    </ListItemIcon>
+                  </Tooltip>
+                  {!collapsed ? <ListItemText primary="Log out" /> : null}
+                </ListItemButton>
+              </List>
+            </Box>
           </Grid>
         ) : null}
 
@@ -222,6 +271,27 @@ const AdminLayout = () => {
             pb: { xs: 10, md: 3 },
           }}
         >
+          {isMobile ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                mb: 1,
+              }}
+            >
+              <Button
+                size="small"
+                variant="outlined"
+                color="inherit"
+                startIcon={<LogoutOutlinedIcon />}
+                onClick={() => void handleLogout()}
+                disabled={loggingOut}
+              >
+                Log out
+              </Button>
+            </Box>
+          ) : null}
           <Outlet />
         </Grid>
       </Grid>

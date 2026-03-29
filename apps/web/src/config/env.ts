@@ -1,6 +1,9 @@
 /**
- * Environment configuration for Careseeker web app.
- * All values come from Vite env vars (no hardcoded secrets).
+ * CareSeeker web (Vite) — canonical env for staging/production (e.g. Vercel):
+ * `VITE_PUBLIC_BASE_URL`, `VITE_APP_VARIANT`, `VITE_SUPABASE_URL`,
+ * `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY`.
+ *
+ * Optional: `VITE_API_BASE_URL` / `VITE_API_URL` for API origin (see apiBaseUrl below).
  */
 
 export const env = {
@@ -35,4 +38,21 @@ export const env = {
   publicBaseUrl:
     (import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ??
     (typeof window !== "undefined" ? window.location.origin : undefined),
+  /**
+   * Core / marketing site for “back to home” from admin. Dev proxy serves it on :3000;
+   * production uses the public CareSeeker URL.
+   */
+  mainPlatformUrl: (() => {
+    if (typeof window === "undefined") {
+      return "https://careseeker.app";
+    }
+    const h = window.location.hostname;
+    if (h === "127.0.0.1") {
+      return "http://127.0.0.1:3000";
+    }
+    if (h === "localhost" || h.endsWith(".localhost")) {
+      return "http://localhost:3000";
+    }
+    return "https://careseeker.app";
+  })(),
 } as const;

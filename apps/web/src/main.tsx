@@ -6,6 +6,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme";
 import "./index.css";
 import App from "./App.tsx";
+import { getAppVariant } from "./config/appVariant";
+import { AdminAuthProvider } from "./services/admin/auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,10 +24,16 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <App />
-      </ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {getAppVariant() === "admin" ? (
+            <AdminAuthProvider>
+              <App />
+            </AdminAuthProvider>
+          ) : (
+            <App />
+          )}
+        </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 );

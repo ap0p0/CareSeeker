@@ -2,6 +2,13 @@
 
 CareSeeker is a two-sided care marketplace powered by AI, verification, and human advocacy — designed to connect care seekers and caregivers with unprecedented accuracy, safety, and dignity.
 
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [`apps/api`](./apps/api/README.md) | NestJS API — Prisma, PostgreSQL, Supabase JWT, `/me`, `/admin/me`, presignups |
+| [`apps/web`](./apps/web/README.md) | Vite + React — four variants (core, client, provider, **admin** with auth + guards) |
+
 ## Build and Deployment
 
 The web app (`apps/web`) is a single Vite + React codebase that ships four app variants via `VITE_APP_VARIANT`: `core` (careseeker.com), `client` (client.careseeker.com), `provider` (provider.careseeker.com), and `admin` (admin.careseeker.com). Each variant is built and deployed separately.
@@ -51,5 +58,7 @@ Run backend API on port 2000:
 ```bash
 pnpm start:api
 ```
+
+API setup and env vars: [`apps/api/README.md`](./apps/api/README.md). Web env and admin behavior: [`apps/web/README.md`](./apps/web/README.md).
 
 See `TODO.md` for Vercel and deployment setup.

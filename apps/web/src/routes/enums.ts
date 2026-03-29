@@ -35,7 +35,7 @@ export enum AdminRoute {
 }
 
 export const ADMIN_ROUTE_PATHS: Record<AdminRoute, string> = {
-  [AdminRoute.Dashboard]: "/",
+  [AdminRoute.Dashboard]: "/dashboard",
   [AdminRoute.Careseekers]: "/careseekers",
   [AdminRoute.CareProviders]: "/care-providers",
   [AdminRoute.OpenJobs]: "/open-jobs",
