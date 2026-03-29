@@ -27,20 +27,20 @@ export const BASE_ROUTE_PATHS: Record<BaseRoute, string> = {
 
 export enum AdminRoute {
   Dashboard = "dashboard",
-  Clients = "clients",
-  Providers = "providers",
-  Agencies = "agencies",
-  Contracts = "contracts",
-  Settings = "settings",
+  Careseekers = "careseekers",
+  CareProviders = "careProviders",
+  OpenJobs = "openJobs",
+  PaymentsHistory = "paymentsHistory",
+  Reports = "reports",
 }
 
 export const ADMIN_ROUTE_PATHS: Record<AdminRoute, string> = {
   [AdminRoute.Dashboard]: "/",
-  [AdminRoute.Clients]: "/clients",
-  [AdminRoute.Providers]: "/providers",
-  [AdminRoute.Agencies]: "/agencies",
-  [AdminRoute.Contracts]: "/contracts",
-  [AdminRoute.Settings]: "/settings",
+  [AdminRoute.Careseekers]: "/careseekers",
+  [AdminRoute.CareProviders]: "/care-providers",
+  [AdminRoute.OpenJobs]: "/open-jobs",
+  [AdminRoute.PaymentsHistory]: "/payments-history",
+  [AdminRoute.Reports]: "/reports",
 };
 
 // ─── Care Seeker Routes (client.careseeker.com/...) ──────────────────────────
