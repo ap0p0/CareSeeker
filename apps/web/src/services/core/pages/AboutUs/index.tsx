@@ -1,21 +1,19 @@
-import { Link } from "react-router-dom";
-import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
+import Typography from "@mui/material/Typography";
+import CoreSimplePageLayout from "../../components/CoreSimplePageLayout";
 
 const AboutUs = () => {
   return (
-    <div>
-      <nav>
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Home]}>Home</Link>
-        {" · "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.AboutUs]}>About</Link>
-        {" · "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Login]}>Login</Link>
-        {" · "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Register]}>Register</Link>
-      </nav>
-      <h1>About Us</h1>
-      <p>Learn more about Careseeker.</p>
-    </div>
+    <CoreSimplePageLayout
+      title="About CareSeeker"
+      description="CareSeeker helps families find trusted care and helps care professionals discover meaningful work."
+    >
+      <Typography sx={{ color: "text.secondary" }}>
+        We are building a simpler way to connect the right people at the right
+        time, with a thoughtful experience for both care seekers and care
+        providers.
+      </Typography>
+    </CoreSimplePageLayout>
   );
 };
+
 export default AboutUs;
