@@ -15,6 +15,7 @@ import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import getCareHeroImage from "../../../../assets/core-images/get-care-hero.png";
 import { PresignupApiError } from "../../../../queries/presignupsShared";
 import { useSubmitSeekerPresignupMutation } from "../../../../queries/presignupsSeeker";
+import CoreMenuButton from "../../components/CoreMenuButton";
 
 const inputSx = {
   "& .MuiOutlinedInput-root": {
@@ -128,6 +129,8 @@ const GetCare = () => {
       }}
     >
       <Container maxWidth="xl">
+        <CoreMenuButton sticky />
+
         <Grid
           container
           spacing={{ xs: 3, md: 4 }}

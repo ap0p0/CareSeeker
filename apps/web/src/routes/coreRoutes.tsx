@@ -7,6 +7,7 @@ import { BaseRoute, BASE_ROUTE_PATHS } from "./enums";
 import AboutUs from "../services/core/pages/AboutUs";
 import GetCare from "../services/core/pages/GetCare";
 import GiveCare from "../services/core/pages/GiveCare";
+import Pricing from "../services/core/pages/Pricing";
 import Login from "../services/core/pages/Login";
 import Register from "../services/core/pages/Register";
 import CoreNotFound from "../services/core/pages/NotFound";
@@ -21,6 +22,7 @@ export const coreRouter = createBrowserRouter(
         path={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
         element={<GiveCare />}
       />
+      <Route path={BASE_ROUTE_PATHS[BaseRoute.Pricing]} element={<Pricing />} />
       <Route path={BASE_ROUTE_PATHS[BaseRoute.Login]} element={<Login />} />
       <Route
         path={BASE_ROUTE_PATHS[BaseRoute.Register]}

@@ -1,25 +1,32 @@
-import { Link } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Link from "@mui/material/Link";
+import { Link as RouterLink } from "react-router-dom";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
+import CoreSimplePageLayout from "../../components/CoreSimplePageLayout";
 
 const Login = () => {
   return (
-    <div>
-      <nav>
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Home]}>Home</Link>
-        {" · "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.AboutUs]}>About</Link>
-        {" · "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Login]}>Login</Link>
-        {" · "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Register]}>Register</Link>
-      </nav>
-      <h1>Login</h1>
-      <p>Sign in to your account.</p>
-      <p>
-        Don&apos;t have an account?{" "}
-        <Link to={BASE_ROUTE_PATHS[BaseRoute.Register]}>Register</Link>
-      </p>
-    </div>
+    <CoreSimplePageLayout
+      title="Login"
+      description="Sign in to your CareSeeker account."
+    >
+      <Box sx={{ color: "text.secondary" }}>
+        Don&apos;t have an account yet?{" "}
+        <Link
+          component={RouterLink}
+          to={BASE_ROUTE_PATHS[BaseRoute.Register]}
+          sx={{
+            color: "primary.main",
+            fontWeight: 600,
+            textDecoration: "none",
+            "&:hover": { textDecoration: "underline" },
+          }}
+        >
+          Register
+        </Link>
+      </Box>
+    </CoreSimplePageLayout>
   );
 };
+
 export default Login;

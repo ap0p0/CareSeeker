@@ -6,6 +6,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
 import { scrollButtonDockSx } from "./sectionButtonStyles";
 import homeHeroCaregiving from "../../../../../assets/core-images/home-hero-caregiving.png";
+import CoreMenuButton from "../../../components/CoreMenuButton";
 
 type HeroSectionProps = {
   onNext?: () => void; // optional to avoid strict errors
@@ -55,19 +56,7 @@ const HeroSection = ({ onNext }: HeroSectionProps) => {
         >
           📍 CareSeeker
         </Button>
-        <Button
-          component={RouterLink}
-          to={BASE_ROUTE_PATHS[BaseRoute.Login]}
-          variant="contained"
-          sx={{
-            bgcolor: "#93c5fd",
-            color: "text.primary",
-            fontWeight: 600,
-            "&:hover": { bgcolor: "#7dd3fc" },
-          }}
-        >
-          Menu
-        </Button>
+        <CoreMenuButton sticky />
       </Box>
 
       <Box

@@ -17,6 +17,7 @@ import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import providerWaitlistHeroImage from "../../../../assets/core-images/provider-waitlist-hero.png";
 import { PresignupApiError } from "../../../../queries/presignupsShared";
 import { useSubmitProviderPresignupMutation } from "../../../../queries/presignupsProvider";
+import CoreMenuButton from "../../components/CoreMenuButton";
 
 const usStates = [
   "Alabama",
@@ -238,6 +239,8 @@ const GiveCare = () => {
       }}
     >
       <Container maxWidth="lg">
+        <CoreMenuButton sticky />
+
         <Grid
           container
           spacing={{ xs: 3, md: 2.25 }}
