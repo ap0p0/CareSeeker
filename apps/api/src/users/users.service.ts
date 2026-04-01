@@ -12,6 +12,25 @@ import { UserRole } from '../../generated/prisma/client.js';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
+  private buildDefaultSeekerData(supabaseId: string, email?: string) {
+    const username = `u_${supabaseId.replace(/-/g, '')}`;
+
+    return {
+      id: supabaseId,
+      email: email ?? `user-${supabaseId}@placeholder.local`,
+      username,
+      name: 'Unknown',
+      surname: 'User',
+      role: UserRole.SEEKER,
+    };
+  }
+
+  async createDefaultSeekerUser(supabaseId: string, email?: string) {
+    return this.prisma.user.create({
+      data: this.buildDefaultSeekerData(supabaseId, email),
+    });
+  }
+
   /**
    * Find user by Supabase id, or create with default role SEEKER.
    * Admin is never assigned on create.
@@ -22,18 +41,6 @@ export class UsersService {
     });
     if (existing) return existing;
 
-    const username = `u_${supabaseId.replace(/-/g, '')}`;
-
-    return this.prisma.user.create({
-      data: {
-        id: supabaseId,
-        email: email ?? `user-${supabaseId}@placeholder.local`,
-        username,
-        name: 'Unknown',
-        surname: 'User',
-        role: UserRole.SEEKER,
-        // providerVerificationStatus remains null; admin sets it for providers
-      },
-    });
+    return this.createDefaultSeekerUser(supabaseId, email);
   }
 }

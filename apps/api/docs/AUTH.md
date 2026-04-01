@@ -5,6 +5,7 @@
 - **Supabase** handles authentication (sign-in, tokens, password reset).
 - **Backend** provides application user context (role, verification state).
 - **Frontend** gets context via `GET /me` with `Authorization: Bearer <token>`.
+- **Client registration** may also go through the backend so the auth user and app `User` row are created together.
 
 ## Application User Model
 
@@ -25,6 +26,18 @@ The `User` table stores application-level state that Supabase `auth.users` does 
 **Link to `auth.users`:** `User.id` is the same UUID as `auth.users.id`. The column is stored as PostgreSQL `uuid` so it can match Supabase’s type. Optionally, add a real foreign key on Supabase (not applied by Prisma’s shadow DB): run [`prisma/manual/supabase_user_fk.sql`](../prisma/manual/supabase_user_fk.sql) in the Supabase SQL Editor after migrations. That enforces `User.id` → `auth.users(id)` with `ON DELETE CASCADE` (deleting the auth user removes the app row).
 
 **Admin is never self-assignable:** New users default to `SEEKER`. Only existing admins (or migrations) can set `role = ADMIN`.
+
+## Client Registration
+
+`POST /seeker/register` creates:
+
+1. A new Supabase auth user
+2. A matching `User` row with the same UUID
+3. `role = SEEKER`
+
+This endpoint uses `SUPABASE_SECRET_KEY` on the backend (or legacy
+`SUPABASE_SERVICE_ROLE_KEY`) so the auth row and the app row stay in sync from
+the start, rather than waiting for first login.
 
 ## Authentication Guard
 
@@ -64,6 +77,8 @@ The `User` table stores application-level state that Supabase `auth.users` does 
 - `DATABASE_URL` — PostgreSQL connection string
 - `SUPABASE_JWT_SECRET` — Used when access tokens are signed with **HS256** (legacy “JWT Secret” in Project Settings → API).
 - `SUPABASE_URL` — Project URL, e.g. `https://<ref>.supabase.co`. **Required** when Supabase issues **asymmetric** JWTs (JWT signing keys / ES256): verification uses `{SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
+- `SUPABASE_SECRET_KEY` — Required for backend-managed signup like `POST /seeker/register`.
+- `SUPABASE_SERVICE_ROLE_KEY` — Legacy fallback name supported for compatibility.
 
 The API loads `.env` from **`apps/api/.env`** even when the process `cwd` is the monorepo root (see `src/load-env.ts`). If you still see **401** with a fresh ES256 token, set **`AUTH_DEBUG=true`** on the API and check the server log for the underlying `jose` error (e.g. wrong `SUPABASE_URL` / wrong project vs token `iss`).
 

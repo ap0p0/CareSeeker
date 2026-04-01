@@ -10,6 +10,8 @@ NestJS REST API with **Prisma** (PostgreSQL), **Supabase JWT** verification, and
   - `GET /health` — liveness.
   - `GET /me` — current app user (requires valid Bearer token). JSON: `id`, `role`, `providerVerificationStatus`.
   - `GET /admin/me` — same user shape but **403** unless `role === admin`; **source of truth** for admin-app access (see admin frontend).
+  - `POST /seeker/register` — creates a Supabase auth user and matching `User` row with role `SEEKER`.
+  - `GET /seeker/me` — same user shape but **403** unless `role === seeker`; source of truth for client-app access.
   - `POST /presignups/seeker` — care seeker presignup (public).
   - `POST /presignups/provider` — care provider presignup (public).
 - **CORS:** Configurable via `CORS_ORIGINS`; defaults include local dev ports and `careseeker.app` / `admin.careseeker.app` style hosts.
@@ -25,6 +27,8 @@ Create and edit **`apps/api/.env`** (gitignored). These are the variables **this
 | `DATABASE_URL` | Yes | PostgreSQL URL for Prisma. |
 | `SUPABASE_JWT_SECRET` | Yes* | Verifies **HS256** access tokens (legacy “JWT Secret” under API settings). **Not** the anon/publishable key. |
 | `SUPABASE_URL` | Yes* | `https://<project-ref>.supabase.co` — required to verify **asymmetric** JWTs (JWKS). Use the same project as Auth. |
+| `SUPABASE_SECRET_KEY` | For `POST /seeker/register` | Supabase secret key (`sb_secret_...`) used by the API to create auth users. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Legacy fallback | Older service-role key name still accepted by the backend for compatibility. |
 | `PORT` | No | HTTP port (default **2000**). |
 | `CORS_ORIGINS` | No | Comma-separated extra allowed origins. |
 

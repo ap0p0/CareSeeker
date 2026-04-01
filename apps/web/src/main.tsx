@@ -8,6 +8,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { getAppVariant } from "./config/appVariant";
 import { AdminAuthProvider } from "./services/admin/auth";
+import { ClientAuthProvider } from "./services/client/auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,19 +22,25 @@ const queryClient = new QueryClient({
   },
 });
 
+const appVariant = getAppVariant();
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {getAppVariant() === "admin" ? (
-            <AdminAuthProvider>
-              <App />
-            </AdminAuthProvider>
-          ) : (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {appVariant === "admin" ? (
+          <AdminAuthProvider>
             <App />
-          )}
-        </ThemeProvider>
+          </AdminAuthProvider>
+        ) : appVariant === "client" ? (
+          <ClientAuthProvider>
+            <App />
+          </ClientAuthProvider>
+        ) : (
+          <App />
+        )}
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 );

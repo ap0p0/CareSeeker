@@ -1,9 +1,12 @@
+import ClientPageHeader from "../components/ClientPageHeader";
+
 const NotFound = () => {
   return (
-    <div>
-      <h1>404</h1>
-      <p>Page not found.</p>
-    </div>
+    <ClientPageHeader
+      title="Page not found"
+      description="This page does not exist in the client dashboard yet."
+    />
   );
 };
+
 export default NotFound;
