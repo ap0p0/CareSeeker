@@ -1,48 +1,87 @@
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
 } from "react-router-dom";
 import { SeekerRoute, SEEKER_ROUTE_PATHS } from "./enums";
+import { RequireClient } from "../services/client/auth";
 import ClientDashboard from "../services/client/pages/ClientDashboard";
+import ClientLayout from "../services/client/layout/ClientLayout";
+import ClientLoginPage from "../services/client/pages/Login";
 import ClientNotFound from "../services/client/pages/NotFound";
-import PlaceholderPage from "../components/PlaceholderPage";
+import ClientRegisterPage from "../services/client/pages/Register";
+import ClientSectionPage from "../services/client/pages/ClientSectionPage";
 
 export const clientRouter = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route index element={<ClientDashboard />} />
       <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.ActiveJobs]}
-        element={<PlaceholderPage title="Active Jobs" />}
+        path={SEEKER_ROUTE_PATHS[SeekerRoute.Login]}
+        element={<ClientLoginPage />}
       />
       <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.CreateNewJob]}
-        element={<PlaceholderPage title="Create New Job" />}
+        path={SEEKER_ROUTE_PATHS[SeekerRoute.Register]}
+        element={<ClientRegisterPage />}
       />
+      <Route element={<RequireClient />}>
+        <Route element={<ClientLayout />}>
+          <Route index element={<ClientDashboard />} />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.Overview]}
+            element={<ClientDashboard />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.Jobs]}
+            element={<ClientSectionPage title="Open Jobs" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.NewJob]}
+            element={<ClientSectionPage title="Add New Job" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.History]}
+            element={<ClientSectionPage title="History" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.SavedProviders]}
+            element={<ClientSectionPage title="Saved Providers" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.Explore]}
+            element={<ClientSectionPage title="Explore" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.Notifications]}
+            element={<ClientSectionPage title="Notifications" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.Messages]}
+            element={<ClientSectionPage title="Messaging" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.ReviewsRatings]}
+            element={<ClientSectionPage title="Reviews & Ratings" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.SubscriptionsPayments]}
+            element={<ClientSectionPage title="Subscription & Payments" />}
+          />
+          <Route
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.MyAccount]}
+            element={<ClientSectionPage title="My Account" />}
+          />
+          <Route path="*" element={<ClientNotFound />} />
+        </Route>
+      </Route>
       <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.FindProviders]}
-        element={<PlaceholderPage title="Browse Care Providers" />}
-      />
-      <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.PastJobs]}
-        element={<PlaceholderPage title="Past Jobs" />}
-      />
-      <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.MyProfile]}
-        element={<PlaceholderPage title="My Profile" />}
-      />
-      <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.MyProfilePaymentInfo]}
-        element={<PlaceholderPage title="Payment Info" />}
-      />
-      <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.MyProfileTransactions]}
-        element={<PlaceholderPage title="Transactions" />}
-      />
-      <Route
-        path={SEEKER_ROUTE_PATHS[SeekerRoute.MyProfileEdit]}
-        element={<PlaceholderPage title="Edit Profile" />}
+        path="dashboard"
+        element={
+          <Navigate
+            to={SEEKER_ROUTE_PATHS[SeekerRoute.Dashboard]}
+            replace
+          />
+        }
       />
       <Route path="*" element={<ClientNotFound />} />
     </>

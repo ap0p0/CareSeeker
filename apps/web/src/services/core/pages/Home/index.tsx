@@ -54,7 +54,7 @@ const Home = () => {
         return;
       }
 
-      const threshold = 20;
+      const threshold = 5;
       if (Math.abs(e.deltaY) < threshold) return;
 
       e.preventDefault();

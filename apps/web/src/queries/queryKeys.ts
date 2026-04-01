@@ -1,4 +1,10 @@
 export const queryKeys = {
+  clientAuth: {
+    all: ["clientAuth"] as const,
+    login: () => [...queryKeys.clientAuth.all, "login"] as const,
+    register: () => [...queryKeys.clientAuth.all, "register"] as const,
+    seekerMe: () => [...queryKeys.clientAuth.all, "seekerMe"] as const,
+  },
   presignups: {
     all: ["presignups"] as const,
     seeker: () => [...queryKeys.presignups.all, "seeker"] as const,

@@ -1,9 +1,7 @@
+import ClientPageHeader from "../components/ClientPageHeader";
+
 const ClientDashboard = () => {
-  return (
-    <div>
-      <h1>Client Dashboard</h1>
-      <p>Welcome to Careseeker Client.</p>
-    </div>
-  );
+  return <ClientPageHeader title="Overview" />;
 };
+
 export default ClientDashboard;
