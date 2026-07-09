@@ -4,14 +4,14 @@ import {
   Route,
 } from "react-router-dom";
 import { BaseRoute, BASE_ROUTE_PATHS } from "./enums";
-import AboutUs from "../services/core/pages/AboutUs";
-import GetCare from "../services/core/pages/GetCare";
-import GiveCare from "../services/core/pages/GiveCare";
-import Pricing from "../services/core/pages/Pricing";
-import Login from "../services/core/pages/Login";
-import Register from "../services/core/pages/Register";
-import CoreNotFound from "../services/core/pages/NotFound";
-import Home from "../services/core/pages/Home";
+import AboutUs from "../services/core/pages/AboutUs/AboutUs";
+import GetCare from "../services/core/pages/GetCare/GetCare";
+import GiveCare from "../services/core/pages/GiveCare/GiveCare";
+import Pricing from "../services/core/pages/Pricing/Pricing";
+import Login from "../services/core/pages/Login/Login";
+import Register from "../services/core/pages/Register/Register";
+import CoreNotFound from "../services/core/pages/NotFound/NotFound";
+import Home from "../services/core/pages/Home/Home";
 export const coreRouter = createBrowserRouter(
   createRoutesFromElements(
     <>

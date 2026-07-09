@@ -8,9 +8,9 @@ import { SeekerRoute, SEEKER_ROUTE_PATHS } from "./enums";
 import { RequireClient } from "../services/client/auth";
 import ClientDashboard from "../services/client/pages/ClientDashboard";
 import ClientLayout from "../services/client/layout/ClientLayout";
-import ClientLoginPage from "../services/client/pages/Login";
+import ClientLoginPage from "../services/client/pages/Login/ClientLogin";
 import ClientNotFound from "../services/client/pages/NotFound";
-import ClientRegisterPage from "../services/client/pages/Register";
+import ClientRegisterPage from "../services/client/pages/Register/ClientRegister";
 import ClientSectionPage from "../services/client/pages/ClientSectionPage";
 
 export const clientRouter = createBrowserRouter(
