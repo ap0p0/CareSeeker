@@ -7,14 +7,14 @@ import {
 import { ADMIN_ROUTE_PATHS, AdminRoute } from "./enums";
 import { RequireAdmin } from "../services/admin/auth";
 import AdminLayout from "../services/admin/layout/AdminLayout";
-import AdminLoginPage from "../services/admin/pages/AdminLogin";
+import AdminLoginPage from "../services/admin/pages/AdminLogin/AdminLogin";
 import AdminNotFound from "../services/admin/pages/NotFound";
-import DashboardPage from "../services/admin/pages/Dashboard";
-import CareseekerOverviewPage from "../services/admin/pages/CareseekerOverview";
-import CareProviderOverviewPage from "../services/admin/pages/CareProviderOverview";
-import OpenJobsOverviewPage from "../services/admin/pages/OpenJobsOverview";
-import PaymentsHistoryPage from "../services/admin/pages/PaymentsHistory";
-import ReportsPage from "../services/admin/pages/Reports";
+import DashboardPage from "../services/admin/pages/Dashboard/Dashboard";
+import CareseekerOverviewPage from "../services/admin/pages/CareseekerOverview/CareseekerOverview";
+import CareProviderOverviewPage from "../services/admin/pages/CareProviderOverview/CareProviderOverview";
+import OpenJobsOverviewPage from "../services/admin/pages/OpenJobsOverview/OpenJobsOverview";
+import PaymentsHistoryPage from "../services/admin/pages/PaymentsHistory/PaymentsHistory";
+import ReportsPage from "../services/admin/pages/Reports/Reports";
 
 export const adminRouter = createBrowserRouter(
   createRoutesFromElements(

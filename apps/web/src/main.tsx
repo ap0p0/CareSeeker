@@ -9,6 +9,7 @@ import App from "./App.tsx";
 import { getAppVariant } from "./config/appVariant";
 import { AdminAuthProvider } from "./services/admin/auth";
 import { ClientAuthProvider } from "./services/client/auth";
+import { ProviderAuthProvider } from "./services/provider/auth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,10 @@ createRoot(document.getElementById("root")!).render(
           <ClientAuthProvider>
             <App />
           </ClientAuthProvider>
+        ) : appVariant === "provider" ? (
+          <ProviderAuthProvider>
+            <App />
+          </ProviderAuthProvider>
         ) : (
           <App />
         )}

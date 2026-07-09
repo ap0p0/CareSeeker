@@ -1,54 +1,36 @@
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
-import { Box, Button, CircularProgress, Stack, TextField } from "@mui/material";
+import { useState } from "react";
+import { Button, Stack, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../../routes/enums";
-import { supabase } from "../../../../supabase/supabase";
+import { useSignInProviderMutation } from "../../../../queries/providerAuth";
+import {
+  ProviderAuthLoadingScreen,
+  useProviderAuth,
+} from "../../auth";
 import ProviderAuthLayout from "../../components/ProviderAuthLayout";
 import {
-  hasProviderMockSession,
   isProviderDevMockEnabled,
   setProviderMockSession,
 } from "../../auth/providerDevAuth";
 
 const ProviderLoginPage = () => {
   const navigate = useNavigate();
-  const [checkingSession, setCheckingSession] = useState(true);
-  const [hasSession, setHasSession] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    initialized,
+    providerUser,
+    accessDeniedMessage,
+    clearAccessDeniedMessage,
+    verifyProviderGateFromSession,
+  } = useProviderAuth();
+  const signInMutation = useSignInProviderMutation();
   const [formError, setFormError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled) {
-        setHasSession(Boolean(data.session) || hasProviderMockSession());
-        setCheckingSession(false);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (checkingSession) {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
-        role="status"
-        aria-busy="true"
-      >
-        <CircularProgress aria-label="Loading" />
-      </Box>
-    );
+  if (!initialized) {
+    return <ProviderAuthLoadingScreen />;
   }
 
-  if (hasSession) {
+  if (providerUser) {
     return (
       <Navigate to={PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard]} replace />
     );
@@ -57,32 +39,47 @@ const ProviderLoginPage = () => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
-    setSubmitting(true);
-
+    clearAccessDeniedMessage();
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("email") ?? "");
     const password = String(formData.get("password") ?? "");
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+      await signInMutation.mutateAsync({
+        email,
         password,
       });
 
-      if (error) {
-        setFormError(error.message);
+      const outcome = await verifyProviderGateFromSession();
+
+      if (outcome === "provider") {
+        navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], {
+          replace: true,
+        });
         return;
       }
 
-      navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], { replace: true });
-    } finally {
-      setSubmitting(false);
+      if (outcome === "unauthorized") {
+        setFormError("Sign-in did not return a valid session. Please try again.");
+        return;
+      }
+
+      if (outcome === "no_session") {
+        setFormError("Sign-in did not return a session. Please try again.");
+        return;
+      }
+    } catch {
+      return;
     }
   };
 
   const handleMockLogin = () => {
     setProviderMockSession();
-    navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], { replace: true });
+    void verifyProviderGateFromSession().then((outcome) => {
+      if (outcome === "provider") {
+        navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], { replace: true });
+      }
+    });
   };
 
   return (
@@ -90,7 +87,9 @@ const ProviderLoginPage = () => {
       title="Provider Login"
       description="Sign in to manage your care jobs, profile, and earnings."
       footerMode="login"
-      formError={formError}
+      formError={
+        formError ?? signInMutation.error?.message ?? accessDeniedMessage
+      }
     >
       <Stack component="form" spacing={2} onSubmit={handleSubmit}>
         <TextField
@@ -100,7 +99,7 @@ const ProviderLoginPage = () => {
           autoComplete="email"
           required
           fullWidth
-          disabled={submitting}
+          disabled={signInMutation.isPending}
         />
         <TextField
           label="Password"
@@ -109,17 +108,17 @@ const ProviderLoginPage = () => {
           autoComplete="current-password"
           required
           fullWidth
-          disabled={submitting}
+          disabled={signInMutation.isPending}
         />
 
         <Button
           type="submit"
           variant="contained"
           size="large"
-          disabled={submitting}
+          disabled={signInMutation.isPending}
           sx={{ borderRadius: 999, textTransform: "none", fontWeight: 700 }}
         >
-          {submitting ? "Signing in..." : "Sign in"}
+          {signInMutation.isPending ? "Signing in..." : "Sign in"}
         </Button>
 
         {isProviderDevMockEnabled ? (

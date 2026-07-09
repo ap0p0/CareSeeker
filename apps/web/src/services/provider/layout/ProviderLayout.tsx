@@ -34,7 +34,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../routes/enums";
-import { supabase } from "../../../supabase/supabase";
+import { useProviderAuth } from "../auth";
 import { clearProviderMockSession } from "../auth/providerDevAuth";
 
 const STORAGE_KEY = "careseeker.provider.sidebarCollapsed";
@@ -115,6 +115,7 @@ const ProviderLayout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const navigate = useNavigate();
+  const { signOut } = useProviderAuth();
   const [loggingOut, setLoggingOut] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     try {
@@ -136,12 +137,12 @@ const ProviderLayout = () => {
     setLoggingOut(true);
     try {
       clearProviderMockSession();
-      await supabase.auth.signOut();
+      await signOut();
       navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Login], { replace: true });
     } finally {
       setLoggingOut(false);
     }
-  }, [navigate]);
+  }, [navigate, signOut]);
 
   const isNavItemActive = useCallback(
     (route: ProviderRoute) => {

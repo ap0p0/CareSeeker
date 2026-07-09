@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRole } from '../../generated/prisma/client.js';
+import {
+  ProviderVerificationStatus,
+  UserRole,
+} from '../../generated/prisma/client.js';
 
 /**
  * Application user service. Handles user creation and lookup.
@@ -28,6 +31,26 @@ export class UsersService {
   async createDefaultSeekerUser(supabaseId: string, email?: string) {
     return this.prisma.user.create({
       data: this.buildDefaultSeekerData(supabaseId, email),
+    });
+  }
+
+  private buildDefaultProviderData(supabaseId: string, email?: string) {
+    const username = `u_${supabaseId.replace(/-/g, '')}`;
+
+    return {
+      id: supabaseId,
+      email: email ?? `user-${supabaseId}@placeholder.local`,
+      username,
+      name: 'Unknown',
+      surname: 'User',
+      role: UserRole.PROVIDER,
+      providerVerificationStatus: ProviderVerificationStatus.PENDING,
+    };
+  }
+
+  async createDefaultProviderUser(supabaseId: string, email?: string) {
+    return this.prisma.user.create({
+      data: this.buildDefaultProviderData(supabaseId, email),
     });
   }
 

@@ -1,53 +1,41 @@
 import type { FormEvent } from "react";
-import { useEffect, useState } from "react";
-import { Box, Button, CircularProgress, Stack, TextField } from "@mui/material";
+import { useState } from "react";
+import { Button, Stack, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../../routes/enums";
-import { supabase } from "../../../../supabase/supabase";
+import {
+  useRegisterProviderMutation,
+  useSignInProviderMutation,
+} from "../../../../queries/providerAuth";
+import {
+  ProviderAuthLoadingScreen,
+  useProviderAuth,
+} from "../../auth";
 import ProviderAuthLayout from "../../components/ProviderAuthLayout";
 
 const ProviderRegisterPage = () => {
   const navigate = useNavigate();
-  const [checkingSession, setCheckingSession] = useState(true);
-  const [hasSession, setHasSession] = useState(false);
+  const {
+    initialized,
+    providerUser,
+    accessDeniedMessage,
+    clearAccessDeniedMessage,
+    verifyProviderGateFromSession,
+  } = useProviderAuth();
+  const registerMutation = useRegisterProviderMutation();
+  const signInMutation = useSignInProviderMutation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const submitting = registerMutation.isPending || signInMutation.isPending;
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled) {
-        setHasSession(Boolean(data.session));
-        setCheckingSession(false);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (checkingSession) {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
-        role="status"
-        aria-busy="true"
-      >
-        <CircularProgress aria-label="Loading" />
-      </Box>
-    );
+  if (!initialized) {
+    return <ProviderAuthLoadingScreen />;
   }
 
-  if (hasSession) {
+  if (providerUser) {
     return (
       <Navigate to={PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard]} replace />
     );
@@ -57,41 +45,53 @@ const ProviderRegisterPage = () => {
     event.preventDefault();
     setFormError(null);
     setStatusMessage(null);
+    clearAccessDeniedMessage();
 
     if (password !== confirmPassword) {
       setFormError("Passwords do not match.");
       return;
     }
 
-    setSubmitting(true);
-
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      await registerMutation.mutateAsync({
         email: email.trim(),
         password,
       });
 
-      if (signUpError) {
-        setFormError(signUpError.message);
+      try {
+        await signInMutation.mutateAsync({
+          email: email.trim(),
+          password,
+        });
+      } catch {
+        setStatusMessage(
+          "Your account was created. Please sign in to continue."
+        );
         return;
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const outcome = await verifyProviderGateFromSession();
 
-      if (signInError) {
-        setStatusMessage(
-          "Your account was created. Please sign in to continue."
+      if (outcome === "provider") {
+        navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], {
+          replace: true,
+        });
+        return;
+      }
+
+      if (outcome === "unauthorized" || outcome === "no_session") {
+        setFormError(
+          "Your account was created, but we could not verify the session. Please sign in."
         );
         navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Login], { replace: true });
         return;
       }
 
-      navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], { replace: true });
-    } finally {
-      setSubmitting(false);
+      setStatusMessage("Your account was created. Please sign in to continue.");
+    } catch (error) {
+      if (error instanceof Error) {
+        setFormError(error.message);
+      }
     }
   };
 
@@ -100,7 +100,12 @@ const ProviderRegisterPage = () => {
       title="Provider Register"
       description="Create your provider account to start browsing and accepting care jobs."
       footerMode="register"
-      formError={formError}
+      formError={
+        formError ??
+        registerMutation.error?.message ??
+        signInMutation.error?.message ??
+        accessDeniedMessage
+      }
       statusMessage={statusMessage}
     >
       <Stack component="form" spacing={2} onSubmit={handleSubmit}>
