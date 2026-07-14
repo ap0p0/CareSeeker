@@ -53,8 +53,8 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
       <Box sx={{ width: "100%" }}>
         <Container maxWidth="md">
           <Typography
-            variant="h3"
-            fontWeight={500}
+            variant="h5"
+            fontWeight={400}
             textAlign="center"
             sx={{ color: (t) => t.palette.custom.blue }}
           >
@@ -66,7 +66,7 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
           <Typography
             color="text.secondary"
             textAlign="center"
-            sx={{ maxWidth: 680, mx: "auto", my: 2.25, fontSize: "0.95rem" }}
+            sx={{ maxWidth: 700, mx: "auto", my: 2.25, fontSize: "16px" }}
           >
             CareSeeker matches families and trusted, skilled caregivers based on
             real compatibility — so you can choose with confidence.
@@ -77,8 +77,11 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "center",
-              gap: 2,
-              mb: { xs: 4.5, md: 6 },
+              gap: {
+                xs: 18,
+                md: 22,
+              },
+              mb: { xs: 20, md: 24 },
             }}
           >
             <Button
@@ -87,16 +90,34 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
               variant="contained"
               sx={{
                 ...howItWorksCtaBaseSx,
+                textDecoration: "none !important",
+                fontWeight: "normal",
                 bgcolor: "#b89fc1",
+
+                fontSize: "16px",   
+                
+                minWidth: {
+                  xs: "160px",
+                  sm: "190px",
+                  md: "220px",
+                },
+
+                  height: {
+                    xs: "45px",
+                    md: "50px",
+                  },
+
+                borderRadius: "25px",
                 "&:hover": {
                   bgcolor: "#a58cad",
                   transform: "scale(1.05)",
                   color: "#000",
-                  textDecoration: "underline",
+                  textDecoration: "none !important",
                   boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
+                  fontWeight: "normal",
                 },
               }}
-              size="large"
+              
             >
               Find Care
             </Button>
@@ -104,16 +125,36 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
               component={RouterLink}
               to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
               variant="contained"
-              size="large"
+            
               sx={{
                 ...howItWorksCtaBaseSx,
+                textDecoration: "none !important",
+                fontWeight: "normal",
                 bgcolor: "#5ea6d4",
-                "&:hover": {
+
+                fontSize: "16px",
+
+                minWidth: {
+                  xs: "160px",
+                  sm: "190px",
+                  md: "220px",
+                },
+
+                height: {
+                  xs: "45px",
+                  md: "50px",
+                },
+
+                borderRadius: "25px",
+
+
+                 "&:hover": {
                   bgcolor: "#4b94c3",
                   transform: "scale(1.05)",
                   color: "#000",
-                  textDecoration: "underline",
+                  textDecoration: "none !important",
                   boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
+                  fontWeight: "normal",
                 },
               }}
             >
@@ -138,14 +179,14 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
             </Box>
           </Typography>
 
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid container spacing={{ xs: 2, sm: 4, md: 8 }} sx={{ mb: 3 }}>
             {steps.map((step) => (
               <Grid key={step.number} size={{ xs: 12, sm: 4 }}>
                 <Card
                   elevation={0}
                   sx={{
                     height: "100%",
-                    borderRadius: 4,
+                    borderRadius: 2,
                     bgcolor: (t) => t.palette.custom.pink,
                   }}
                 >
@@ -159,7 +200,7 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
                     <Typography
                       variant="h4"
                       fontWeight={600}
-                      sx={{ lineHeight: 1, mb: 1, color: "white" }}
+                      sx={{ lineHeight: 1, mb: 1, color: "dark" }}
                     >
                       {step.number}
                     </Typography>
@@ -171,7 +212,7 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
                       {step.title}
                     </Typography>
                     <Typography
-                      sx={{ fontSize: 15, fontWeight: 500, my: 2 }}
+                      sx={{ fontSize: 15, fontWeight: 'normal', my: 2 }}
                       variant="body1"
                       color="white"
                     >
@@ -187,10 +228,17 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
             <Button
               onClick={onReadMore}
               variant="text"
-              endIcon={<ArrowDownwardIcon />}
-              sx={readMoreButtonSx}
+              // endIcon={<ArrowDownwardIcon />}
+              sx={{
+                ...readMoreButtonSx,
+                textDecoration: "none !important", 
+                textTransform: "none",  
+                fontWeight: 'bold',        
+                color: "secondary.main",
+                fontSize: { xs: "1.15rem", sm: "1.25rem", md: "1.5rem", lg: "1.5rem" },
+              }}
             >
-              Read more
+              That's it.
             </Button>
           </Box>
         </Container>

@@ -7,11 +7,17 @@ import Button from "@mui/material/Button";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { readMoreButtonSx, scrollButtonDockSx } from "./sectionButtonStyles";
 
+import circleInCircle  from "../../../../../assets/core-images/core_sec_whyCareSeeker/circle_in_circles.svg";
+import handLeaf  from "../../../../../assets/core-images/core_sec_whyCareSeeker/hand_leaf.svg";
+import houseHeart  from "../../../../../assets/core-images/core_sec_whyCareSeeker/house_heart.svg";
+import searchComp  from "../../../../../assets/core-images/core_sec_whyCareSeeker/search_computer.svg";
+
+
 const items = [
-  { id: 1, lead: "Compatibility-based", rest: " matching" },
-  { id: 2, lead: "Background-checked", rest: " options" },
-  { id: 3, lead: "Bonded & insured", rest: " premium care" },
-  { id: 4, lead: "Independent or fully managed", rest: " support" },
+  { id: 1, img: circleInCircle, lead: "Compatibility-based", rest: " matching" },
+  { id: 2, img: searchComp, lead: "Background-checked", rest: " options" },
+  { id: 3, img: houseHeart, lead: "Bonded & insured", rest: " premium care" },
+  { id: 4, img: handLeaf, lead: "Independent or fully managed", rest: " support" },
 ] as const;
 
 type WhyCareSeekerProps = {
@@ -39,9 +45,9 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
       <Container maxWidth="lg" sx={{ width: "100%" }}>
         <Box sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
           <Typography
-            variant="h3"
-            fontWeight={600}
-            sx={{ fontSize: { xs: "2rem", md: "3rem" } }}
+            variant="h1"
+            fontWeight={700}
+            sx={{ fontSize: { xs: "3rem", md: "4rem"}, paddingBottom: "30px" }}
           >
             Why{" "}
             <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
@@ -53,6 +59,7 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
             variant="subtitle1"
             fontWeight={500}
             color="text.secondary"
+            fontSize={{ xs: "1.125rem", md: "1.25rem" }}
           >
             Because{" "}
             <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
@@ -102,12 +109,17 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
                 size={{ md: 6 }}
                 sx={{
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
                   px: 4,
                   py: 3.5,
+                  gap: "20px",
+                  width: "100%",
+
                 }}
               >
+                
                 <Typography variant="body1" fontWeight={500}>
                   <Box
                     component="span"
@@ -115,9 +127,24 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
                   >
                     {item.lead}
                   </Box>
+                  
                   {item.rest}
+
+                  
                 </Typography>
+                <Box
+                    component="img"
+                    src={item.img}
+                    alt=""
+                    sx={{
+                      width: "30%",
+                      maxWidth: 100,
+                      height: "auto",
+                    }}
+                    >
+                  </Box>
               </Grid>
+              
             ))}
           </Grid>
         </Box>
@@ -162,7 +189,7 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
             onClick={onReadMore}
             variant="text"
             endIcon={<ArrowDownwardIcon />}
-            sx={readMoreButtonSx}
+            sx={{...readMoreButtonSx, textDecoration: "none !important"}}
           >
             Read more
           </Button>
