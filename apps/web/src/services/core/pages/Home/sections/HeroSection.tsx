@@ -11,7 +11,7 @@
   import logo from "../../../../../assets/core-images/Logo-v1.svg";
 
   type HeroSectionProps = {
-    onNext?: () => void; // optional to avoid strict errors
+    onNext?: () => void; 
   };
 
   const HeroSection = ({ onNext }: HeroSectionProps) => {

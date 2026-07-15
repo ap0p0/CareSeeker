@@ -11,7 +11,6 @@ const Home = () => {
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isAnimatingRef = useRef(false);
   const currentSectionRef = useRef(0);
-  const wheelDelta = useRef(0);
 
   const scrollToSection = useCallback((index: number, duration = 900) => {
     const container = containerRef.current;
@@ -46,51 +45,28 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // const container = containerRef.current;
-    // if (!container) return;
-
-    // const handleWheel = (e: WheelEvent) => {
-    //   if (isAnimatingRef.current) {
-    //     e.preventDefault();
-    //     return;
-    //   }
-
-    //   const threshold = 5;
-    //   if (Math.abs(e.deltaY) < threshold) return;
-
-    //   e.preventDefault();
-
-    //   if (
-    //     e.deltaY > 0 &&
-    //     currentSectionRef.current < sectionRefs.current.length - 1
-    //   ) {
-    //     scrollToSection(currentSectionRef.current + 1);
-    //   } else if (e.deltaY < 0 && currentSectionRef.current > 0) {
-    //     scrollToSection(currentSectionRef.current - 1);
-    //   }
-
     const container = containerRef.current;
     if (!container) return;
 
     const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-
-      if(isAnimatingRef.current) return;
-
-      wheelDelta.current += e.deltaY;
-
-      const threshold = 80; // Adjust this value to control sensitivity
-
-      if (Math.abs(wheelDelta.current) < 80) return;
-
-      if (wheelDelta.current > 0 && currentSectionRef.current < sectionRefs.current.length - 1) {
-        scrollToSection(currentSectionRef.current + 1);
-      } else {
-        scrollToSection(currentSectionRef.current - 1);
+      if (isAnimatingRef.current) {
+        e.preventDefault();
+        return;
       }
 
+      const threshold = 5;
+      if (Math.abs(e.deltaY) < threshold) return;
 
-      wheelDelta.current = 0;
+      e.preventDefault();
+
+      if (
+        e.deltaY > 0 &&
+        currentSectionRef.current < sectionRefs.current.length - 1
+      ) {
+        scrollToSection(currentSectionRef.current + 1);
+      } else if (e.deltaY < 0 && currentSectionRef.current > 0) {
+        scrollToSection(currentSectionRef.current - 1);
+      }
     };
 
     container.addEventListener("wheel", handleWheel, { passive: false });
