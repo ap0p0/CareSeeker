@@ -1,15 +1,9 @@
-import { Link as RouterLink } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid2";
-import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
 import { ArrowUpward as ArrowUpwardIcon } from "@mui/icons-material";
 import {
-  callToActionCardButtonSx,
   readMoreButtonSx,
   scrollButtonDockSx,
 } from "./sectionButtonStyles";
@@ -29,22 +23,23 @@ const CallToActions = ({ onReadMore }: CallToActionsProps) => {
         position: "relative",
         display: "flex",
         alignItems: "center",
-        bgcolor: "#efe7f2",
+        bgcolor: "white",
         py: { xs: 3, md: 5 },
         pb: { xs: "68px", md: "80px" },
         scrollSnapAlign: "start",
         scrollSnapStop: "always",
+
+        flexDirection: "column",
       }}
     >
-      <Container maxWidth="lg" sx={{ width: "100%" }}>
-        <Box sx={{ textAlign: "center", mb: { xs: 2.5, md: 3.5 } }}>
-          <Typography variant="h3" fontWeight={600}>
-            <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
-              Join{" "}
-            </Box>
-            CareSeeker
-          </Typography>
-        </Box>
+      <Container maxWidth="lg" sx={{ 
+        
+        flexGrow: 1,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+         }}>
 
         <Box sx={{ textAlign: "center", mb: { xs: 3, md: 4 } }}>
           <Typography
@@ -81,104 +76,47 @@ const CallToActions = ({ onReadMore }: CallToActionsProps) => {
           </Typography>
         </Box>
 
-        <Grid container spacing={{ xs: 2.5, md: 3 }}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card
-              elevation={0}
-              sx={{
-                height: "100%",
-                borderRadius: 3.5,
-                bgcolor: (t) => t.palette.custom.pink,
-              }}
-            >
-              <CardContent
-                sx={{
-                  p: { xs: 3, md: 4 },
-                  "&:last-child": { pb: { xs: 3, md: 4 } },
-                }}
-              >
-                <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>
-                  Care
-                  <Box component="span" sx={{ color: "white" }}>
-                    Seekers
-                  </Box>
-                </Typography>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={500}
-                  sx={{ mb: 1.5 }}
-                >
-                  Care that fits your life.
-                </Typography>
-                <Typography
-                  color="rgba(255,255,255,0.95)"
-                  sx={{ mb: 2.25, fontSize: "0.95rem" }}
-                >
-                  Whether you need occasional help or full-time support,
-                  CareSeeker helps you find someone you can trust.
-                </Typography>
-                <Button
-                  component={RouterLink}
-                  to={BASE_ROUTE_PATHS[BaseRoute.GetCare]}
-                  variant="outlined"
-                  sx={callToActionCardButtonSx}
-                >
-                  <Box component="span" className="label">
-                    Find Care
-                  </Box>
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
+        <Box alignItems="center" justifyContent="center" sx={{ display: "flex", mb: { xs: 3, md: 4 } }}>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card
-              elevation={0}
+          <Button
+              variant="contained"
+              
               sx={{
-                height: "100%",
-                borderRadius: 3.5,
-                bgcolor: (t) => t.palette.custom.blue,
-                color: "white",
+                textDecoration: "none !important",
+                fontWeight: "normal",
+                bgcolor: "#5ea6d4",
+
+                fontSize: "16px",
+
+                minWidth: {
+                  xs: "160px",
+                  sm: "190px",
+                  md: "220px",
+                },
+
+                height: {
+                  xs: "45px",
+                  md: "50px",
+                },
+
+                borderRadius: "25px",
+
+
+                 "&:hover": {
+                  bgcolor: "#4b94c3",
+                  transform: "scale(1.05)",
+                  color: "#000",
+                  textDecoration: "none !important",
+                  boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
+                  fontWeight: "normal",
+                },
               }}
             >
-              <CardContent
-                sx={{
-                  p: { xs: 3, md: 4 },
-                  "&:last-child": { pb: { xs: 3, md: 4 } },
-                }}
-              >
-                <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>
-                  Care
-                  <span style={{ color: "#d0b9d8" }}>givers</span>
-                </Typography>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={500}
-                  sx={{ mb: 1.5 }}
-                >
-                  Work with families who value your skills.
-                </Typography>
-                <Typography
-                  color="rgba(255,255,255,0.95)"
-                  sx={{ mb: 2.25, fontSize: "0.95rem" }}
-                >
-                  Build your profile, get matched with the right clients, and
-                  grow your care career.
-                </Typography>
-                <Button
-                  component={RouterLink}
-                  to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
-                  variant="outlined"
-                  sx={callToActionCardButtonSx}
-                >
-                  <Box component="span" className="label">
-                    Join Now
-                  </Box>
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+              Get Started Today
+            </Button>
+        </Box>
+
+
 
         <Box sx={scrollButtonDockSx}>
           <Button
@@ -191,7 +129,51 @@ const CallToActions = ({ onReadMore }: CallToActionsProps) => {
           </Button>
         </Box>
       </Container>
-    </Box>
+      
+
+      <Box
+        component="footer"
+        sx={{
+          width: "100%",
+          bgcolor: "#efe7f2",
+          display: "flex",
+          flexDirection: "column", 
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "left", 
+          py: { xs: 3, md: 4 }, 
+          px: { xs: 2, sm: 4, md: 6 }, 
+        }}
+      >
+        <Typography 
+          variant="body2"
+          sx={{
+            maxWidth: "1200px",
+            fontSize: { xs: "0.65rem", md: "0.75rem" },
+            lineHeight: 1.6,
+            color: "text.secondary",
+            textAlign: "normal",
+          }}
+        >
+          CareSeeker is a healthcare technology company and not a medical provider. 
+          All medical services are provided by independent or contracted third parties.
+          Although CareSeeker may facilitate easy access to medical service providers on your behalf, you are free to choose any healthcare provider and to continue to use CareSeeker’s services.
+          CareSeeker’s services are not a substitute for medical care, medical advice, and/or a detailed discussion with your primary care physician or other licensed provider. All material, information, data, and content that CareSeeker provides is strictly for general information purposes.
+        </Typography>
+
+        <Typography 
+          sx={{ 
+            mt: 2,
+            fontSize: { xs: "0.65rem", md: "0.75rem" },
+            fontWeight: 500,
+            color: "text.secondary"
+          }}
+        >
+          © 2026 CareSeeker
+        </Typography>
+      </Box>
+
+  </Box>
   );
 };
 
