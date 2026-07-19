@@ -15,40 +15,43 @@ import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
 
 import { Link as RouterLink } from "react-router-dom";
 
-
-
 const people = [
   {
-  id: 1,
+    id: 1,
     img: grandmaGrandson,
-    htmlQuote: "<i><b>CareSeeker</b> matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy.</i>",
+    htmlQuote:
+      "<i><b>CareSeeker</b> matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy.</i>",
     quotePos: "bottom" as const,
   },
   {
     id: 2,
     img: grandpaGranddauther,
-    htmlQuote: "<i>Finally, a platform that feels safe and professional. The verification gave our family <b>real peace of mind.</b></i>",
+    htmlQuote:
+      "<i>Finally, a platform that feels safe and professional. The verification gave our family <b>real peace of mind.</b></i>",
     quotePos: "top" as const,
   },
   {
     id: 3,
     img: nurse,
-    htmlQuote: "<i>As a caregiver, I’ve never had better client matches. <b>CareSeeker</b> respects my time and helps me grow.</i>",
+    htmlQuote:
+      "<i>As a caregiver, I’ve never had better client matches. <b>CareSeeker</b> respects my time and helps me grow.</i>",
     quotePos: "bottom" as const,
   },
   {
     id: 4,
     img: helpingHand,
-    htmlQuote: "<i>The premium service removed all the stress. <b>We felt supported every step of the way.</b></i>",
+    htmlQuote:
+      "<i>The premium service removed all the stress. <b>We felt supported every step of the way.</b></i>",
     quotePos: "top" as const,
   },
 ] as const;
 
-type TestimonialsProps = {
+/*type TestimonialsProps = {
   onReadMore?: () => void;
 };
+*/
 
-const Testimonials = ({}: TestimonialsProps) => {
+const Testimonials = () => {
   return (
     <Box
       component="section"
@@ -85,14 +88,16 @@ const Testimonials = ({}: TestimonialsProps) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  minHeight: "65px", 
+                  minHeight: "65px",
                 }}
               >
                 <Typography
                   variant="body2"
-                  sx={{ fontSize: "0.72rem", lineHeight: 1.4, "& b": { fontWeight: 700, color: "black" } }}
-
-                  
+                  sx={{
+                    fontSize: "0.72rem",
+                    lineHeight: 1.4,
+                    "& b": { fontWeight: 700, color: "black" },
+                  }}
                   dangerouslySetInnerHTML={{ __html: p.htmlQuote }}
                 />
               </Box>
@@ -101,7 +106,9 @@ const Testimonials = ({}: TestimonialsProps) => {
             return (
               <Grid key={p.id} size={{ xs: 12, sm: 6, md: 3 }}>
                 {/* Flex layouts naturally push contents vertically based on order */}
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <Box
+                  sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+                >
                   {p.quotePos === "top" && QuotePill}
 
                   <Box
@@ -128,10 +135,6 @@ const Testimonials = ({}: TestimonialsProps) => {
           })}
         </Grid>
 
-        
-
-        
-        
         <Grid container spacing={{ xs: 2.5, md: 3 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Card
@@ -172,8 +175,12 @@ const Testimonials = ({}: TestimonialsProps) => {
                   component={RouterLink}
                   to={BASE_ROUTE_PATHS[BaseRoute.GetCare]}
                   variant="outlined"
-                  sx={{...callToActionCardButtonSx, textDecoration: "none !important", alignItems: "center" }}
-                > 
+                  sx={{
+                    ...callToActionCardButtonSx,
+                    textDecoration: "none !important",
+                    alignItems: "center",
+                  }}
+                >
                   <Box component="span" className="label">
                     Learn More
                   </Box>
@@ -198,7 +205,11 @@ const Testimonials = ({}: TestimonialsProps) => {
                   "&:last-child": { pb: { xs: 3, md: 4 } },
                 }}
               >
-                <Typography variant="h5" fontWeight={800} sx={{ mb: 1, color: "black" }}>
+                <Typography
+                  variant="h5"
+                  fontWeight={800}
+                  sx={{ mb: 1, color: "black" }}
+                >
                   Care
                   <span style={{ color: "white" }}>givers</span>
                 </Typography>
@@ -220,7 +231,11 @@ const Testimonials = ({}: TestimonialsProps) => {
                   component={RouterLink}
                   to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
                   variant="outlined"
-                  sx={{...callToActionCardButtonSx, textDecoration: "none !important", alignItems: "center" }}
+                  sx={{
+                    ...callToActionCardButtonSx,
+                    textDecoration: "none !important",
+                    alignItems: "center",
+                  }}
                 >
                   <Box component="span" className="label">
                     Learn More
@@ -241,7 +256,6 @@ const Testimonials = ({}: TestimonialsProps) => {
             Read more
           </Button>
         </Box> */}
-
       </Container>
     </Box>
   );
