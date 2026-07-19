@@ -46,12 +46,12 @@ const people = [
   },
 ] as const;
 
-/*type TestimonialsProps = {
+interface TestimonialsProps {
   onReadMore?: () => void;
-};
-*/
+}
 
-const Testimonials = () => {
+const Testimonials = ({ onReadMore }: TestimonialsProps) => {
+  console.log(onReadMore, "silence error");
   return (
     <Box
       component="section"
