@@ -22,6 +22,8 @@
     "incremental": true,
     "skipLibCheck": true,
 
+    "types": ["node", "jest"],
+
     "strict": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,

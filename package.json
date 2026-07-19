@@ -1,12 +1,13 @@
 {
   "name": "careseeker",
   "private": true,
-  "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": "20.x",
-    "pnpm": "10.x"
+    "node": "24.18.0"
   },
+  "packageManager": "pnpm@11.0.0",
   "scripts": {
+    "check:api": "pnpm --filter api typecheck",
+    "check:web": "pnpm --filter web typecheck",
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
@@ -16,6 +17,29 @@
     "start:seeker": "pnpm --filter web start:seeker",
     "start:provider": "pnpm --filter web start:provider",
     "start:admin": "pnpm --filter web start:admin",
-    "start:all": "pnpm --filter web start:all"
+    "start:all": "pnpm --filter web start:all",
+    "prepare": "husky",
+    "format:check": "prettier --check .",
+    "cleanall": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
+    "project:setup": "pnpm install && pnpm build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/engines",
+      "esbuild",
+      "prisma",
+      "unrs-resolver"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "3.5.2"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write"
+    ]
   }
 }

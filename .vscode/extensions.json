@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "waderyan.gitblame",
+    "eamodio.gitlens"
+  ]
+}

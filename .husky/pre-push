@@ -1,0 +1,30 @@
+#!/bin/sh
+
+echo "🔍 Running pre-push verification checks..."
+
+# Get a list of files that are different from the remote main branch
+CHANGED_FILES=$(git diff --name-only origin/main HEAD)
+
+# 1. Handle API (Backend) Changes
+if echo "$CHANGED_FILES" | grep -q "^apps/api/"; then
+  echo "⚠️ Changes detected in apps/api. Verifying backend..."
+  
+  echo "↳ Running Linter..."
+  pnpm --filter api lint || exit 1
+  
+  echo "↳ Running Production Build..."
+  pnpm check:api || exit 1
+fi
+
+# 2. Handle Web (Frontend) Changes
+if echo "$CHANGED_FILES" | grep -q "^apps/web/"; then
+  echo "⚠️ Changes detected in apps/web. Verifying frontend..."
+  
+  echo "↳ Running Linter..."
+  pnpm --filter web lint || exit 1
+  
+  echo "↳ Running Type Check..."
+  pnpm check:web || exit 1
+fi
+
+echo "✅ All checks passed! Safe to push."

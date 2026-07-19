@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   ProviderVerificationStatus,
@@ -15,12 +15,37 @@ import {
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  private buildDefaultSeekerData(supabaseId: string, email?: string) {
-    const username = `u_${supabaseId.replace(/-/g, '')}`;
+  private requireAuthIdentity(supabaseId: string, email: string) {
+    const id = typeof supabaseId === 'string' ? supabaseId.trim() : '';
+    const normalizedEmail = typeof email === 'string' ? email.trim() : '';
+
+    if (!id) {
+      throw new BadRequestException({
+        code: 'MISSING_SUPABASE_ID',
+        message: 'Supabase user id is required to create an account',
+      });
+    }
+
+    if (!normalizedEmail) {
+      throw new BadRequestException({
+        code: 'MISSING_EMAIL',
+        message: 'Email is required to create an account',
+      });
+    }
 
     return {
-      id: supabaseId,
-      email: email ?? `user-${supabaseId}@placeholder.local`,
+      supabaseId: id,
+      email: normalizedEmail.toLowerCase(),
+    };
+  }
+
+  private buildDefaultSeekerData(supabaseId: string, email: string) {
+    const identity = this.requireAuthIdentity(supabaseId, email);
+    const username = `u_${identity.supabaseId.replace(/-/g, '')}`;
+
+    return {
+      id: identity.supabaseId,
+      email: identity.email,
       username,
       name: 'Unknown',
       surname: 'User',
@@ -28,18 +53,19 @@ export class UsersService {
     };
   }
 
-  async createDefaultSeekerUser(supabaseId: string, email?: string) {
+  async createDefaultSeekerUser(supabaseId: string, email: string) {
     return this.prisma.user.create({
       data: this.buildDefaultSeekerData(supabaseId, email),
     });
   }
 
-  private buildDefaultProviderData(supabaseId: string, email?: string) {
-    const username = `u_${supabaseId.replace(/-/g, '')}`;
+  private buildDefaultProviderData(supabaseId: string, email: string) {
+    const identity = this.requireAuthIdentity(supabaseId, email);
+    const username = `u_${identity.supabaseId.replace(/-/g, '')}`;
 
     return {
-      id: supabaseId,
-      email: email ?? `user-${supabaseId}@placeholder.local`,
+      id: identity.supabaseId,
+      email: identity.email,
       username,
       name: 'Unknown',
       surname: 'User',
@@ -48,7 +74,7 @@ export class UsersService {
     };
   }
 
-  async createDefaultProviderUser(supabaseId: string, email?: string) {
+  async createDefaultProviderUser(supabaseId: string, email: string) {
     return this.prisma.user.create({
       data: this.buildDefaultProviderData(supabaseId, email),
     });
@@ -57,13 +83,29 @@ export class UsersService {
   /**
    * Find user by Supabase id, or create with default role SEEKER.
    * Admin is never assigned on create.
+   * Creating a new row requires both supabase id and email (no placeholders).
    */
   async findOrCreateFromSupabase(supabaseId: string, email?: string) {
+    const id = typeof supabaseId === 'string' ? supabaseId.trim() : '';
+    if (!id) {
+      throw new BadRequestException({
+        code: 'MISSING_SUPABASE_ID',
+        message: 'Supabase user id is required',
+      });
+    }
+
     const existing = await this.prisma.user.findUnique({
-      where: { id: supabaseId },
+      where: { id },
     });
     if (existing) return existing;
 
-    return this.createDefaultSeekerUser(supabaseId, email);
+    if (!email?.trim()) {
+      throw new BadRequestException({
+        code: 'MISSING_EMAIL',
+        message: 'Email is required to create an account',
+      });
+    }
+
+    return this.createDefaultSeekerUser(id, email);
   }
 }
