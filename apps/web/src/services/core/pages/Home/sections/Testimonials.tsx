@@ -3,8 +3,7 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { callToActionCardButtonSx, readMoreButtonSx, scrollButtonDockSx } from "./sectionButtonStyles";
+import { callToActionCardButtonSx } from "./sectionButtonStyles";
 
 import grandmaGrandson from "../../../../../assets/core-images/grandma_grandson.png";
 import grandpaGranddauther from "../../../../../assets/core-images/grandpa_granddauther.png";
@@ -49,7 +48,7 @@ type TestimonialsProps = {
   onReadMore?: () => void;
 };
 
-const Testimonials = ({ onReadMore }: TestimonialsProps) => {
+const Testimonials = ({}: TestimonialsProps) => {
   return (
     <Box
       component="section"

@@ -250,13 +250,15 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
     };
   }, [open]);
 
-  let cumulative = EDGE_GAP;
-  const rightOffsets = itemWidths.map((width) => {
-    const offset = cumulative;
-    cumulative += width + ITEM_GAP;
-    return offset;
-  });
-  const menuOpenRight = cumulative - ITEM_GAP + EDGE_GAP; 
+  const rightOffsets = itemWidths.map((_, index) =>
+    itemWidths
+      .slice(0, index)
+      .reduce((sum, width) => sum + width + ITEM_GAP, EDGE_GAP),
+  );
+  const menuOpenRight =
+    itemWidths.reduce((sum, width) => sum + width + ITEM_GAP, EDGE_GAP) -
+    ITEM_GAP +
+    EDGE_GAP; 
   const totalCascadeDuration = SLIDE_DURATION + navItems.length * STAGGER_STEP;
 
   const handleToggle = (event: ReactMouseEvent<HTMLButtonElement>) => {
