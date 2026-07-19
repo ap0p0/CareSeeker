@@ -9,6 +9,7 @@
   "packageManager": "pnpm@11.0.0",
   "scripts": {
     "dev": "vite",
+    "typecheck": "cross-env VITE_APP_VARIANT=core tsc -b",
     "build": "cross-env VITE_APP_VARIANT=core tsc -b && cross-env VITE_APP_VARIANT=core vite build",
     "build:core": "cross-env VITE_APP_VARIANT=core tsc -b && cross-env VITE_APP_VARIANT=core vite build",
     "build:client": "cross-env VITE_APP_VARIANT=client tsc -b && cross-env VITE_APP_VARIANT=client vite build",
