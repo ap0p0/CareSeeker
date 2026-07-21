@@ -6,19 +6,19 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { PresignupsModule } from './presignups/presignups.module';
-import { ProviderController } from './provider/provider.controller';
-import { ProviderService } from './provider/provider.service';
-import { SeekerController } from './seeker/seeker.controller';
-import { SeekerService } from './seeker/seeker.service';
+import { ProviderModule } from './provider/provider.module';
+import { SeekerModule } from './seeker/seeker.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, PresignupsModule],
-  controllers: [
-    AppController,
-    AdminController,
-    SeekerController,
-    ProviderController,
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    PresignupsModule,
+    ProviderModule,
+    SeekerModule,
   ],
-  providers: [AppService, SeekerService, ProviderService],
+  controllers: [AppController, AdminController],
+  providers: [AppService],
 })
 export class AppModule {}
