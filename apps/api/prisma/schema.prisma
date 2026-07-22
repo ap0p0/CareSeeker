@@ -29,6 +29,40 @@ enum PresignupType {
   PROVIDER
 }
 
+enum ProviderProfileStatus {
+  ACTIVE
+  BLOCKED
+  PENDING_VERIFICATION
+}
+
+enum CareRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+enum ProviderVerificationRecordStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum NotificationType {
+  GENERAL
+  JOB
+  MESSAGE
+  PAYMENT
+  REVIEW
+}
+
 /// Application-level user. Exists because Supabase auth.users only handles
 /// authentication (identity). Roles, verification, and app-specific state
 /// live here and are controlled server-side.
@@ -45,6 +79,12 @@ model User {
   surname                    String
   role                       UserRole                   @default(SEEKER)
   providerVerificationStatus ProviderVerificationStatus?
+
+  providerProfile    Provider?
+  careRequests       CareRequest[]
+  reviews            Review[]
+  notifications      Notification[]
+  payments           Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,4 +105,130 @@ model Presignup {
   updatedAt DateTime @updatedAt
 
   @@map("presignups")
+}
+
+model Provider {
+  id           String                @id @default(uuid()) @db.Uuid
+  userId       String                @unique @db.Uuid
+  name         String
+  email        String
+  phone        String?
+  bio          String?
+  profileImage String?
+  status       ProviderProfileStatus @default(PENDING_VERIFICATION)
+  deletedAt    DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availabilities ProviderAvailability[]
+  careRequests   CareRequest[]
+  reviews        Review[]
+  verifications  ProviderVerification[]
+}
+
+model ProviderAvailability {
+  id        String    @id @default(uuid()) @db.Uuid
+  providerId String   @db.Uuid
+  dayOfWeek Int?
+  date      DateTime? @db.Date
+  startTime String
+  endTime   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@index([providerId, dayOfWeek])
+  @@index([providerId, date])
+}
+
+model CareRequest {
+  id           String            @id @default(uuid()) @db.Uuid
+  providerId   String            @db.Uuid
+  careSeekerId String            @db.Uuid
+  status       CareRequestStatus @default(PENDING)
+  scheduledAt  DateTime
+  notes        String?
+  deletedAt    DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User     @relation(fields: [careSeekerId], references: [id], onDelete: Restrict)
+
+  @@index([providerId])
+  @@index([providerId, status])
+  @@index([careSeekerId])
+  @@map("care_requests")
+}
+
+model Review {
+  id           String   @id @default(uuid()) @db.Uuid
+  providerId   String   @db.Uuid
+  careSeekerId String   @map("seekerId") @db.Uuid
+  rating       Int
+  comment      String?
+  deletedAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User     @relation(fields: [careSeekerId], references: [id], onDelete: Restrict)
+
+  @@index([providerId])
+  @@index([careSeekerId])
+  @@map("reviews")
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  title     String
+  body      String
+  type      NotificationType
+  readAt    DateTime?
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model ProviderVerification {
+  id           String                           @id @default(uuid()) @db.Uuid
+  providerId   String                           @db.Uuid
+  documentType String
+  documentUrl  String
+  status       ProviderVerificationRecordStatus @default(PENDING)
+  createdAt    DateTime                         @default(now())
+  updatedAt    DateTime                         @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("provider_verifications")
+}
+
+model Payment {
+  id             String        @id @db.Uuid
+  userId         String        @db.Uuid
+  subscriptionId String?       @db.Uuid
+  amountCents    Int
+  currency       String
+  status         PaymentStatus
+  description    String?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("payments")
 }
