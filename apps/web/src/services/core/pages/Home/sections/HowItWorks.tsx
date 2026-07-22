@@ -10,7 +10,6 @@ import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
 import {
   howItWorksCtaBaseSx,
   readMoreButtonSx,
-  scrollButtonDockSx,
 } from "./sectionButtonStyles";
 
 const steps = [
@@ -27,11 +26,11 @@ const steps = [
   },
 ] as const;
 
-type HowItWorksProps = {
-  onReadMore?: () => void;
-};
+// type HowItWorksProps = {
+//   onReadMore?: () => void;
+// };
 
-const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
+const HowItWorks = () => {
   return (
     <Box
       component="section"
@@ -45,8 +44,7 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
         background: "linear-gradient(to top, #f0e8f2 0%, #fbf9fc 100%)",
         py: { xs: 3, md: 5 },
         pb: { xs: "68px", md: "80px" },
-        scrollSnapAlign: "start",
-        scrollSnapStop: "always",
+        
       }}
     >
       <Box sx={{ width: "100%" }}>
@@ -223,9 +221,14 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
             ))}
           </Grid>
 
-          <Box sx={scrollButtonDockSx}>
+          <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+           
+          height: '10vh' 
+        }}>
             <Button
-              onClick={onReadMore}
               variant="text"
               // endIcon={<ArrowDownwardIcon />}
               sx={{

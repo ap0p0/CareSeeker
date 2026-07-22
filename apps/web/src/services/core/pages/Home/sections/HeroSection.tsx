@@ -4,17 +4,17 @@
   import Button from "@mui/material/Button";
   import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
   import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
-  import { scrollButtonDockSx } from "./sectionButtonStyles";
+  // import { scrollButtonDockSx } from "./sectionButtonStyles";
 
   import homeHeroCaregiving from "../../../../../assets/core-images/home_hero_care_giving_cropped.svg";
   import CoreMenuButton from "../../../components/CoreMenuButton";
   import logo from "../../../../../assets/core-images/Logo-v1.svg";
 
-  type HeroSectionProps = {
-    onNext?: () => void; 
-  };
+  // type HeroSectionProps = {
+  //   onNext?: () => void; 
+  // };
 
-  const HeroSection = ({ onNext }: HeroSectionProps) => {
+  const HeroSection = () => {
     return (
       <Box
         component="header"
@@ -25,8 +25,8 @@
           height: "100dvh",
           minHeight: 320,
           overflow: "hidden",
-          scrollSnapAlign: "start",
-          scrollSnapStop: "always",
+          // scrollSnapAlign: "start",
+          // scrollSnapStop: "always",
           bgcolor: "white",
         }}
       >
@@ -170,9 +170,21 @@
         </Box>
 
 
-        <Box sx={scrollButtonDockSx}>
+        {/* <Box 
+            sx={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+            "& > button": {
+              pointerEvents: "auto",
+            },
+          }}>
           <Button
-            onClick={onNext}
+          
+            
             endIcon={<ArrowDownwardIcon />}
             sx={{
               position: "relative",
@@ -187,6 +199,11 @@
               textDecoration: "none !important",
               fontSize: { xs: "1.15rem", md: "1.6rem" },
               textUnderlineOffset: 4,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+           
+              height: '10vh',
               
               transition:
                 "color 240ms ease-in-out, border-color 240ms ease-in-out, box-shadow 240ms ease-in-out, transform 240ms ease-in-out",
@@ -220,7 +237,7 @@
           >
             GET STARTED
           </Button>
-        </Box>
+        </Box> */}
       </Box>
     );
   };

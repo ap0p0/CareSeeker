@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid2";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { readMoreButtonSx, scrollButtonDockSx } from "./sectionButtonStyles";
+import { readMoreButtonSx } from "./sectionButtonStyles";
 
 import circleInCircle  from "../../../../../assets/core-images/core_sec_whyCareSeeker/circle_in_circles.svg";
 import handLeaf  from "../../../../../assets/core-images/core_sec_whyCareSeeker/hand_leaf.svg";
@@ -20,11 +20,11 @@ const items = [
   { id: 4, img: handLeaf, lead: "Independent or fully managed", rest: " support" },
 ] as const;
 
-type WhyCareSeekerProps = {
-  onReadMore?: () => void;
-};
+// type WhyCareSeekerProps = {
+//   onReadMore?: () => void;
+// };
 
-const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
+const WhyCareSeeker = () => {
   return (
     <Box
       component="section"
@@ -38,8 +38,7 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
         bgcolor: "#fbf9fc",
         py: { xs: 4, md: 6 },
         pb: { xs: "68px", md: "80px" },
-        scrollSnapAlign: "start",
-        scrollSnapStop: "always",
+        
       }}
     >
       <Container maxWidth="lg" sx={{ width: "100%" }}>
@@ -184,9 +183,15 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
           </Box>
         </Typography>
 
-        <Box sx={scrollButtonDockSx}>
+        <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+           
+          height: '10vh' 
+        }}>
           <Button
-            onClick={onReadMore}
+            
             variant="text"
             endIcon={<ArrowDownwardIcon />}
             sx={{...readMoreButtonSx, textDecoration: "none !important"}}
