@@ -22,6 +22,14 @@ Further auth design notes: [`docs/AUTH.md`](./docs/AUTH.md).
 
 Create and edit **`apps/api/.env`** (gitignored). These are the variables **this Nest process actually reads** (via `process.env` / Prisma config):
 
+Quick start:
+
+```bash
+# from apps/api
+cp .env.example .env
+# then edit .env and set DATABASE_URL at minimum
+```
+
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL URL for Prisma. |
@@ -69,6 +77,12 @@ Optional on **Supabase**: after migrations, run `prisma/manual/supabase_user_fk.
 pnpm start:dev      # watch mode
 pnpm build && pnpm start:prod
 ```
+
+If you see `Error: DATABASE_URL is not set`, verify:
+
+1. `apps/api/.env` exists.
+2. `DATABASE_URL` is present in `apps/api/.env`.
+3. You started the API from `apps/api` (or with workspace script that still loads `apps/api/.env`).
 
 From monorepo root:
 
