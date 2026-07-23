@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SEEKER_ROUTE_PATHS, SeekerRoute } from "../../../../routes/enums";
 import {
@@ -106,7 +106,10 @@ const ClientRegisterPage = () => {
   };
 
   const handleBack = () => {
-    if (step === "seeker-create-account" || step === "recipient-personal-info") {
+    if (
+      step === "seeker-create-account" ||
+      step === "recipient-personal-info"
+    ) {
       setStep("care-for");
       return;
     }
@@ -183,8 +186,7 @@ const ClientRegisterPage = () => {
           : {}),
         preferredCaregiverGender: aboutYouForm.preferredCaregiverGender,
         preferredCaregiverLanguage: aboutYouForm.preferredCaregiverLanguage,
-        culturalConsiderationsChoice:
-          aboutYouForm.culturalConsiderationsChoice,
+        culturalConsiderationsChoice: aboutYouForm.culturalConsiderationsChoice,
         culturalConsiderationsNotes:
           aboutYouForm.culturalConsiderationsNotes.trim(),
         scheduleVibe: aboutYouForm.scheduleVibe,
@@ -221,9 +223,9 @@ const ClientRegisterPage = () => {
     }
   };
 
-  const handleSetupCompleteRedirect = useCallback(() => {
+  const handleSetupCompleteRedirect = () => {
     navigate(SEEKER_ROUTE_PATHS[SeekerRoute.Dashboard], { replace: true });
-  }, [navigate]);
+  };
 
   if (step === "seeker-setup-complete") {
     return <SeekerSetupCompleteStep onComplete={handleSetupCompleteRedirect} />;
