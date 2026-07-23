@@ -35,7 +35,6 @@ export class ReviewsRepository {
         provider: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -55,7 +54,6 @@ export class ReviewsRepository {
         provider: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -77,7 +75,6 @@ export class ReviewsRepository {
         provider: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -97,7 +94,6 @@ export class ReviewsRepository {
         provider: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },

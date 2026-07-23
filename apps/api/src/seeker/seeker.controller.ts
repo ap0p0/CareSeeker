@@ -91,4 +91,17 @@ export class SeekerController {
       data: account,
     };
   }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Patch('info')
+  async updateSeekersInfo(@Req() req: AuthRequest, @Body() body: unknown) {
+    const seekerId = requireSeekerUser(req);
+    const info = await this.seekerService.updateSeekersInfo(seekerId, body);
+
+    return {
+      success: true,
+      message: 'Seeker info updated successfully',
+      data: info,
+    };
+  }
 }

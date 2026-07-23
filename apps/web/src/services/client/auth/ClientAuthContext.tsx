@@ -15,7 +15,7 @@ import {
   SEEKER_ACCESS_DENIED_MESSAGE,
   type ClientAppUser,
 } from "./seekerMe";
-import { useVerifySeekerAccessMutation } from "../../../queries/clientAuth";
+import { useVerifySeekerAccessMutation } from "../../../queries/client";
 
 export type ClientGateOutcome =
   | "seeker"

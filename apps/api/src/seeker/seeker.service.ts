@@ -5,7 +5,18 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '../../generated/prisma/client.js';
+import {
+  BasicCareNeed,
+  CareUrgency,
+  DisclosePreference,
+  EthnicBackground,
+  HomeAccessibility,
+  LivingSituation,
+  PreferredCaregiverGender,
+  Prisma,
+  ScheduleVibe,
+  SpokenLanguage,
+} from '../../generated/prisma/client.js';
 import { getSupabaseAdminClient } from '../auth/supabase-admin';
 import { UsersService } from '../users/users.service';
 import { SeekerRepository } from './seeker.repository';
@@ -17,10 +28,51 @@ import {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const BASIC_CARE_NEEDS = new Set<string>(Object.values(BasicCareNeed));
+const ETHNIC_BACKGROUNDS = new Set<string>(Object.values(EthnicBackground));
+const SPOKEN_LANGUAGES = new Set<string>(Object.values(SpokenLanguage));
+const LIVING_SITUATIONS = new Set<string>(Object.values(LivingSituation));
+const PREFERRED_CAREGIVER_GENDERS = new Set<string>(
+  Object.values(PreferredCaregiverGender),
+);
+const SCHEDULE_VIBES = new Set<string>(Object.values(ScheduleVibe));
+const HOME_ACCESSIBILITIES = new Set<string>(Object.values(HomeAccessibility));
+const CARE_URGENCIES = new Set<string>(Object.values(CareUrgency));
+
 type RegisterSeekerPayload = {
   email: string;
   password: string;
+  name: string;
+  surname: string;
 };
+
+type UpdateSeekersInfoPayload =
+  | {
+      section: 'about_you';
+      age: number;
+      ethnicBackground: EthnicBackground;
+      location: string;
+      languagesSpoken: SpokenLanguage[];
+      livingSituation: LivingSituation;
+      needsHelpBesidesHousehold: boolean | null;
+      preferredCaregiverGender: PreferredCaregiverGender;
+      preferredCaregiverLanguage: SpokenLanguage;
+      culturalConsiderationsPreference: DisclosePreference | null;
+      culturalConsiderationsNotes: string | null;
+      scheduleVibe: ScheduleVibe;
+      homeAccessibility: HomeAccessibility[];
+      careUrgency: CareUrgency;
+    }
+  | {
+      section: 'care_health';
+      needsMedicalHelp: boolean;
+      healthDisclosePreference: DisclosePreference | null;
+      healthNotes: string | null;
+      medicationsDisclosePreference: DisclosePreference | null;
+      medicationsNotes: string | null;
+      basicCareNeeds: BasicCareNeed[];
+      otherCareNeedDetails: string | null;
+    };
 
 @Injectable()
 export class SeekerService {
@@ -66,14 +118,20 @@ export class SeekerService {
     }
 
     try {
-      const appUser = await this.usersService.createDefaultSeekerUser(
+      const appUser = await this.usersService.createSeekerUser(
         authUser.id,
         authUser.email,
+        {
+          name: payload.name,
+          surname: payload.surname,
+        },
       );
 
       return {
         id: appUser.id,
         email: appUser.email,
+        name: appUser.name,
+        surname: appUser.surname,
         role: appUser.role.toLowerCase(),
       };
     } catch (error: unknown) {
@@ -163,7 +221,6 @@ export class SeekerService {
 
     return providers.map((provider) => ({
       id: provider.id,
-      username: provider.username,
       name: provider.name,
       surname: provider.surname,
       providerVerificationStatus: lowerCaseEnum(
@@ -189,26 +246,65 @@ export class SeekerService {
 
   async updateAccount(userId: string, rawPayload: unknown) {
     const payload = this.validateAccountUpdatePayload(rawPayload);
+    const account = await this.seekerRepository.updateAccount(userId, payload);
 
-    try {
-      const account = await this.seekerRepository.updateAccount(userId, payload);
-      return {
-        ...account,
-        role: lowerCaseEnum(account.role),
-      };
-    } catch (error: unknown) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException({
-          code: 'DUPLICATE_USERNAME',
-          message: 'This username is already in use',
-        });
-      }
+    return {
+      ...account,
+      role: lowerCaseEnum(account.role),
+    };
+  }
 
-      throw error;
-    }
+  async updateSeekersInfo(userId: string, rawPayload: unknown) {
+    const payload = this.validateSeekersInfoUpdatePayload(rawPayload);
+    const info = await this.seekerRepository.upsertSeekersInfo(userId, payload);
+
+    return {
+      id: info.id,
+      userId: info.userId,
+      age: info.age,
+      ethnicBackground: info.ethnicBackground
+        ? lowerCaseEnum(info.ethnicBackground)
+        : null,
+      location: info.location,
+      languagesSpoken: info.languagesSpoken.map((language) =>
+        language.toLowerCase(),
+      ),
+      livingSituation: info.livingSituation
+        ? lowerCaseEnum(info.livingSituation)
+        : null,
+      needsHelpBesidesHousehold: info.needsHelpBesidesHousehold,
+      preferredCaregiverGender: info.preferredCaregiverGender
+        ? lowerCaseEnum(info.preferredCaregiverGender)
+        : null,
+      preferredCaregiverLanguage: info.preferredCaregiverLanguage
+        ? lowerCaseEnum(info.preferredCaregiverLanguage)
+        : null,
+      culturalConsiderationsPreference: info.culturalConsiderationsPreference
+        ? lowerCaseEnum(info.culturalConsiderationsPreference)
+        : null,
+      culturalConsiderationsNotes: info.culturalConsiderationsNotes,
+      scheduleVibe: info.scheduleVibe
+        ? lowerCaseEnum(info.scheduleVibe)
+        : null,
+      homeAccessibility: info.homeAccessibility.map((item) =>
+        item.toLowerCase(),
+      ),
+      careUrgency: info.careUrgency ? lowerCaseEnum(info.careUrgency) : null,
+      careFor: info.careFor ? lowerCaseEnum(info.careFor) : null,
+      basicCareNeeds: info.basicCareNeeds.map((need) => need.toLowerCase()),
+      otherCareNeedDetails: info.otherCareNeedDetails,
+      needsMedicalHelp: info.needsMedicalHelp,
+      healthDisclosePreference: info.healthDisclosePreference
+        ? lowerCaseEnum(info.healthDisclosePreference)
+        : null,
+      healthNotes: info.healthNotes,
+      medicationsDisclosePreference: info.medicationsDisclosePreference
+        ? lowerCaseEnum(info.medicationsDisclosePreference)
+        : null,
+      medicationsNotes: info.medicationsNotes,
+      createdAt: info.createdAt,
+      updatedAt: info.updatedAt,
+    };
   }
 
   private validateRegisterPayload(payload: unknown): RegisterSeekerPayload {
@@ -224,8 +320,18 @@ export class SeekerService {
       typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
     const password =
       typeof body.password === 'string' ? body.password.trim() : '';
-
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const surname =
+      typeof body.surname === 'string' ? body.surname.trim() : '';
     const errors: string[] = [];
+
+    if (!name) {
+      errors.push('name is required');
+    }
+
+    if (!surname) {
+      errors.push('surname is required');
+    }
 
     if (!email) {
       errors.push('email is required');
@@ -247,7 +353,351 @@ export class SeekerService {
       });
     }
 
-    return { email, password };
+    return { email, password, name, surname };
+  }
+
+  private validateSeekersInfoUpdatePayload(
+    payload: unknown,
+  ): UpdateSeekersInfoPayload {
+    const body = ensureObject(payload);
+    if (!body) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Payload must be an object',
+      });
+    }
+
+    const section =
+      typeof body.section === 'string' ? body.section.trim().toLowerCase() : '';
+
+    if (section === 'about_you') {
+      return this.validateAboutYouPayload(body);
+    }
+
+    if (section === 'care_health') {
+      return this.validateCareHealthPayload(body);
+    }
+
+    throw new BadRequestException({
+      code: 'VALIDATION_ERROR',
+      message: 'section must be about_you or care_health',
+    });
+  }
+
+  private validateAboutYouPayload(
+    body: Record<string, unknown>,
+  ): Extract<UpdateSeekersInfoPayload, { section: 'about_you' }> {
+    const errors: string[] = [];
+    const ageRaw = body.age;
+    const age =
+      typeof ageRaw === 'number'
+        ? ageRaw
+        : typeof ageRaw === 'string' && ageRaw.trim().length > 0
+          ? Number(ageRaw)
+          : NaN;
+
+    if (!Number.isInteger(age) || age < 18 || age > 120) {
+      errors.push('age must be a whole number between 18 and 120');
+    }
+
+    const ethnicBackground = this.parseEthnicBackground(
+      body.ethnicBackground,
+      errors,
+    );
+
+    const location =
+      typeof body.location === 'string' ? body.location.trim() : '';
+    if (!location) {
+      errors.push('location is required');
+    }
+
+    const languagesSpoken = this.parseEnumArray(
+      body.languagesSpoken,
+      SPOKEN_LANGUAGES,
+    ) as SpokenLanguage[];
+    if (languagesSpoken.length === 0) {
+      errors.push('languagesSpoken must include at least one option');
+    }
+
+    const livingSituation = this.parseRequiredEnum(
+      body.livingSituation,
+      LIVING_SITUATIONS,
+      'livingSituation',
+      errors,
+    ) as LivingSituation | null;
+
+    const livesWithSomeoneElse =
+      livingSituation !== null && livingSituation !== LivingSituation.LIVE_ALONE;
+
+    const needsHelpBesidesHouseholdRaw = body.needsHelpBesidesHousehold;
+    const needsHelpBesidesHousehold =
+      needsHelpBesidesHouseholdRaw === true ||
+      needsHelpBesidesHouseholdRaw === 'yes'
+        ? true
+        : needsHelpBesidesHouseholdRaw === false ||
+            needsHelpBesidesHouseholdRaw === 'no'
+          ? false
+          : null;
+
+    if (livesWithSomeoneElse && needsHelpBesidesHousehold === null) {
+      errors.push('needsHelpBesidesHousehold is required');
+    }
+
+    const preferredCaregiverGender = this.parseRequiredEnum(
+      body.preferredCaregiverGender,
+      PREFERRED_CAREGIVER_GENDERS,
+      'preferredCaregiverGender',
+      errors,
+    ) as PreferredCaregiverGender | null;
+
+    const preferredCaregiverLanguage = this.parseRequiredEnum(
+      body.preferredCaregiverLanguage,
+      SPOKEN_LANGUAGES,
+      'preferredCaregiverLanguage',
+      errors,
+    ) as SpokenLanguage | null;
+
+    const culturalConsiderationsPreference = this.parseDisclosePreference(
+      body.culturalConsiderationsPreference ??
+        body.culturalConsiderationsChoice,
+      errors,
+      'culturalConsiderationsPreference',
+      false,
+    );
+    const culturalConsiderationsNotes =
+      culturalConsiderationsPreference === DisclosePreference.SHARE
+        ? (readOptionalString(body, 'culturalConsiderationsNotes', errors) ??
+          null)
+        : null;
+
+    const scheduleVibe = this.parseRequiredEnum(
+      body.scheduleVibe,
+      SCHEDULE_VIBES,
+      'scheduleVibe',
+      errors,
+    ) as ScheduleVibe | null;
+
+    const homeAccessibility = this.parseEnumArray(
+      body.homeAccessibility,
+      HOME_ACCESSIBILITIES,
+    ) as HomeAccessibility[];
+
+    const careUrgency = this.parseRequiredEnum(
+      body.careUrgency,
+      CARE_URGENCIES,
+      'careUrgency',
+      errors,
+    ) as CareUrgency | null;
+
+    if (
+      errors.length > 0 ||
+      !ethnicBackground ||
+      !livingSituation ||
+      (livesWithSomeoneElse && needsHelpBesidesHousehold === null) ||
+      !preferredCaregiverGender ||
+      !preferredCaregiverLanguage ||
+      !scheduleVibe ||
+      !careUrgency
+    ) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid about-you payload',
+        errors,
+      });
+    }
+
+    return {
+      section: 'about_you',
+      age,
+      ethnicBackground,
+      location,
+      languagesSpoken,
+      livingSituation,
+      needsHelpBesidesHousehold: livesWithSomeoneElse
+        ? needsHelpBesidesHousehold
+        : null,
+      preferredCaregiverGender,
+      preferredCaregiverLanguage,
+      culturalConsiderationsPreference,
+      culturalConsiderationsNotes,
+      scheduleVibe,
+      homeAccessibility,
+      careUrgency,
+    };
+  }
+
+  private validateCareHealthPayload(
+    body: Record<string, unknown>,
+  ): Extract<UpdateSeekersInfoPayload, { section: 'care_health' }> {
+    const errors: string[] = [];
+    const needsMedicalHelpRaw = body.needsMedicalHelp;
+    const needsMedicalHelp =
+      needsMedicalHelpRaw === true || needsMedicalHelpRaw === 'yes'
+        ? true
+        : needsMedicalHelpRaw === false || needsMedicalHelpRaw === 'no'
+          ? false
+          : null;
+
+    if (needsMedicalHelp === null) {
+      errors.push('needsMedicalHelp is required');
+    }
+
+    const basicCareNeeds = this.parseBasicCareNeeds(body.basicCareNeeds);
+    if (basicCareNeeds.length === 0) {
+      errors.push('basicCareNeeds must include at least one option');
+    }
+
+    const includesOther = basicCareNeeds.includes(BasicCareNeed.OTHER);
+    const otherCareNeedDetailsRaw = readOptionalString(
+      body,
+      'otherCareNeedDetails',
+      errors,
+    );
+    const otherCareNeedDetails =
+      typeof otherCareNeedDetailsRaw === 'string'
+        ? otherCareNeedDetailsRaw
+        : null;
+
+    if (includesOther && !otherCareNeedDetails) {
+      errors.push('otherCareNeedDetails is required when Other is selected');
+    }
+
+    const healthDisclosePreference = this.parseDisclosePreference(
+      body.healthDisclosePreference ?? body.healthNotesChoice,
+      errors,
+      'healthDisclosePreference',
+      needsMedicalHelp === true,
+    );
+    const medicationsDisclosePreference = this.parseDisclosePreference(
+      body.medicationsDisclosePreference ?? body.medicationsChoice,
+      errors,
+      'medicationsDisclosePreference',
+      needsMedicalHelp === true,
+    );
+
+    const healthNotes =
+      healthDisclosePreference === DisclosePreference.SHARE
+        ? (readOptionalString(body, 'healthNotes', errors) ?? null)
+        : null;
+    const medicationsNotes =
+      medicationsDisclosePreference === DisclosePreference.SHARE
+        ? (readOptionalString(body, 'medicationsNotes', errors) ?? null)
+        : null;
+
+    if (errors.length > 0) {
+      throw new BadRequestException({
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid seekers info payload',
+        errors,
+      });
+    }
+
+    return {
+      section: 'care_health',
+      needsMedicalHelp: needsMedicalHelp as boolean,
+      healthDisclosePreference: needsMedicalHelp
+        ? healthDisclosePreference
+        : null,
+      healthNotes: needsMedicalHelp ? healthNotes : null,
+      medicationsDisclosePreference: needsMedicalHelp
+        ? medicationsDisclosePreference
+        : null,
+      medicationsNotes: needsMedicalHelp ? medicationsNotes : null,
+      basicCareNeeds,
+      otherCareNeedDetails: includesOther ? otherCareNeedDetails : null,
+    };
+  }
+
+  private parseEthnicBackground(
+    value: unknown,
+    errors: string[],
+  ): EthnicBackground | null {
+    return this.parseRequiredEnum(
+      value,
+      ETHNIC_BACKGROUNDS,
+      'ethnicBackground',
+      errors,
+    ) as EthnicBackground | null;
+  }
+
+  private parseRequiredEnum(
+    value: unknown,
+    allowed: Set<string>,
+    field: string,
+    errors: string[],
+  ): string | null {
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      errors.push(`${field} is required`);
+      return null;
+    }
+
+    const normalized = value.trim().toUpperCase();
+    if (allowed.has(normalized)) {
+      return normalized;
+    }
+
+    errors.push(`${field} is invalid`);
+    return null;
+  }
+
+  private parseEnumArray(value: unknown, allowed: Set<string>): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    const unique = new Set<string>();
+    for (const item of value) {
+      if (typeof item !== 'string') {
+        continue;
+      }
+
+      const normalized = item.trim().toUpperCase();
+      if (allowed.has(normalized)) {
+        unique.add(normalized);
+      }
+    }
+
+    return Array.from(unique);
+  }
+
+  private parseDisclosePreference(
+    value: unknown,
+    errors: string[],
+    field: string,
+    _required: boolean,
+  ): DisclosePreference | null {
+    if (typeof value !== 'string' || value.trim().length === 0) {
+      return null;
+    }
+
+    const normalized = value.trim().toUpperCase();
+    if (normalized === 'SHARE' || normalized === 'PREFER_NOT_TO_SAY') {
+      return normalized as DisclosePreference;
+    }
+
+    errors.push(`${field} is invalid`);
+    return null;
+  }
+
+  private parseBasicCareNeeds(value: unknown): BasicCareNeed[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    const unique = new Set<BasicCareNeed>();
+
+    for (const item of value) {
+      if (typeof item !== 'string') {
+        continue;
+      }
+
+      const normalized = item.trim().toUpperCase();
+      if (BASIC_CARE_NEEDS.has(normalized)) {
+        unique.add(normalized as BasicCareNeed);
+      }
+    }
+
+    return Array.from(unique);
   }
 
   private validateAccountUpdatePayload(payload: unknown) {
@@ -262,18 +712,9 @@ export class SeekerService {
     const errors: string[] = [];
     const name = readOptionalString(body, 'name', errors);
     const surname = readOptionalString(body, 'surname', errors);
-    const username = readOptionalString(body, 'username', errors);
 
-    if (
-      typeof name === 'undefined' &&
-      typeof surname === 'undefined' &&
-      typeof username === 'undefined'
-    ) {
+    if (typeof name === 'undefined' && typeof surname === 'undefined') {
       errors.push('At least one field must be provided');
-    }
-
-    if (typeof username === 'string' && !/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
-      errors.push('username must be 3-30 characters and use only letters, numbers, and underscores');
     }
 
     if (errors.length > 0) {
@@ -287,7 +728,6 @@ export class SeekerService {
     return {
       ...(typeof name !== 'undefined' ? { name } : {}),
       ...(typeof surname !== 'undefined' ? { surname } : {}),
-      ...(typeof username !== 'undefined' ? { username } : {}),
     };
   }
 }

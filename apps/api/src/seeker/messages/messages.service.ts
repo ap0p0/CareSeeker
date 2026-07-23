@@ -40,7 +40,6 @@ export class MessagesService {
       {
         otherUser: {
           id: string;
-          username: string;
           name: string;
           surname: string;
         };
@@ -167,13 +166,11 @@ export class MessagesService {
     updatedAt: Date;
     sender: {
       id: string;
-      username: string;
       name: string;
       surname: string;
     };
     recipient: {
       id: string;
-      username: string;
       name: string;
       surname: string;
     };

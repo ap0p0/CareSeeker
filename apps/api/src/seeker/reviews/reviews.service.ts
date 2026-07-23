@@ -194,7 +194,6 @@ export class ReviewsService {
     updatedAt: Date;
     provider: {
       id: string;
-      username: string;
       name: string;
       surname: string;
     };

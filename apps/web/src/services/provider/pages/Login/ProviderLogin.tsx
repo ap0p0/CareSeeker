@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button, Stack, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../../routes/enums";
-import { useSignInProviderMutation } from "../../../../queries/providerAuth";
+import { useSignInProviderMutation } from "../../../../queries/provider";
 import {
   ProviderAuthLoadingScreen,
   useProviderAuth,

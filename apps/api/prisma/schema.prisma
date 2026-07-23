@@ -58,6 +58,97 @@ enum PaymentStatus {
   REFUNDED
 }
 
+/// Who the care seeker is requesting support for.
+enum CareForType {
+  SELF
+  OTHER
+}
+
+/// Optional disclosure choice for sensitive onboarding answers.
+enum DisclosePreference {
+  SHARE
+  PREFER_NOT_TO_SAY
+}
+
+/// Ethnic background options collected during seeker onboarding.
+enum EthnicBackground {
+  CAUCASIAN
+  AFRICAN_AMERICAN
+  LATINO
+  ASIAN
+  NATIVE_AMERICAN
+  MIDDLE_EASTERN
+  MULTIRACIAL_OTHER
+  PREFER_NOT_TO_SAY
+}
+
+/// Basic care need tags selected during seeker account creation.
+enum BasicCareNeed {
+  CLEANING
+  COOKING
+  HYGIENE
+  COMPANIONSHIP
+  ERRANDS
+  LAUNDRY
+  MOBILITY_SUPPORT
+  TRANSPORTATION
+  OTHER
+}
+
+/// Common languages spoken in the US (seeker onboarding).
+enum SpokenLanguage {
+  ENGLISH
+  SPANISH
+  CHINESE
+  VIETNAMESE
+  ARABIC
+  FRENCH
+  KOREAN
+  RUSSIAN
+  PORTUGUESE
+  HINDI
+  OTHER
+}
+
+/// Household living situation for the care recipient / seeker.
+enum LivingSituation {
+  LIVE_ALONE
+  WITH_SPOUSE_PARTNER
+  WITH_FAMILY
+  WITH_ROOMMATES
+  ASSISTED_LIVING
+  OTHER
+}
+
+/// Preferred caregiver gender for matching.
+enum PreferredCaregiverGender {
+  FEMALE
+  MALE
+  NO_PREFERENCE
+}
+
+/// Preferred visit / schedule pattern.
+enum ScheduleVibe {
+  DAYTIME
+  EVENINGS
+  OVERNIGHT
+  FLEXIBLE
+}
+
+/// Home access / logistics tags.
+enum HomeAccessibility {
+  STAIRS
+  ELEVATOR
+  PARKING
+}
+
+/// How soon care is needed.
+enum CareUrgency {
+  ASAP
+  WITHIN_A_WEEK
+  EXPLORING
+}
+
 /// Application-level user. Exists because Supabase auth.users only handles
 /// authentication (identity). Roles, verification, and app-specific state
 /// live here and are controlled server-side.
@@ -69,7 +160,6 @@ enum PaymentStatus {
 model User {
   id                         String                     @id @db.Uuid // auth.users.id
   email                      String
-  username                   String                     @unique
   name                       String
   surname                    String
   role                       UserRole                   @default(SEEKER)
@@ -88,6 +178,11 @@ model User {
   receivedReviews         Review[]       @relation("ProviderReviews")
   subscriptions           Subscription[]
   payments                Payment[]
+
+  /// 1:1 seeker onboarding / AI-training profile (`seekers_info.id`).
+  seekersInfo             SeekersInfo?
+
+  @@map("users")
 }
 
 model Presignup {
@@ -105,6 +200,54 @@ model Presignup {
   updatedAt DateTime @updatedAt
 
   @@map("presignups")
+}
+
+/// Seeker-specific onboarding / care-profile data kept off the root `User` row.
+///
+/// - `id`: seeker additional-info id (stable reference for AI / matching)
+/// - `userId`: FK to `User.id` (1:1 — one seekers_info row per seeker account)
+model SeekersInfo {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  age                   Int?
+  careFor               CareForType?
+  basicCareNeeds        BasicCareNeed[] @default([])
+  otherCareNeedDetails  String?
+  helpNeeded            String?
+  /// Free-text location for now; later replaced/augmented by geolocation.
+  location              String?
+  ethnicBackground      EthnicBackground?
+
+  languagesSpoken              SpokenLanguage[]           @default([])
+  livingSituation              LivingSituation?
+  /// Whether caregiver help is needed beyond household support.
+  needsHelpBesidesHousehold    Boolean?
+  preferredCaregiverGender     PreferredCaregiverGender?
+  preferredCaregiverLanguage   SpokenLanguage?
+  culturalConsiderationsPreference DisclosePreference?
+  culturalConsiderationsNotes  String?
+  scheduleVibe                 ScheduleVibe?
+  homeAccessibility            HomeAccessibility[]        @default([])
+  careUrgency                  CareUrgency?
+
+  needsMedicalHelp              Boolean?
+  healthDisclosePreference      DisclosePreference?
+  healthNotes                   String?
+  medicationsDisclosePreference DisclosePreference?
+  medicationsNotes              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([careFor])
+  @@index([needsMedicalHelp])
+  @@index([careUrgency])
+  @@index([scheduleVibe])
+  @@index([preferredCaregiverGender])
+  @@map("seekers_info")
 }
 
 model Job {

@@ -15,8 +15,10 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../routes/enums";
 import providerWaitlistHeroImage from "../../../../assets/core-images/provider-waitlist-hero.png";
-import { PresignupApiError } from "../../../../queries/presignupsShared";
-import { useSubmitProviderPresignupMutation } from "../../../../queries/presignupsProvider";
+import {
+  PresignupApiError,
+  useSubmitProviderPresignupMutation,
+} from "../../../../queries/core";
 import CoreMenuButton from "../../components/CoreMenuButton";
 
 const usStates = [

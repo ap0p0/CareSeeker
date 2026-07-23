@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "../queryKeys";
+import { ADMIN_PAYMENTS_HISTORY_QUERY } from "./keys";
 import { fetchMockPayments } from "./mockData";
 
 export function useAdminPaymentsHistoryQuery() {
   return useQuery({
-    queryKey: queryKeys.admin.paymentsHistory(),
+    queryKey: ADMIN_PAYMENTS_HISTORY_QUERY,
     queryFn: fetchMockPayments,
   });
 }

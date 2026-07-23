@@ -87,7 +87,6 @@ export class SavedProvidersService {
     createdAt: Date;
     provider: {
       id: string;
-      username: string;
       name: string;
       surname: string;
       providerVerificationStatus: string | null;
@@ -98,7 +97,6 @@ export class SavedProvidersService {
       createdAt: savedProvider.createdAt,
       provider: {
         id: savedProvider.provider.id,
-        username: savedProvider.provider.username,
         name: savedProvider.provider.name,
         surname: savedProvider.provider.surname,
         providerVerificationStatus: lowerCaseEnum(

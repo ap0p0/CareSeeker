@@ -11,7 +11,7 @@ import {
   type SetStateAction,
 } from "react";
 import { supabase } from "../../../supabase/supabase";
-import { useVerifyProviderAccessMutation } from "../../../queries/providerAuth";
+import { useVerifyProviderAccessMutation } from "../../../queries/provider";
 import {
   hasProviderMockSession,
   isProviderDevMockEnabled,
