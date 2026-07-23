@@ -33,7 +33,6 @@ export class MessagesRepository {
         sender: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -41,7 +40,6 @@ export class MessagesRepository {
         recipient: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -63,7 +61,6 @@ export class MessagesRepository {
         sender: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -71,7 +68,6 @@ export class MessagesRepository {
         recipient: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -101,7 +97,6 @@ export class MessagesRepository {
         sender: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -109,7 +104,6 @@ export class MessagesRepository {
         recipient: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -145,7 +139,6 @@ export class MessagesRepository {
         sender: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -153,7 +146,6 @@ export class MessagesRepository {
         recipient: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -170,7 +162,6 @@ export class MessagesRepository {
         sender: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -178,7 +169,6 @@ export class MessagesRepository {
         recipient: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -195,7 +185,6 @@ export class MessagesRepository {
         sender: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },
@@ -203,7 +192,6 @@ export class MessagesRepository {
         recipient: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
           },

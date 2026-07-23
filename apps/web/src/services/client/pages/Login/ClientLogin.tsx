@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button, Stack, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SEEKER_ROUTE_PATHS, SeekerRoute } from "../../../../routes/enums";
-import { useSignInClientMutation } from "../../../../queries/clientAuth";
+import { useSignInClientMutation } from "../../../../queries/client";
 import {
   ClientAuthLoadingScreen,
   useClientAuth,

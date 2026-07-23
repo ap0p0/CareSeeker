@@ -18,7 +18,6 @@ export class SavedProvidersRepository {
       },
       select: {
         id: true,
-        username: true,
         name: true,
         surname: true,
         providerVerificationStatus: true,
@@ -36,7 +35,6 @@ export class SavedProvidersRepository {
         provider: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
             providerVerificationStatus: true,
@@ -63,7 +61,6 @@ export class SavedProvidersRepository {
         provider: {
           select: {
             id: true,
-            username: true,
             name: true,
             surname: true,
             providerVerificationStatus: true,

@@ -6,7 +6,7 @@ import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../../routes/enums";
 import {
   useRegisterProviderMutation,
   useSignInProviderMutation,
-} from "../../../../queries/providerAuth";
+} from "../../../../queries/provider";
 import {
   ProviderAuthLoadingScreen,
   useProviderAuth,

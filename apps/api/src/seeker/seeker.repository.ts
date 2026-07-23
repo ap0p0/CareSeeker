@@ -1,10 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import {
+  BasicCareNeed,
+  CareForType,
+  CareUrgency,
+  DisclosePreference,
+  EthnicBackground,
+  HomeAccessibility,
   JobStatus,
+  LivingSituation,
+  PreferredCaregiverGender,
   ProviderVerificationStatus,
+  ScheduleVibe,
+  SpokenLanguage,
   UserRole,
 } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
+
+type AboutYouSeekersInfoData = {
+  section: 'about_you';
+  age: number;
+  ethnicBackground: EthnicBackground;
+  location: string;
+  languagesSpoken: SpokenLanguage[];
+  livingSituation: LivingSituation;
+  needsHelpBesidesHousehold: boolean | null;
+  preferredCaregiverGender: PreferredCaregiverGender;
+  preferredCaregiverLanguage: SpokenLanguage;
+  culturalConsiderationsPreference: DisclosePreference | null;
+  culturalConsiderationsNotes: string | null;
+  scheduleVibe: ScheduleVibe;
+  homeAccessibility: HomeAccessibility[];
+  careUrgency: CareUrgency;
+};
+
+type CareHealthSeekersInfoData = {
+  section: 'care_health';
+  needsMedicalHelp: boolean;
+  healthDisclosePreference: DisclosePreference | null;
+  healthNotes: string | null;
+  medicationsDisclosePreference: DisclosePreference | null;
+  medicationsNotes: string | null;
+  basicCareNeeds: BasicCareNeed[];
+  otherCareNeedDetails: string | null;
+};
 
 @Injectable()
 export class SeekerRepository {
@@ -116,17 +154,15 @@ export class SeekerRepository {
         ...(search
           ? {
               OR: [
-                { username: { contains: search, mode: 'insensitive' } },
                 { name: { contains: search, mode: 'insensitive' } },
                 { surname: { contains: search, mode: 'insensitive' } },
               ],
             }
           : {}),
       },
-      orderBy: [{ name: 'asc' }, { surname: 'asc' }, { username: 'asc' }],
+      orderBy: [{ name: 'asc' }, { surname: 'asc' }],
       select: {
         id: true,
-        username: true,
         name: true,
         surname: true,
         providerVerificationStatus: true,
@@ -140,7 +176,6 @@ export class SeekerRepository {
       select: {
         id: true,
         email: true,
-        username: true,
         name: true,
         surname: true,
         role: true,
@@ -152,7 +187,7 @@ export class SeekerRepository {
 
   async updateAccount(
     userId: string,
-    data: { name?: string; surname?: string; username?: string },
+    data: { name?: string; surname?: string },
   ) {
     return this.prisma.user.update({
       where: { id: userId },
@@ -160,12 +195,69 @@ export class SeekerRepository {
       select: {
         id: true,
         email: true,
-        username: true,
         name: true,
         surname: true,
         role: true,
         createdAt: true,
         updatedAt: true,
+      },
+    });
+  }
+
+  async upsertSeekersInfo(
+    userId: string,
+    data: AboutYouSeekersInfoData | CareHealthSeekersInfoData,
+  ) {
+    if (data.section === 'about_you') {
+      const aboutYouData = {
+        age: data.age,
+        ethnicBackground: data.ethnicBackground,
+        location: data.location,
+        languagesSpoken: data.languagesSpoken,
+        livingSituation: data.livingSituation,
+        needsHelpBesidesHousehold: data.needsHelpBesidesHousehold,
+        preferredCaregiverGender: data.preferredCaregiverGender,
+        preferredCaregiverLanguage: data.preferredCaregiverLanguage,
+        culturalConsiderationsPreference:
+          data.culturalConsiderationsPreference,
+        culturalConsiderationsNotes: data.culturalConsiderationsNotes,
+        scheduleVibe: data.scheduleVibe,
+        homeAccessibility: data.homeAccessibility,
+        careUrgency: data.careUrgency,
+      };
+
+      return this.prisma.seekersInfo.upsert({
+        where: { userId },
+        create: {
+          userId,
+          careFor: CareForType.SELF,
+          ...aboutYouData,
+        },
+        update: aboutYouData,
+      });
+    }
+
+    return this.prisma.seekersInfo.upsert({
+      where: { userId },
+      create: {
+        userId,
+        careFor: CareForType.SELF,
+        needsMedicalHelp: data.needsMedicalHelp,
+        healthDisclosePreference: data.healthDisclosePreference,
+        healthNotes: data.healthNotes,
+        medicationsDisclosePreference: data.medicationsDisclosePreference,
+        medicationsNotes: data.medicationsNotes,
+        basicCareNeeds: data.basicCareNeeds,
+        otherCareNeedDetails: data.otherCareNeedDetails,
+      },
+      update: {
+        needsMedicalHelp: data.needsMedicalHelp,
+        healthDisclosePreference: data.healthDisclosePreference,
+        healthNotes: data.healthNotes,
+        medicationsDisclosePreference: data.medicationsDisclosePreference,
+        medicationsNotes: data.medicationsNotes,
+        basicCareNeeds: data.basicCareNeeds,
+        otherCareNeedDetails: data.otherCareNeedDetails,
       },
     });
   }
