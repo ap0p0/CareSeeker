@@ -26,10 +26,6 @@ const steps = [
   },
 ] as const;
 
-// type HowItWorksProps = {
-//   onReadMore?: () => void;
-// };
-
 const HowItWorks = () => {
   return (
     <Box
@@ -230,7 +226,6 @@ const HowItWorks = () => {
         }}>
             <Button
               variant="text"
-              // endIcon={<ArrowDownwardIcon />}
               sx={{
                 ...readMoreButtonSx,
                 textDecoration: "none !important", 

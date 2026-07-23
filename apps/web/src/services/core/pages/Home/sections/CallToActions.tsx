@@ -7,9 +7,6 @@ import {
   readMoreButtonSx,
 } from "./sectionButtonStyles";
 
-// type CallToActionsProps = {
-//   onReadMore?: () => void;
-// };
 
 const CallToActions = () => {
   return (

@@ -4,7 +4,6 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-// import { callToActionCardButtonSx, readMoreButtonSx, scrollButtonDockSx } from "./sectionButtonStyles";
 import { callToActionCardButtonSx, readMoreButtonSx } from "./sectionButtonStyles";
 
 
@@ -22,34 +21,44 @@ import { Link as RouterLink } from "react-router-dom";
 
 const people = [
   {
-  id: 1,
+    id: 1,
     img: grandmaGrandson,
-    htmlQuote: "<i><b>CareSeeker</b> matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy.</i>",
+    quote: [
+      { text: "CareSeeker", bold: true },
+      { text: " matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy." },
+    ],
     quotePos: "bottom" as const,
   },
   {
     id: 2,
     img: grandpaGranddauther,
-    htmlQuote: "<i>Finally, a platform that feels safe and professional. The verification gave our family <b>real peace of mind.</b></i>",
+    quote: [
+      { text: "Finally, a platform that feels safe and professional. The verification gave our family " },
+      { text: "real peace of mind.", bold: true },
+    ],
     quotePos: "top" as const,
   },
   {
     id: 3,
     img: nurse,
-    htmlQuote: "<i>As a caregiver, I’ve never had better client matches. <b>CareSeeker</b> respects my time and helps me grow.</i>",
+    quote: [
+      { text: "As a caregiver, I’ve never had better client matches. " },
+      { text: "CareSeeker", bold: true },
+      { text: " respects my time and helps me grow." },
+    ],
     quotePos: "bottom" as const,
   },
   {
     id: 4,
     img: helpingHand,
-    htmlQuote: "<i>The premium service removed all the stress. <b>We felt supported every step of the way.</b></i>",
+    quote: [
+      { text: "The premium service removed all the stress. " },
+      { text: "We felt supported every step of the way.", bold: true },
+    ],
     quotePos: "top" as const,
   },
 ] as const;
 
-// type TestimonialsProps = {
-//   onReadMore?: () => void;
-// };
 
 const Testimonials = () => {
   return (
@@ -90,13 +99,21 @@ const Testimonials = () => {
                   minHeight: "65px", 
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{ fontSize: "0.72rem", lineHeight: 1.4, "& b": { fontWeight: 700, color: "black" } }}
-
-                  
-                  dangerouslySetInnerHTML={{ __html: p.htmlQuote }}
-                />
+                
+              <Typography
+                variant="body2"
+                sx={{ fontSize: "0.72rem", lineHeight: 1.4, fontStyle: "italic" }}
+              >
+                {p.quote.map((segment, i) => (
+                  <Box
+                    key={i}
+                    component="span"
+                    sx={segment.text ? { fontWeight: 700, color: "black" } : undefined}
+                  >
+                    {segment.text}
+                  </Box>
+                ))}
+              </Typography>
               </Box>
             );
 
@@ -231,17 +248,6 @@ const Testimonials = () => {
             </Card>
           </Grid>
         </Grid>
-
-        {/* <Box sx={scrollButtonDockSx}>
-          <Button
-            onClick={onReadMore}
-            variant="text"
-            endIcon={<ArrowDownwardIcon />}
-            sx={{ ...readMoreButtonSx, textDecoration: "none !important" }}
-          >
-            Read more
-          </Button>
-        </Box> */}
 
       </Container>
     </Box>

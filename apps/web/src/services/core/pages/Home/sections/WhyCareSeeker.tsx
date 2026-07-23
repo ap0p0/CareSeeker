@@ -20,10 +20,6 @@ const items = [
   { id: 4, img: handLeaf, lead: "Independent or fully managed", rest: " support" },
 ] as const;
 
-// type WhyCareSeekerProps = {
-//   onReadMore?: () => void;
-// };
-
 const WhyCareSeeker = () => {
   return (
     <Box
