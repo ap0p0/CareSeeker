@@ -1,39 +1,52 @@
 import { Injectable } from '@nestjs/common';
-import { ProviderProfileStatus } from '../../generated/prisma/client.js';
+import { UserRole } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
+
+type ProviderIdentity = {
+  id: string;
+  userId: string;
+  email: string;
+};
 
 @Injectable()
 export class ProviderRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByUserId(userId: string) {
-    return this.prisma.provider.findFirst({
-      where: {
-        userId,
-        deletedAt: null,
-      },
+  async findByUserId(userId: string): Promise<ProviderIdentity | null> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, role: UserRole.PROVIDER },
     });
+
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      userId: user.id,
+      email: user.email,
+    };
   }
 
   async createDefaultForUser(userId: string, email?: string) {
-    let resolvedEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
-    if (!resolvedEmail) {
-      const user = await this.prisma.user.findUnique({ where: { id: userId } });
-      resolvedEmail = user?.email?.trim().toLowerCase() ?? '';
+    const existing = await this.findByUserId(userId);
+    if (existing) return existing;
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('Unable to initialize provider profile without user');
     }
 
-    if (!resolvedEmail) {
-      throw new Error('Unable to initialize provider profile without email');
+    if (user.role !== UserRole.PROVIDER) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { role: UserRole.PROVIDER },
+      });
     }
 
-    return this.prisma.provider.create({
-      data: {
-        userId,
-        name: 'Unknown Provider',
-        email: resolvedEmail,
-        status: ProviderProfileStatus.PENDING_VERIFICATION,
-      },
-    });
+    return {
+      id: user.id,
+      userId: user.id,
+      email: email?.trim().toLowerCase() || user.email,
+    };
   }
 
   async findOrCreateByUser(userId: string, email: string) {
@@ -47,6 +60,19 @@ export class ProviderRepository {
     const existing = await this.findByUserId(userId);
     if (existing) return existing;
 
-    return this.createDefaultForUser(userId);
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('Provider user not found');
+    }
+
+    if (user.role !== UserRole.PROVIDER) {
+      throw new Error('User is not a provider');
+    }
+
+    return {
+      id: user.id,
+      userId: user.id,
+      email: user.email,
+    };
   }
 }

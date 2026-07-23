@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ProviderRepository } from '../provider.repository';
 import { ProviderProfileRepository } from './profile.repository';
 import type {
@@ -15,16 +15,20 @@ export class ProviderProfileService {
 
   async getProfile(userId: string): Promise<ProviderProfileResponse> {
     const profile = await this.requireProfile(userId);
+    const status =
+      profile.providerVerificationStatus === 'APPROVED'
+        ? 'active'
+        : 'pending_verification';
 
     return {
       id: profile.id,
-      userId: profile.userId,
+      userId: profile.id,
       name: profile.name,
       email: profile.email,
-      phone: profile.phone,
-      bio: profile.bio,
-      profileImage: profile.profileImage,
-      status: profile.status.toLowerCase() as ProviderProfileResponse['status'],
+      phone: null,
+      bio: null,
+      profileImage: null,
+      status,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     };
@@ -36,16 +40,20 @@ export class ProviderProfileService {
     await this.requireProfile(userId);
 
     const updated = await this.profileRepository.updateByUserId(userId, payload);
+    const status =
+      updated.providerVerificationStatus === 'APPROVED'
+        ? 'active'
+        : 'pending_verification';
 
     return {
       id: updated.id,
-      userId: updated.userId,
+      userId: updated.id,
       name: updated.name,
       email: updated.email,
-      phone: updated.phone,
-      bio: updated.bio,
-      profileImage: updated.profileImage,
-      status: updated.status.toLowerCase(),
+      phone: null,
+      bio: null,
+      profileImage: null,
+      status,
       updatedAt: updated.updatedAt,
     };
   }
@@ -54,7 +62,13 @@ export class ProviderProfileService {
     const existing = await this.profileRepository.findByUserId(userId);
     if (existing) return existing;
 
-    return this.providerRepository.createDefaultForUser(userId);
+    await this.providerRepository.ensureByUserId(userId);
+    const resolved = await this.profileRepository.findByUserId(userId);
+    if (!resolved) {
+      throw new NotFoundException('Provider profile not found');
+    }
+
+    return resolved;
   }
 
   private validateUpdatePayload(rawPayload: unknown): UpdateProviderProfilePayload {

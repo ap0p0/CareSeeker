@@ -80,11 +80,14 @@ model User {
   role                       UserRole                   @default(SEEKER)
   providerVerificationStatus ProviderVerificationStatus?
 
-  providerProfile    Provider?
-  careRequests       CareRequest[]
-  reviews            Review[]
-  notifications      Notification[]
-  payments           Payment[]
+  providerAvailabilities ProviderAvailability[] @relation("provider_availability_provider")
+  providedCareRequests   CareRequest[]          @relation("care_request_provider")
+  seekerCareRequests     CareRequest[]          @relation("care_request_seeker")
+  providedReviews        Review[]               @relation("review_provider")
+  seekerReviews          Review[]               @relation("review_seeker")
+  providerVerifications  ProviderVerification[] @relation("provider_verification_provider")
+  notifications          Notification[]
+  payments               Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -107,56 +110,37 @@ model Presignup {
   @@map("presignups")
 }
 
-model Provider {
-  id           String                @id @default(uuid()) @db.Uuid
-  userId       String                @unique @db.Uuid
-  name         String
-  email        String
-  phone        String?
-  bio          String?
-  profileImage String?
-  status       ProviderProfileStatus @default(PENDING_VERIFICATION)
-  deletedAt    DateTime?
-  createdAt    DateTime              @default(now())
-  updatedAt    DateTime              @updatedAt
-
-  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  availabilities ProviderAvailability[]
-  careRequests   CareRequest[]
-  reviews        Review[]
-  verifications  ProviderVerification[]
-}
-
 model ProviderAvailability {
-  id        String    @id @default(uuid()) @db.Uuid
-  providerId String   @db.Uuid
-  dayOfWeek Int?
-  date      DateTime? @db.Date
-  startTime String
-  endTime   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String    @id @default(uuid()) @db.Uuid
+  providerId String    @map("provider_id") @db.Uuid
+  dayOfWeek  Int?      @map("day_of_week")
+  date       DateTime? @db.Date
+  startTime  String    @map("start_time")
+  endTime    String    @map("end_time")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
-  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  provider User @relation("provider_availability_provider", fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([providerId])
   @@index([providerId, dayOfWeek])
   @@index([providerId, date])
+  @@map("provider_availability")
 }
 
 model CareRequest {
   id           String            @id @default(uuid()) @db.Uuid
-  providerId   String            @db.Uuid
-  careSeekerId String            @db.Uuid
+  providerId   String            @map("provider_id") @db.Uuid
+  careSeekerId String            @map("care_seeker_id") @db.Uuid
   status       CareRequestStatus @default(PENDING)
-  scheduledAt  DateTime
+  scheduledAt  DateTime          @map("scheduled_at")
   notes        String?
-  deletedAt    DateTime?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime?         @map("deleted_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
 
-  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  careSeeker User     @relation(fields: [careSeekerId], references: [id], onDelete: Restrict)
+  provider   User @relation("care_request_provider", fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User @relation("care_request_seeker", fields: [careSeekerId], references: [id], onDelete: Restrict)
 
   @@index([providerId])
   @@index([providerId, status])
@@ -174,8 +158,8 @@ model Review {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  careSeeker User     @relation(fields: [careSeekerId], references: [id], onDelete: Restrict)
+  provider   User @relation("review_provider", fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User @relation("review_seeker", fields: [careSeekerId], references: [id], onDelete: Restrict)
 
   @@index([providerId])
   @@index([careSeekerId])
@@ -201,14 +185,14 @@ model Notification {
 
 model ProviderVerification {
   id           String                           @id @default(uuid()) @db.Uuid
-  providerId   String                           @db.Uuid
-  documentType String
-  documentUrl  String
+  providerId   String                           @map("provider_id") @db.Uuid
+  documentType String                           @map("document_type")
+  documentUrl  String                           @map("document_url")
   status       ProviderVerificationRecordStatus @default(PENDING)
-  createdAt    DateTime                         @default(now())
-  updatedAt    DateTime                         @updatedAt
+  createdAt    DateTime                         @default(now()) @map("created_at")
+  updatedAt    DateTime                         @updatedAt @map("updated_at")
 
-  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  provider User @relation("provider_verification_provider", fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([providerId])
   @@map("provider_verifications")

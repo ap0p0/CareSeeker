@@ -19,8 +19,8 @@ export class ProviderAccountSettingsService {
 
     return {
       email: data.user?.email ?? null,
-      name: data.provider?.name ?? null,
-      phone: data.provider?.phone ?? null,
+      name: data.user?.name ?? null,
+      phone: null,
     };
   }
 
