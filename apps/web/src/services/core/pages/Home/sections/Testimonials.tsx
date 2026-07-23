@@ -3,8 +3,6 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { callToActionCardButtonSx, readMoreButtonSx } from "./sectionButtonStyles";
 
 
 import grandmaGrandson from "../../../../../assets/core-images/grandma_grandson.png";
