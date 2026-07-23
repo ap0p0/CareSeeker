@@ -188,7 +188,7 @@ const Testimonials = () => {
                   component={RouterLink}
                   to={BASE_ROUTE_PATHS[BaseRoute.GetCare]}
                   variant="outlined"
-                  sx={{...callToActionCardButtonSx, textDecoration: "none !important", alignItems: "center" }}
+                  sx={{ textDecoration: "none !important", alignItems: "center" }}
                 > 
                   <Box component="span" className="label">
                     Learn More
@@ -236,7 +236,7 @@ const Testimonials = () => {
                   component={RouterLink}
                   to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
                   variant="outlined"
-                  sx={{...callToActionCardButtonSx, textDecoration: "none !important", alignItems: "center" }}
+                  sx={{ textDecoration: "none !important", alignItems: "center" }}
                 >
                   <Box component="span" className="label">
                     Learn More
