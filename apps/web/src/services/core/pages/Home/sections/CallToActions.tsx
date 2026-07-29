@@ -2,17 +2,10 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { ArrowUpward as ArrowUpwardIcon } from "@mui/icons-material";
-import {
-  readMoreButtonSx,
-  scrollButtonDockSx,
-} from "./sectionButtonStyles";
 
-type CallToActionsProps = {
-  onReadMore?: () => void;
-};
 
-const CallToActions = ({ onReadMore }: CallToActionsProps) => {
+
+const CallToActions = () => {
   return (
     <Box
       component="section"
@@ -24,10 +17,6 @@ const CallToActions = ({ onReadMore }: CallToActionsProps) => {
         display: "flex",
         alignItems: "center",
         bgcolor: "white",
-        py: { xs: 3, md: 5 },
-        pb: { xs: "68px", md: "80px" },
-        scrollSnapAlign: "start",
-        scrollSnapStop: "always",
 
         flexDirection: "column",
       }}
@@ -116,18 +105,6 @@ const CallToActions = ({ onReadMore }: CallToActionsProps) => {
             </Button>
         </Box>
 
-
-
-        <Box sx={scrollButtonDockSx}>
-          <Button
-            onClick={onReadMore}
-            variant="text"
-            endIcon={<ArrowUpwardIcon />}
-            sx={readMoreButtonSx}
-          >
-            Back to Top
-          </Button>
-        </Box>
       </Container>
       
 
@@ -173,6 +150,55 @@ const CallToActions = ({ onReadMore }: CallToActionsProps) => {
         </Typography>
       </Box>
 
+<Box
+  sx={{
+    position: "absolute",
+    bottom: 20,
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 10,
+
+    "& .label": {
+      opacity: 0,
+      transform: "translateY(20px)",
+      transition: "all .35s cubic-bezier(.16,1,.3,1)",
+      color: "black",
+      fontSize: "16px",
+      fontWeight: 500,
+      cursor: "pointer",
+    },
+
+    "&:hover .label": {
+      opacity: 1,
+      transform: "translateY(0)",
+      backgroundColor: "none"
+
+    },
+  }}
+>
+  <Button
+   onClick={() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }}
+    sx={{
+      minWidth: "auto",
+      padding: 0,
+      bgcolor: "blurry",
+      color: "inherit",
+      boxShadow: "none",
+
+      "&:hover": {
+        bgcolor: "blurry",
+        boxShadow: "none"
+      },
+    }}
+  >
+    <Typography className="label">
+      Back to Top
+    </Typography>
+  </Button>
+</Box>
+    
   </Box>
   );
 };

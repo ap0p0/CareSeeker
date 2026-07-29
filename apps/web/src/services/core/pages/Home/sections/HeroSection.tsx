@@ -2,19 +2,15 @@
   import Box from "@mui/material/Box";
   import Typography from "@mui/material/Typography";
   import Button from "@mui/material/Button";
-  import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
   import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
-  import { scrollButtonDockSx } from "./sectionButtonStyles";
 
   import homeHeroCaregiving from "../../../../../assets/core-images/home_hero_care_giving_cropped.svg";
   import CoreMenuButton from "../../../components/CoreMenuButton";
   import logo from "../../../../../assets/core-images/Logo-v1.svg";
 
-  type HeroSectionProps = {
-    onNext?: () => void; 
-  };
+ 
 
-  const HeroSection = ({ onNext }: HeroSectionProps) => {
+  const HeroSection = () => {
     return (
       <Box
         component="header"
@@ -25,8 +21,6 @@
           height: "100dvh",
           minHeight: 320,
           overflow: "hidden",
-          scrollSnapAlign: "start",
-          scrollSnapStop: "always",
           bgcolor: "white",
         }}
       >
@@ -167,59 +161,6 @@
               Find the Right Caregiver — Without the Guesswork
             </Typography>
           </Box>
-        </Box>
-
-
-        <Box sx={scrollButtonDockSx}>
-          <Button
-            onClick={onNext}
-            endIcon={<ArrowDownwardIcon />}
-            sx={{
-              position: "relative",
-              overflow: "hidden",
-              border: "1px solid rgba(255,255,255,0.8)",
-              borderRadius: 999,
-              px: 3.25,
-              py: 0.9,
-              color: "white",
-              fontWeight: 700,
-              letterSpacing: "0.1em",
-              textDecoration: "none !important",
-              fontSize: { xs: "1.15rem", md: "1.6rem" },
-              textUnderlineOffset: 4,
-              
-              transition:
-                "color 240ms ease-in-out, border-color 240ms ease-in-out, box-shadow 240ms ease-in-out, transform 240ms ease-in-out",
-              
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                inset: 0,
-                width: "0%",
-                bgcolor: "rgba(255,255,255,0.3)",
-                transition: "width 260ms ease-in-out",
-                zIndex: 0,
-              },
-              "& .MuiButton-endIcon, & .MuiButton-startIcon, & .MuiButton-label":
-                {
-                  position: "relative",
-                  zIndex: 1,
-                },
-              "&:hover": {
-                bgcolor: "transparent",
-                color: "#111",
-                borderColor: "white",
-                textDecoration: "none !important",
-                transform: "scale(1.03)",
-                boxShadow: "0 10px 24px rgba(0,0,0,0.2)",
-               },
-              "&:hover::before": {
-                width: "100%",
-              },
-            }}
-          >
-            GET STARTED
-          </Button>
         </Box>
       </Box>
     );
