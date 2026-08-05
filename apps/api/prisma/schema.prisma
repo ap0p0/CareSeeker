@@ -29,6 +29,25 @@ enum PresignupType {
   PROVIDER
 }
 
+enum ProviderProfileStatus {
+  ACTIVE
+  BLOCKED
+  PENDING_VERIFICATION
+}
+
+enum CareRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+enum ProviderVerificationRecordStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum JobStatus {
   OPEN
   IN_PROGRESS
@@ -56,6 +75,14 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+enum NotificationType {
+  GENERAL
+  JOB
+  MESSAGE
+  PAYMENT
+  REVIEW
 }
 
 /// Who the care seeker is requesting support for.
@@ -165,6 +192,15 @@ model User {
   role                       UserRole                   @default(SEEKER)
   providerVerificationStatus ProviderVerificationStatus?
 
+  providerAvailabilities ProviderAvailability[] @relation("provider_availability_provider")
+  providedCareRequests   CareRequest[]          @relation("care_request_provider")
+  seekerCareRequests     CareRequest[]          @relation("care_request_seeker")
+  providedReviews        Review[]               @relation("review_provider")
+  seekerReviews          Review[]               @relation("review_seeker")
+  providerVerifications  ProviderVerification[] @relation("provider_verification_provider")
+  notifications          Notification[]
+  payments               Payment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -200,6 +236,103 @@ model Presignup {
   updatedAt DateTime @updatedAt
 
   @@map("presignups")
+}
+
+model ProviderAvailability {
+  id         String    @id @default(uuid()) @db.Uuid
+  providerId String    @map("provider_id") @db.Uuid
+  dayOfWeek  Int?      @map("day_of_week")
+  date       DateTime? @db.Date
+  startTime  String    @map("start_time")
+  endTime    String    @map("end_time")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  provider User @relation("provider_availability_provider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@index([providerId, dayOfWeek])
+  @@index([providerId, date])
+  @@map("provider_availability")
+}
+
+model CareRequest {
+  id           String            @id @default(uuid()) @db.Uuid
+  providerId   String            @map("provider_id") @db.Uuid
+  careSeekerId String            @map("care_seeker_id") @db.Uuid
+  status       CareRequestStatus @default(PENDING)
+  scheduledAt  DateTime          @map("scheduled_at")
+  notes        String?
+  deletedAt    DateTime?         @map("deleted_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  provider   User @relation("care_request_provider", fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User @relation("care_request_seeker", fields: [careSeekerId], references: [id], onDelete: Restrict)
+
+  @@index([providerId])
+  @@index([providerId, status])
+  @@index([careSeekerId])
+  @@map("care_requests")
+}
+
+model Review {
+  id           String   @id @default(uuid()) @db.Uuid
+  providerId   String   @db.Uuid
+  careSeekerId String   @map("seekerId") @db.Uuid
+  rating       Int
+  comment      String?
+  deletedAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  provider   User @relation("review_provider", fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User @relation("review_seeker", fields: [careSeekerId], references: [id], onDelete: Restrict)
+
+  @@index([providerId])
+  @@index([careSeekerId])
+  @@map("reviews")
+}
+
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  title     String
+  body      String
+  type      NotificationType
+  readAt    DateTime?
+  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model ProviderVerification {
+  id           String                           @id @default(uuid()) @db.Uuid
+  providerId   String                           @map("provider_id") @db.Uuid
+  documentType String                           @map("document_type")
+  documentUrl  String                           @map("document_url")
+  status       ProviderVerificationRecordStatus @default(PENDING)
+  createdAt    DateTime                         @default(now()) @map("created_at")
+  updatedAt    DateTime                         @updatedAt @map("updated_at")
+
+  provider User @relation("provider_verification_provider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("provider_verifications")
+}
+
+model Payment {
+  id             String        @id @db.Uuid
+  userId         String        @db.Uuid
+  subscriptionId String?       @db.Uuid
+  amountCents    Int
+  currency       String
+  status         PaymentStatus
 }
 
 /// Seeker-specific onboarding / care-profile data kept off the root `User` row.
@@ -369,6 +502,10 @@ model Payment {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, status])
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
 
