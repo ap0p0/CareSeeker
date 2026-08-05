@@ -1,6 +1,14 @@
 import type { ReactNode } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Alert, Box, Button, Link as MuiLink, Paper, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Link as MuiLink,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { env } from "../../../config/env";
 import { SEEKER_ROUTE_PATHS, SeekerRoute } from "../../../routes/enums";
@@ -12,6 +20,10 @@ type ClientAuthLayoutProps = {
   footerMode: "login" | "register";
   formError?: string | null;
   statusMessage?: string | null;
+  /** When false, hides the login/register switch link. Defaults to true. */
+  showAuthFooter?: boolean;
+  /** In-flow back action (e.g. previous register step). */
+  onBack?: () => void;
 };
 
 const ClientAuthLayout = ({
@@ -21,6 +33,8 @@ const ClientAuthLayout = ({
   footerMode,
   formError = null,
   statusMessage = null,
+  showAuthFooter = true,
+  onBack,
 }: ClientAuthLayoutProps) => {
   return (
     <Box
@@ -50,42 +64,79 @@ const ClientAuthLayout = ({
       >
         <Stack spacing={3}>
           <Stack spacing={1}>
-            <Typography variant="h4" component="h1" fontWeight={700}>
+            <Typography
+              variant="h4"
+              component="h1"
+              fontWeight={700}
+              sx={{ color: (t) => t.palette.custom.blue }}
+            >
               {title}
             </Typography>
             <Typography color="text.secondary">{description}</Typography>
           </Stack>
 
           {formError ? <Alert severity="error">{formError}</Alert> : null}
-          {statusMessage ? <Alert severity="success">{statusMessage}</Alert> : null}
+          {statusMessage ? (
+            <Alert severity="success">{statusMessage}</Alert>
+          ) : null}
 
           {children}
 
-          <Button
-            component="a"
-            href={env.mainPlatformUrl}
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            fullWidth
-            sx={{ borderRadius: 999, textTransform: "none", fontWeight: 700 }}
-          >
-            Back to home
-          </Button>
-
-          <Typography variant="body2" color="text.secondary" textAlign="center">
-            {footerMode === "login" ? "Need an account? " : "Already have an account? "}
-            <MuiLink
-              component={RouterLink}
-              to={
-                footerMode === "login"
-                  ? SEEKER_ROUTE_PATHS[SeekerRoute.Register]
-                  : SEEKER_ROUTE_PATHS[SeekerRoute.Login]
-              }
-              underline="hover"
+          {onBack ? (
+            <Button
+              type="button"
+              variant="text"
+              startIcon={<ArrowBackIcon />}
+              onClick={onBack}
+              fullWidth
+              sx={{
+                borderRadius: 999,
+                textTransform: "none",
+                fontWeight: 700,
+                color: "text.secondary",
+              }}
             >
-              {footerMode === "login" ? "Register" : "Log in"}
-            </MuiLink>
-          </Typography>
+              Back
+            </Button>
+          ) : (
+            <Button
+              component="a"
+              href={env.mainPlatformUrl}
+              variant="outlined"
+              startIcon={<ArrowBackIcon />}
+              fullWidth
+              sx={{
+                borderRadius: 999,
+                textTransform: "none",
+                fontWeight: 700,
+              }}
+            >
+              Back to home
+            </Button>
+          )}
+
+          {showAuthFooter ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              textAlign="center"
+            >
+              {footerMode === "login"
+                ? "Need an account? "
+                : "Already have an account? "}
+              <MuiLink
+                component={RouterLink}
+                to={
+                  footerMode === "login"
+                    ? SEEKER_ROUTE_PATHS[SeekerRoute.Register]
+                    : SEEKER_ROUTE_PATHS[SeekerRoute.Login]
+                }
+                underline="hover"
+              >
+                {footerMode === "login" ? "Register" : "Log in"}
+              </MuiLink>
+            </Typography>
+          ) : null}
         </Stack>
       </Paper>
     </Box>

@@ -14,7 +14,6 @@
     "start:api": "pnpm --filter api start:dev",
     "start:core": "pnpm --filter web start:core",
     "start:client": "pnpm --filter web start:client",
-    "start:seeker": "pnpm --filter web start:seeker",
     "start:provider": "pnpm --filter web start:provider",
     "start:admin": "pnpm --filter web start:admin",
     "start:all": "pnpm --filter web start:all",

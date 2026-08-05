@@ -1,4 +1,4 @@
-import { env } from "../../../config/env";
+import { getApiErrorStatus, httpClient } from "../../../api/httpClient";
 
 /** Path segment for the admin authorization endpoint (appended to `env.apiBaseUrl`). */
 export const ADMIN_ME_PATH = "/admin/me" as const;
@@ -31,17 +31,16 @@ export async function fetchAdminMe(
   accessToken: string,
 ): Promise<AdminMeResult> {
   try {
-    const res = await fetch(`${env.apiBaseUrl}${ADMIN_ME_PATH}`, {
+    const { data } = await httpClient.get<AdminAppUser>(ADMIN_ME_PATH, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    if (res.status === 200) {
-      const user = (await res.json()) as AdminAppUser;
-      return { status: "ok", user };
-    }
-    if (res.status === 403) return { status: "forbidden" };
-    if (res.status === 401) return { status: "unauthorized" };
-    return { status: "error" };
-  } catch {
+
+    return { status: "ok", user: data };
+  } catch (error) {
+    const status = getApiErrorStatus(error);
+
+    if (status === 403) return { status: "forbidden" };
+    if (status === 401) return { status: "unauthorized" };
     return { status: "error" };
   }
 }

@@ -299,7 +299,6 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
 
       {navItems.map((item, i) => {
         const isActive = pathname === item.to;
-        const giveCare = item.label === "Give Care";
 
         const openDelay = i * STAGGER_STEP;
         const closeDelay = (navItems.length - 1 - i) * STAGGER_STEP;
@@ -329,8 +328,8 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
               boxShadow: "none",
               opacity: open ? 1 : 0,
               pointerEvents: open ? "auto" : "none",
-              color: giveCare ? "#1a1a1a" : isActive ? "#fff" : "rgba(255,255,255,0.82)",
-              fontWeight: giveCare || isActive ? 700 : 500,
+              color: isActive ? "black" : "rgba(255,255,255,0.82)",
+              fontWeight: isActive ? 700 : 500,
               zIndex: 0,
               transition: [
                 `right ${SLIDE_DURATION}ms ease ${delay}ms`,
@@ -338,7 +337,7 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
               ].join(", "),
               "&:hover": {
                 bgcolor: "rgba(255,255,255,0.12)",
-                color: giveCare ? "#1a1a1a" : "#fff",
+                color: "black"
               },
             }}
           >

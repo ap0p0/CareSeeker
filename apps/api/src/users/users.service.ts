@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  CareForType,
   ProviderVerificationStatus,
   UserRole,
 } from '../../generated/prisma/client.js';
@@ -41,12 +42,10 @@ export class UsersService {
 
   private buildDefaultSeekerData(supabaseId: string, email: string) {
     const identity = this.requireAuthIdentity(supabaseId, email);
-    const username = `u_${identity.supabaseId.replace(/-/g, '')}`;
 
     return {
       id: identity.supabaseId,
       email: identity.email,
-      username,
       name: 'Unknown',
       surname: 'User',
       role: UserRole.SEEKER,
@@ -59,14 +58,41 @@ export class UsersService {
     });
   }
 
+  async createSeekerUser(
+    supabaseId: string,
+    email: string,
+    profile: {
+      name: string;
+      surname: string;
+    },
+  ) {
+    const identity = this.requireAuthIdentity(supabaseId, email);
+
+    return this.prisma.user.create({
+      data: {
+        id: identity.supabaseId,
+        email: identity.email,
+        name: profile.name,
+        surname: profile.surname,
+        role: UserRole.SEEKER,
+        seekersInfo: {
+          create: {
+            careFor: CareForType.SELF,
+          },
+        },
+      },
+      include: {
+        seekersInfo: true,
+      },
+    });
+  }
+
   private buildDefaultProviderData(supabaseId: string, email: string) {
     const identity = this.requireAuthIdentity(supabaseId, email);
-    const username = `u_${identity.supabaseId.replace(/-/g, '')}`;
 
     return {
       id: identity.supabaseId,
       email: identity.email,
-      username,
       name: 'Unknown',
       surname: 'User',
       role: UserRole.PROVIDER,

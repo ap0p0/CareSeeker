@@ -1,28 +1,26 @@
-export const queryKeys = {
-  clientAuth: {
-    all: ["clientAuth"] as const,
-    login: () => [...queryKeys.clientAuth.all, "login"] as const,
-    register: () => [...queryKeys.clientAuth.all, "register"] as const,
-    seekerMe: () => [...queryKeys.clientAuth.all, "seekerMe"] as const,
-  },
-  providerAuth: {
-    all: ["providerAuth"] as const,
-    login: () => [...queryKeys.providerAuth.all, "login"] as const,
-    register: () => [...queryKeys.providerAuth.all, "register"] as const,
-    providerMe: () => [...queryKeys.providerAuth.all, "providerMe"] as const,
-  },
-  presignups: {
-    all: ["presignups"] as const,
-    seeker: () => [...queryKeys.presignups.all, "seeker"] as const,
-    provider: () => [...queryKeys.presignups.all, "provider"] as const,
-  },
-  admin: {
-    all: ["admin"] as const,
-    dashboard: () => [...queryKeys.admin.all, "dashboard"] as const,
-    careseekers: () => [...queryKeys.admin.all, "careseekers"] as const,
-    careProviders: () => [...queryKeys.admin.all, "careProviders"] as const,
-    openJobs: () => [...queryKeys.admin.all, "openJobs"] as const,
-    paymentsHistory: () => [...queryKeys.admin.all, "paymentsHistory"] as const,
-    reports: () => [...queryKeys.admin.all, "reports"] as const,
-  },
-} as const;
+export {
+  CLIENT_LOGIN_MUTATION,
+  CLIENT_REGISTER_MUTATION,
+  CLIENT_SEEKER_ME_MUTATION,
+  CLIENT_UPDATE_SEEKERS_INFO_MUTATION,
+} from "./client/keys";
+
+export {
+  PROVIDER_LOGIN_MUTATION,
+  PROVIDER_REGISTER_MUTATION,
+  PROVIDER_ME_MUTATION,
+} from "./provider/keys";
+
+export {
+  CORE_SEEKER_PRESIGNUP_MUTATION,
+  CORE_PROVIDER_PRESIGNUP_MUTATION,
+} from "./core/keys";
+
+export {
+  ADMIN_DASHBOARD_QUERY,
+  ADMIN_CARESEEKERS_QUERY,
+  ADMIN_CARE_PROVIDERS_QUERY,
+  ADMIN_OPEN_JOBS_QUERY,
+  ADMIN_PAYMENTS_HISTORY_QUERY,
+  ADMIN_REPORTS_QUERY,
+} from "./admin/keys";

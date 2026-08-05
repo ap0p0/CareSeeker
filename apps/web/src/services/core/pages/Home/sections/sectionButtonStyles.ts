@@ -23,22 +23,6 @@ export const readMoreButtonSx: SxProps<Theme> = {
   },
 };
 
-export const scrollButtonDockSx: SxProps<Theme> = {
-  position: "absolute",
-  left: 0,
-  right: 0,
-  bottom: 0,
-  height: { xs: 68, md: 80 },
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 12,
-  pointerEvents: "none",
-  "& > *": {
-    pointerEvents: "auto",
-  },
-};
-
 export const howItWorksCtaBaseSx: SxProps<Theme> = {
   px: 4.5,
   borderRadius: 999,
