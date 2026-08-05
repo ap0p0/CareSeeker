@@ -183,7 +183,9 @@ export class SeekerService {
         createdAt: payment.createdAt,
       })),
     ]
-      .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+      .sort(
+        (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
+      )
       .slice(0, 10);
 
     return {
@@ -283,9 +285,7 @@ export class SeekerService {
         ? lowerCaseEnum(info.culturalConsiderationsPreference)
         : null,
       culturalConsiderationsNotes: info.culturalConsiderationsNotes,
-      scheduleVibe: info.scheduleVibe
-        ? lowerCaseEnum(info.scheduleVibe)
-        : null,
+      scheduleVibe: info.scheduleVibe ? lowerCaseEnum(info.scheduleVibe) : null,
       homeAccessibility: info.homeAccessibility.map((item) =>
         item.toLowerCase(),
       ),
@@ -321,8 +321,7 @@ export class SeekerService {
     const password =
       typeof body.password === 'string' ? body.password.trim() : '';
     const name = typeof body.name === 'string' ? body.name.trim() : '';
-    const surname =
-      typeof body.surname === 'string' ? body.surname.trim() : '';
+    const surname = typeof body.surname === 'string' ? body.surname.trim() : '';
     const errors: string[] = [];
 
     if (!name) {
@@ -427,7 +426,8 @@ export class SeekerService {
     ) as LivingSituation | null;
 
     const livesWithSomeoneElse =
-      livingSituation !== null && livingSituation !== LivingSituation.LIVE_ALONE;
+      livingSituation !== null &&
+      livingSituation !== LivingSituation.LIVE_ALONE;
 
     const needsHelpBesidesHouseholdRaw = body.needsHelpBesidesHousehold;
     const needsHelpBesidesHousehold =
@@ -462,7 +462,6 @@ export class SeekerService {
         body.culturalConsiderationsChoice,
       errors,
       'culturalConsiderationsPreference',
-      false,
     );
     const culturalConsiderationsNotes =
       culturalConsiderationsPreference === DisclosePreference.SHARE
@@ -566,13 +565,11 @@ export class SeekerService {
       body.healthDisclosePreference ?? body.healthNotesChoice,
       errors,
       'healthDisclosePreference',
-      needsMedicalHelp === true,
     );
     const medicationsDisclosePreference = this.parseDisclosePreference(
       body.medicationsDisclosePreference ?? body.medicationsChoice,
       errors,
       'medicationsDisclosePreference',
-      needsMedicalHelp === true,
     );
 
     const healthNotes =
@@ -664,7 +661,6 @@ export class SeekerService {
     value: unknown,
     errors: string[],
     field: string,
-    _required: boolean,
   ): DisclosePreference | null {
     if (typeof value !== 'string' || value.trim().length === 0) {
       return null;
