@@ -34,7 +34,8 @@ export class MessagesService {
   }
 
   async listConversations(seekerId: string) {
-    const messages = await this.messagesRepository.listVisibleMessages(seekerId);
+    const messages =
+      await this.messagesRepository.listVisibleMessages(seekerId);
     const conversations = new Map<
       string,
       {
@@ -69,7 +70,8 @@ export class MessagesService {
 
     return Array.from(conversations.values()).sort(
       (left, right) =>
-        right.lastMessage.createdAt.getTime() - left.lastMessage.createdAt.getTime(),
+        right.lastMessage.createdAt.getTime() -
+        left.lastMessage.createdAt.getTime(),
     );
   }
 

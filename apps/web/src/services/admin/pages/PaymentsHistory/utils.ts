@@ -17,11 +17,12 @@ export function formatPaymentAmount(row: AdminPaymentRow): string {
 export function filterPaymentRows(
   rows: AdminPaymentRow[],
   search: string,
-  status: PaymentStatusFilter
+  status: PaymentStatusFilter,
 ): AdminPaymentRow[] {
   const q = search.trim().toLowerCase();
   return rows.filter((row) => {
-    if (status !== PAYMENT_STATUS_FILTER_ALL && row.status !== status) return false;
+    if (status !== PAYMENT_STATUS_FILTER_ALL && row.status !== status)
+      return false;
     if (!q) return true;
     return (
       row.id.toLowerCase().includes(q) ||
@@ -33,7 +34,15 @@ export function filterPaymentRows(
 }
 
 export function exportPaymentsCsv(rows: AdminPaymentRow[], filename: string) {
-  const headers = ["ID", "Paid at", "Amount (cents)", "Currency", "Payer", "Payee", "Status"];
+  const headers = [
+    "ID",
+    "Paid at",
+    "Amount (cents)",
+    "Currency",
+    "Payer",
+    "Payee",
+    "Status",
+  ];
   const body = rows.map((r) => [
     r.id,
     r.paidAt,

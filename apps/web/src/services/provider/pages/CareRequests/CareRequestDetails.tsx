@@ -24,7 +24,7 @@ const CareRequestDetails = () => {
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const fetchRequest = useCallback(
     () => fetchProviderCareRequestById(requestId),
-    [requestId]
+    [requestId],
   );
   const { data, isLoading, error, reload } = useProviderPageQuery({
     fetcher: fetchRequest,
@@ -34,7 +34,7 @@ const CareRequestDetails = () => {
     setActionMessage(
       action === "accept"
         ? "Request accepted. This will be saved when the API is connected."
-        : "Request rejected. This will be saved when the API is connected."
+        : "Request rejected. This will be saved when the API is connected.",
     );
   };
 
@@ -70,7 +70,9 @@ const CareRequestDetails = () => {
 
       {data ? (
         <Stack spacing={2}>
-          {actionMessage ? <Alert severity="info">{actionMessage}</Alert> : null}
+          {actionMessage ? (
+            <Alert severity="info">{actionMessage}</Alert>
+          ) : null}
           <Paper
             elevation={0}
             sx={{
@@ -96,7 +98,10 @@ const CareRequestDetails = () => {
 
           {data.status === "pending" ? (
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-              <Button variant="contained" onClick={() => handleAction("accept")}>
+              <Button
+                variant="contained"
+                onClick={() => handleAction("accept")}
+              >
                 Accept request
               </Button>
               <Button

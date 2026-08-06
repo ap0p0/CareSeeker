@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import { supabase } from "../../supabase/supabase";
 import { ProviderAuthApiError } from "./errors";
 import { PROVIDER_LOGIN_MUTATION } from "./keys";
@@ -27,7 +24,11 @@ export const signInProviderWithPassword = async ({
 
 export const useSignInProviderMutation = (
   options?: Omit<
-    UseMutationOptions<void, ProviderAuthApiError, ProviderPasswordLoginPayload>,
+    UseMutationOptions<
+      void,
+      ProviderAuthApiError,
+      ProviderPasswordLoginPayload
+    >,
     "mutationFn" | "mutationKey"
   >,
 ) =>

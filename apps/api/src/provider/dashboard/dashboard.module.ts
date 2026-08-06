@@ -9,6 +9,10 @@ import { ProviderDashboardService } from './dashboard.service';
 @Module({
   imports: [AuthModule, UsersModule],
   controllers: [ProviderDashboardController],
-  providers: [ProviderDashboardService, ProviderDashboardRepository, ProviderRepository],
+  providers: [
+    ProviderDashboardService,
+    ProviderDashboardRepository,
+    ProviderRepository,
+  ],
 })
 export class ProviderDashboardModule {}

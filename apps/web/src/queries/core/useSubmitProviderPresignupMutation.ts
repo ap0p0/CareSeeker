@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import { CORE_PROVIDER_PRESIGNUP_MUTATION } from "./keys";
 import { postPresignup } from "./presignupsShared";
 

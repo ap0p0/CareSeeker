@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CareRequestStatus } from '../../../generated/prisma/client.js';
 import { ProviderRepository } from '../provider.repository';
 import { ProviderCareRequestsRepository } from './care-requests.repository';
@@ -60,7 +64,8 @@ export class ProviderCareRequestsService {
     if (!status) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
-        message: 'status must be one of: pending, accepted, rejected, completed',
+        message:
+          'status must be one of: pending, accepted, rejected, completed',
       });
     }
 

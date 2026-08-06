@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import { getApiErrorMessage, httpClient } from "../../api/httpClient";
 import { ProviderAuthApiError } from "./errors";
 import { PROVIDER_REGISTER_MUTATION } from "./keys";

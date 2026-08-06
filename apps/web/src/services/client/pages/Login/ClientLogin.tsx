@@ -4,10 +4,7 @@ import { Button, Stack, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SEEKER_ROUTE_PATHS, SeekerRoute } from "../../../../routes/enums";
 import { useSignInClientMutation } from "../../../../queries/client";
-import {
-  ClientAuthLoadingScreen,
-  useClientAuth,
-} from "../../auth";
+import { ClientAuthLoadingScreen, useClientAuth } from "../../auth";
 import ClientAuthLayout from "../../components/ClientAuthLayout";
 
 const ClientLoginPage = () => {
@@ -52,7 +49,9 @@ const ClientLoginPage = () => {
       }
 
       if (outcome === "unauthorized") {
-        setFormError("Sign-in did not return a valid session. Please try again.");
+        setFormError(
+          "Sign-in did not return a valid session. Please try again.",
+        );
         return;
       }
 
@@ -70,7 +69,9 @@ const ClientLoginPage = () => {
       title="Client Login"
       description="Sign in to manage your care requests, providers, and upcoming jobs."
       footerMode="login"
-      formError={formError ?? signInMutation.error?.message ?? accessDeniedMessage}
+      formError={
+        formError ?? signInMutation.error?.message ?? accessDeniedMessage
+      }
     >
       <Stack component="form" spacing={2} onSubmit={handleSubmit}>
         <TextField

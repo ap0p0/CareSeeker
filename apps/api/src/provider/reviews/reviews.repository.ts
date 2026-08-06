@@ -20,14 +20,18 @@ export class ProviderReviewsRepository {
     return this.prisma.review.create({
       data: {
         providerId: providerUserId,
-        careSeekerId: payload.careSeekerId,
+        seekerId: payload.careSeekerId,
         rating: payload.rating,
         comment: payload.comment ?? null,
       },
     });
   }
 
-  update(providerUserId: string, reviewId: string, payload: UpdateReviewPayload) {
+  update(
+    providerUserId: string,
+    reviewId: string,
+    payload: UpdateReviewPayload,
+  ) {
     return this.prisma.review.updateMany({
       where: {
         id: reviewId,

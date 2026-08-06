@@ -4,12 +4,12 @@ Single **Vite + React + TypeScript** app that builds **four product variants** f
 
 ## App variants (`VITE_APP_VARIANT`)
 
-| Variant | Intended host | Role |
-|---------|----------------|------|
-| `core` | careseeker.com (marketing) | Landing, about, basic login/register placeholders |
-| `client` | client.careseeker.com | Care seeker portal (dashboard + route placeholders) |
-| `provider` | provider.careseeker.com | Care provider portal (dashboard + route placeholders) |
-| `admin` | admin.careseeker.com | **Internal admin app** — auth + route protection (see below) |
+| Variant    | Intended host              | Role                                                         |
+| ---------- | -------------------------- | ------------------------------------------------------------ |
+| `core`     | careseeker.com (marketing) | Landing, about, basic login/register placeholders            |
+| `client`   | client.careseeker.com      | Care seeker portal (dashboard + route placeholders)          |
+| `provider` | provider.careseeker.com    | Care provider portal (dashboard + route placeholders)        |
+| `admin`    | admin.careseeker.com       | **Internal admin app** — auth + route protection (see below) |
 
 The variant is fixed at **build time** via `VITE_APP_VARIANT`. In development, each `start:*` script sets it for that server instance.
 
@@ -17,7 +17,7 @@ The variant is fixed at **build time** via `VITE_APP_VARIANT`. In development, e
 
 Admin is **not** a separate codebase; it is the `admin` variant with dedicated modules under `src/services/admin/` and `src/routes/adminRoutes.tsx`.
 
-- **Login:** `/login` — Supabase `signInWithPassword`, then **`GET /admin/me`** on the API. A valid Supabase session **alone** is not enough; non-admins are **signed out** and see: *“Your account is not authorized to access the admin panel.”*
+- **Login:** `/login` — Supabase `signInWithPassword`, then **`GET /admin/me`** on the API. A valid Supabase session **alone** is not enough; non-admins are **signed out** and see: _“Your account is not authorized to access the admin panel.”_
 - **Protection:** `RequireAdmin` route guard + `AdminAuthProvider` (only mounted when variant is `admin`). All admin pages except `/login` wait on a shared loading screen until session + `/admin/me` succeed; otherwise redirect to `/login`. No flash of protected chrome before validation.
 - **Logout:** Admin layout includes **Log out** (sidebar on desktop, button above content on mobile) → `signOut` + navigate to `/login`.
 - **Reusable module:** `src/services/admin/auth/` — barrel `index.ts` exports `AdminAuthProvider`, `useAdminAuth`, `RequireAdmin`, `fetchAdminMe`, `AdminAuthLoadingScreen`, etc. **`GET /admin/me`** integration lives in `adminMe.ts`.
@@ -34,17 +34,17 @@ Client and provider variants do **not** load admin auth — isolation is enforce
 
 Vite only exposes variables prefixed with **`VITE_`**. For **Vercel (staging)** and production frontends, configure at least:
 
-| Variable | Purpose |
-|----------|---------|
-| `VITE_PUBLIC_BASE_URL` | Public URL of **this** deployment (e.g. `https://admin-careseeker.vercel.app`). Used for auth redirect base / public URL resolution in `env.publicBaseUrl`. |
-| `VITE_APP_VARIANT` | Which app is built: `core` \| `client` \| `provider` \| `admin`. **Required in production** (see `src/config/appVariant.ts`). |
-| `VITE_SUPABASE_URL` | Supabase project URL (needed wherever Supabase Auth runs, e.g. admin login). |
-| `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Supabase **anon** / publishable key (browser-safe). |
+| Variable                                | Purpose                                                                                                                                                     |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_PUBLIC_BASE_URL`                  | Public URL of **this** deployment (e.g. `https://admin-careseeker.vercel.app`). Used for auth redirect base / public URL resolution in `env.publicBaseUrl`. |
+| `VITE_APP_VARIANT`                      | Which app is built: `core` \| `client` \| `provider` \| `admin`. **Required in production** (see `src/config/appVariant.ts`).                               |
+| `VITE_SUPABASE_URL`                     | Supabase project URL (needed wherever Supabase Auth runs, e.g. admin login).                                                                                |
+| `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Supabase **anon** / publishable key (browser-safe).                                                                                                         |
 
 Optional (defaults apply if unset):
 
-| Variable | Purpose |
-|----------|---------|
+| Variable                              | Purpose                                                                                                    |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `VITE_API_BASE_URL` or `VITE_API_URL` | Backend API origin. If unset: `http://localhost:2000` on localhost, else `https://backend.careseeker.app`. |
 
 **Admin “back to home”** uses `env.mainPlatformUrl` (hostname-based: local / `*.localhost` → `http://localhost:3000`, otherwise `https://careseeker.app`), not `VITE_PUBLIC_BASE_URL`.

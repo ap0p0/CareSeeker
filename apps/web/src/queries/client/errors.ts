@@ -6,10 +6,7 @@ export type ClientAuthApiErrorCode =
 export class ClientAuthApiError extends Error {
   code: ClientAuthApiErrorCode;
 
-  constructor(
-    message: string,
-    code: ClientAuthApiErrorCode = "UNKNOWN_ERROR",
-  ) {
+  constructor(message: string, code: ClientAuthApiErrorCode = "UNKNOWN_ERROR") {
     super(message);
     this.name = "ClientAuthApiError";
     this.code = code;

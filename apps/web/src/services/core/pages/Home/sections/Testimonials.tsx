@@ -4,7 +4,6 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 
-
 import grandmaGrandson from "../../../../../assets/core-images/grandma_grandson.png";
 import grandpaGranddauther from "../../../../../assets/core-images/grandpa_granddauther.png";
 import helpingHand from "../../../../../assets/core-images/helping hand.png";
@@ -15,15 +14,15 @@ import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
 
 import { Link as RouterLink } from "react-router-dom";
 
-
-
 const people = [
   {
     id: 1,
     img: grandmaGrandson,
     quote: [
       { text: "CareSeeker", bold: true },
-      { text: " matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy." },
+      {
+        text: " matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy.",
+      },
     ],
     quotePos: "bottom" as const,
   },
@@ -31,7 +30,9 @@ const people = [
     id: 2,
     img: grandpaGranddauther,
     quote: [
-      { text: "Finally, a platform that feels safe and professional. The verification gave our family " },
+      {
+        text: "Finally, a platform that feels safe and professional. The verification gave our family ",
+      },
       { text: "real peace of mind.", bold: true },
     ],
     quotePos: "top" as const,
@@ -57,7 +58,6 @@ const people = [
   },
 ] as const;
 
-
 const Testimonials = () => {
   return (
     <Box
@@ -72,7 +72,6 @@ const Testimonials = () => {
         bgcolor: "#efe7f2",
         py: { xs: 3, md: 5 },
         pb: { xs: "68px", md: "80px" },
-        
       }}
     >
       <Container maxWidth="lg" sx={{ width: "100%" }}>
@@ -94,30 +93,39 @@ const Testimonials = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  minHeight: "65px", 
+                  minHeight: "65px",
                 }}
               >
-                
-              <Typography
-                variant="body2"
-                sx={{ fontSize: "0.72rem", lineHeight: 1.4, fontStyle: "italic" }}
-              >
-                {p.quote.map((segment, i) => (
-                  <Box
-                    key={i}
-                    component="span"
-                    sx={segment.text ? { fontWeight: 700, color: "black" } : undefined}
-                  >
-                    {segment.text}
-                  </Box>
-                ))}
-              </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "0.72rem",
+                    lineHeight: 1.4,
+                    fontStyle: "italic",
+                  }}
+                >
+                  {p.quote.map((segment, i) => (
+                    <Box
+                      key={i}
+                      component="span"
+                      sx={
+                        segment.text
+                          ? { fontWeight: 700, color: "black" }
+                          : undefined
+                      }
+                    >
+                      {segment.text}
+                    </Box>
+                  ))}
+                </Typography>
               </Box>
             );
 
             return (
               <Grid key={p.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <Box
+                  sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+                >
                   {p.quotePos === "top" && QuotePill}
 
                   <Box
@@ -144,10 +152,6 @@ const Testimonials = () => {
           })}
         </Grid>
 
-        
-
-        
-        
         <Grid container spacing={{ xs: 2.5, md: 3 }}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Card
@@ -188,8 +192,11 @@ const Testimonials = () => {
                   component={RouterLink}
                   to={BASE_ROUTE_PATHS[BaseRoute.GetCare]}
                   variant="outlined"
-                  sx={{ textDecoration: "none !important", alignItems: "center" }}
-                > 
+                  sx={{
+                    textDecoration: "none !important",
+                    alignItems: "center",
+                  }}
+                >
                   <Box component="span" className="label">
                     Learn More
                   </Box>
@@ -214,7 +221,11 @@ const Testimonials = () => {
                   "&:last-child": { pb: { xs: 3, md: 4 } },
                 }}
               >
-                <Typography variant="h5" fontWeight={800} sx={{ mb: 1, color: "black" }}>
+                <Typography
+                  variant="h5"
+                  fontWeight={800}
+                  sx={{ mb: 1, color: "black" }}
+                >
                   Care
                   <span style={{ color: "white" }}>givers</span>
                 </Typography>
@@ -236,7 +247,10 @@ const Testimonials = () => {
                   component={RouterLink}
                   to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
                   variant="outlined"
-                  sx={{ textDecoration: "none !important", alignItems: "center" }}
+                  sx={{
+                    textDecoration: "none !important",
+                    alignItems: "center",
+                  }}
                 >
                   <Box component="span" className="label">
                     Learn More
@@ -246,7 +260,6 @@ const Testimonials = () => {
             </Card>
           </Grid>
         </Grid>
-
       </Container>
     </Box>
   );

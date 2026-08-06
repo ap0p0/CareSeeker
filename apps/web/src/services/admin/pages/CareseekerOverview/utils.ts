@@ -10,7 +10,7 @@ export type CareseekerStatusFilter =
 export function filterCareseekerRows(
   rows: AdminCareseekerRow[],
   search: string,
-  status: CareseekerStatusFilter
+  status: CareseekerStatusFilter,
 ): AdminCareseekerRow[] {
   const q = search.trim().toLowerCase();
   return rows.filter((row) => {
@@ -25,7 +25,10 @@ export function filterCareseekerRows(
   });
 }
 
-export function exportCareseekersCsv(rows: AdminCareseekerRow[], filename: string) {
+export function exportCareseekersCsv(
+  rows: AdminCareseekerRow[],
+  filename: string,
+) {
   const headers = ["ID", "Name", "Email", "Status", "Joined", "City"];
   const body = rows.map((r) => [
     r.id,

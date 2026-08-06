@@ -18,7 +18,10 @@ type DashboardRecentActivityProps = {
 const DashboardRecentActivity = ({ items }: DashboardRecentActivityProps) => {
   return (
     <Card variant="outlined">
-      <CardHeader title="Recent activity" subheader="Latest platform events (sample data)" />
+      <CardHeader
+        title="Recent activity"
+        subheader="Latest platform events (sample data)"
+      />
       <Divider />
       <CardContent sx={{ pt: 0 }}>
         {items.length === 0 ? (
@@ -28,7 +31,12 @@ const DashboardRecentActivity = ({ items }: DashboardRecentActivityProps) => {
         ) : (
           <List dense disablePadding>
             {items.map((item) => (
-              <ListItem key={item.id} alignItems="flex-start" disableGutters sx={{ py: 1 }}>
+              <ListItem
+                key={item.id}
+                alignItems="flex-start"
+                disableGutters
+                sx={{ py: 1 }}
+              >
                 <ListItemText
                   primary={item.message}
                   secondary={formatRelativeUtc(item.at)}

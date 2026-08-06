@@ -4,9 +4,9 @@ CareSeeker is a two-sided care marketplace powered by AI, verification, and huma
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [`apps/api`](./apps/api/README.md) | NestJS API — Prisma, PostgreSQL, Supabase JWT, `/me`, `/admin/me`, presignups |
+| Package                            | Description                                                                         |
+| ---------------------------------- | ----------------------------------------------------------------------------------- |
+| [`apps/api`](./apps/api/README.md) | NestJS API — Prisma, PostgreSQL, Supabase JWT, `/me`, `/admin/me`, presignups       |
 | [`apps/web`](./apps/web/README.md) | Vite + React — four variants (core, client, provider, **admin** with auth + guards) |
 
 ## Build and Deployment

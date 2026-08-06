@@ -204,11 +204,11 @@ const GiveCare = () => {
 
   const cityOptions = useMemo(
     () => (stateValue ? (stateCityOptions[stateValue] ?? []) : []),
-    [stateValue]
+    [stateValue],
   );
 
   const hasValidState = Boolean(
-    stateValue && (usStates as readonly string[]).includes(stateValue)
+    stateValue && (usStates as readonly string[]).includes(stateValue),
   );
   const hasValidCity = city.trim().length > 0;
   const phoneDigits = phone.replace(/\D/g, "");

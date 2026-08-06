@@ -60,7 +60,7 @@ export async function fetchProviderDashboardData(): Promise<ProviderDashboardDat
 }
 
 export async function fetchProviderCareRequests(
-  filter: "all" | "active" | "completed" = "all"
+  filter: "all" | "active" | "completed" = "all",
 ): Promise<ProviderCareRequest[]> {
   await delay(450);
 
@@ -106,7 +106,7 @@ export async function fetchProviderCareRequests(
 }
 
 export async function fetchProviderCareRequestById(
-  requestId: string
+  requestId: string,
 ): Promise<ProviderCareRequest | null> {
   const requests = await fetchProviderCareRequests("all");
   return requests.find((request) => request.id === requestId) ?? null;

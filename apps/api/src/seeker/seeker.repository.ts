@@ -218,8 +218,7 @@ export class SeekerRepository {
         needsHelpBesidesHousehold: data.needsHelpBesidesHousehold,
         preferredCaregiverGender: data.preferredCaregiverGender,
         preferredCaregiverLanguage: data.preferredCaregiverLanguage,
-        culturalConsiderationsPreference:
-          data.culturalConsiderationsPreference,
+        culturalConsiderationsPreference: data.culturalConsiderationsPreference,
         culturalConsiderationsNotes: data.culturalConsiderationsNotes,
         scheduleVibe: data.scheduleVibe,
         homeAccessibility: data.homeAccessibility,

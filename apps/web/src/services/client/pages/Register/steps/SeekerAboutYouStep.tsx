@@ -162,7 +162,9 @@ const SeekerAboutYouStep = ({
       value.culturalConsiderationsChoice === "share" &&
       !value.culturalConsiderationsNotes.trim()
     ) {
-      setLocalError("Please share your cultural considerations, or choose prefer not to say.");
+      setLocalError(
+        "Please share your cultural considerations, or choose prefer not to say.",
+      );
       return;
     }
 
@@ -269,10 +271,7 @@ const SeekerAboutYouStep = ({
           <RadioGroup
             value={value.needsHelpBesidesHousehold}
             onChange={(event) =>
-              update(
-                "needsHelpBesidesHousehold",
-                event.target.value as YesNo,
-              )
+              update("needsHelpBesidesHousehold", event.target.value as YesNo)
             }
           >
             <FormControlLabel value="yes" control={<Radio />} label="Yes" />
@@ -406,7 +405,9 @@ const SeekerAboutYouStep = ({
       </Box>
 
       <FormControl fullWidth required disabled={submitting}>
-        <InputLabel id="care-urgency-label">How soon do you need care?</InputLabel>
+        <InputLabel id="care-urgency-label">
+          How soon do you need care?
+        </InputLabel>
         <Select
           labelId="care-urgency-label"
           label="How soon do you need care?"

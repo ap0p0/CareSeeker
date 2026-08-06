@@ -7,7 +7,11 @@ type ProviderStatCardProps = {
   helperText?: string;
 };
 
-const ProviderStatCard = ({ label, value, helperText }: ProviderStatCardProps) => {
+const ProviderStatCard = ({
+  label,
+  value,
+  helperText,
+}: ProviderStatCardProps) => {
   return (
     <Paper
       elevation={0}

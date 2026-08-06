@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import {
   fetchSeekerMe,
   type SeekerMeResult,

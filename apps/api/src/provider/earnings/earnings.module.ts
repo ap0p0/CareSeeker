@@ -9,6 +9,10 @@ import { ProviderEarningsService } from './earnings.service';
 @Module({
   imports: [AuthModule, UsersModule],
   controllers: [ProviderEarningsController],
-  providers: [ProviderEarningsService, ProviderEarningsRepository, ProviderRepository],
+  providers: [
+    ProviderEarningsService,
+    ProviderEarningsRepository,
+    ProviderRepository,
+  ],
 })
 export class ProviderEarningsModule {}

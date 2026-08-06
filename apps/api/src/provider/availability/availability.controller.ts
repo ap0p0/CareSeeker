@@ -17,7 +17,9 @@ import { ProviderAvailabilityService } from './availability.service';
 @Controller('provider/availability')
 @UseGuards(SupabaseJwtGuard)
 export class ProviderAvailabilityController {
-  constructor(private readonly availabilityService: ProviderAvailabilityService) {}
+  constructor(
+    private readonly availabilityService: ProviderAvailabilityService,
+  ) {}
 
   @Get()
   list(@Req() req: AuthRequest) {
@@ -43,7 +45,13 @@ export class ProviderAvailabilityController {
   }
 
   @Delete(':availabilityId')
-  remove(@Req() req: AuthRequest, @Param('availabilityId') availabilityId: string) {
-    return this.availabilityService.remove(requireProviderUserId(req), availabilityId);
+  remove(
+    @Req() req: AuthRequest,
+    @Param('availabilityId') availabilityId: string,
+  ) {
+    return this.availabilityService.remove(
+      requireProviderUserId(req),
+      availabilityId,
+    );
   }
 }

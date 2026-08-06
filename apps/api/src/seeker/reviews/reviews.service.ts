@@ -27,7 +27,10 @@ export class ReviewsService {
     }
 
     try {
-      const review = await this.reviewsRepository.createReview(seekerId, payload);
+      const review = await this.reviewsRepository.createReview(
+        seekerId,
+        payload,
+      );
       return this.serializeReview(review);
     } catch (error: unknown) {
       if (
@@ -46,7 +49,10 @@ export class ReviewsService {
 
   async updateReview(seekerId: string, reviewId: string, body: unknown) {
     this.ensureUuid(reviewId, 'reviewId');
-    const existing = await this.reviewsRepository.findReview(seekerId, reviewId);
+    const existing = await this.reviewsRepository.findReview(
+      seekerId,
+      reviewId,
+    );
     if (!existing) {
       throw new NotFoundException({
         code: 'REVIEW_NOT_FOUND',
@@ -66,7 +72,8 @@ export class ReviewsService {
 
   async getRatingStatistics(providerId: string) {
     this.ensureUuid(providerId, 'providerId');
-    const provider = await this.reviewsRepository.findApprovedProvider(providerId);
+    const provider =
+      await this.reviewsRepository.findApprovedProvider(providerId);
     if (!provider) {
       throw new NotFoundException({
         code: 'PROVIDER_NOT_FOUND',

@@ -1,7 +1,7 @@
 export function downloadCsv(
   filename: string,
   headers: string[],
-  rows: string[][]
+  rows: string[][],
 ): void {
   const escape = (cell: string) => {
     if (/[",\n\r]/.test(cell)) {

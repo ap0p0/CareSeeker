@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProviderRepository } from '../provider.repository';
 import { ProviderProfileRepository } from './profile.repository';
 import type {
@@ -39,7 +43,10 @@ export class ProviderProfileService {
 
     await this.requireProfile(userId);
 
-    const updated = await this.profileRepository.updateByUserId(userId, payload);
+    const updated = await this.profileRepository.updateByUserId(
+      userId,
+      payload,
+    );
     const status =
       updated.providerVerificationStatus === 'APPROVED'
         ? 'active'
@@ -71,7 +78,9 @@ export class ProviderProfileService {
     return resolved;
   }
 
-  private validateUpdatePayload(rawPayload: unknown): UpdateProviderProfilePayload {
+  private validateUpdatePayload(
+    rawPayload: unknown,
+  ): UpdateProviderProfilePayload {
     if (!rawPayload || typeof rawPayload !== 'object') {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',

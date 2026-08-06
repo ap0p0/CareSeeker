@@ -39,7 +39,11 @@ const columns: AdminTableColumn<AdminReportRow>[] = [
         label={row.status}
         variant="outlined"
         color={
-          row.status === "ready" ? "success" : row.status === "failed" ? "error" : "info"
+          row.status === "ready"
+            ? "success"
+            : row.status === "failed"
+              ? "error"
+              : "info"
         }
       />
     ),
@@ -49,22 +53,29 @@ const columns: AdminTableColumn<AdminReportRow>[] = [
 const ReportsPage = () => {
   const { data = [], isLoading } = useAdminReportsQuery();
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<ReportStatusFilter>(REPORT_STATUS_FILTER_ALL);
-  const [orderBy, setOrderBy] = useState<keyof AdminReportRow & string>("generatedAt");
+  const [status, setStatus] = useState<ReportStatusFilter>(
+    REPORT_STATUS_FILTER_ALL,
+  );
+  const [orderBy, setOrderBy] = useState<keyof AdminReportRow & string>(
+    "generatedAt",
+  );
   const [order, setOrder] = useState<SortOrder>("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const filtered = useMemo(() => filterReportRows(data, search, status), [data, search, status]);
+  const filtered = useMemo(
+    () => filterReportRows(data, search, status),
+    [data, search, status],
+  );
 
   const sorted = useMemo(
     () => sortAdminRows(filtered, orderBy, order, columns),
-    [filtered, orderBy, order]
+    [filtered, orderBy, order],
   );
 
   const paged = useMemo(
     () => sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [sorted, page, rowsPerPage]
+    [sorted, page, rowsPerPage],
   );
 
   const onSort = (columnId: keyof AdminReportRow & string) => {
@@ -96,7 +107,10 @@ const ReportsPage = () => {
           />
         }
         onExportCsv={() =>
-          exportReportsCsv(sorted, `reports-${new Date().toISOString().slice(0, 10)}.csv`)
+          exportReportsCsv(
+            sorted,
+            `reports-${new Date().toISOString().slice(0, 10)}.csv`,
+          )
         }
         exportDisabled={sorted.length === 0}
       >

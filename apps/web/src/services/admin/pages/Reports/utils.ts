@@ -10,11 +10,12 @@ export type ReportStatusFilter =
 export function filterReportRows(
   rows: AdminReportRow[],
   search: string,
-  status: ReportStatusFilter
+  status: ReportStatusFilter,
 ): AdminReportRow[] {
   const q = search.trim().toLowerCase();
   return rows.filter((row) => {
-    if (status !== REPORT_STATUS_FILTER_ALL && row.status !== status) return false;
+    if (status !== REPORT_STATUS_FILTER_ALL && row.status !== status)
+      return false;
     if (!q) return true;
     return (
       row.name.toLowerCase().includes(q) ||
@@ -26,6 +27,12 @@ export function filterReportRows(
 
 export function exportReportsCsv(rows: AdminReportRow[], filename: string) {
   const headers = ["ID", "Name", "Category", "Generated", "Status"];
-  const body = rows.map((r) => [r.id, r.name, r.category, r.generatedAt, r.status]);
+  const body = rows.map((r) => [
+    r.id,
+    r.name,
+    r.category,
+    r.generatedAt,
+    r.status,
+  ]);
   downloadCsv(filename, headers, body);
 }

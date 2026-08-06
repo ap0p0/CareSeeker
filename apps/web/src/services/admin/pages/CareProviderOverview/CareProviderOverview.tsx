@@ -52,25 +52,29 @@ const columns: AdminTableColumn<AdminCareProviderRow>[] = [
 const CareProviderOverviewPage = () => {
   const { data = [], isLoading } = useAdminCareProvidersQuery();
   const [search, setSearch] = useState("");
-  const [verification, setVerification] = useState<VerificationFilter>(VERIFICATION_FILTER_ALL);
-  const [orderBy, setOrderBy] = useState<keyof AdminCareProviderRow & string>("name");
+  const [verification, setVerification] = useState<VerificationFilter>(
+    VERIFICATION_FILTER_ALL,
+  );
+  const [orderBy, setOrderBy] = useState<keyof AdminCareProviderRow & string>(
+    "name",
+  );
   const [order, setOrder] = useState<SortOrder>("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filtered = useMemo(
     () => filterCareProviderRows(data, search, verification),
-    [data, search, verification]
+    [data, search, verification],
   );
 
   const sorted = useMemo(
     () => sortAdminRows(filtered, orderBy, order, columns),
-    [filtered, orderBy, order]
+    [filtered, orderBy, order],
   );
 
   const paged = useMemo(
     () => sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [sorted, page, rowsPerPage]
+    [sorted, page, rowsPerPage],
   );
 
   const onSort = (columnId: keyof AdminCareProviderRow & string) => {
@@ -104,7 +108,7 @@ const CareProviderOverviewPage = () => {
         onExportCsv={() =>
           exportCareProvidersCsv(
             sorted,
-            `care-providers-${new Date().toISOString().slice(0, 10)}.csv`
+            `care-providers-${new Date().toISOString().slice(0, 10)}.csv`,
           )
         }
         exportDisabled={sorted.length === 0}

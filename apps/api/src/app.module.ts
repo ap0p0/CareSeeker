@@ -11,7 +11,13 @@ import { SeekerController } from './seeker/seeker.controller';
 import { SeekerService } from './seeker/seeker.service';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, PresignupsModule, ProviderModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    UsersModule,
+    PresignupsModule,
+    ProviderModule,
+  ],
   controllers: [AppController, AdminController, SeekerController],
   providers: [AppService, SeekerService],
 })

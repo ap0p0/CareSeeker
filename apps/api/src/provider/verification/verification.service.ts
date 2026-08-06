@@ -31,7 +31,9 @@ export class ProviderVerificationService {
 
   async status(userId: string) {
     const provider = await this.providerRepository.ensureByUserId(userId);
-    const latest = await this.verificationRepository.latestByProviderId(provider.id);
+    const latest = await this.verificationRepository.latestByProviderId(
+      provider.id,
+    );
 
     return {
       status: latest?.status.toLowerCase() ?? 'pending',

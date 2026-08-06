@@ -30,22 +30,22 @@ cp .env.example .env
 # then edit .env and set DATABASE_URL at minimum
 ```
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL URL for Prisma. |
-| `SUPABASE_JWT_SECRET` | Yes* | Verifies **HS256** access tokens (legacy “JWT Secret” under API settings). **Not** the anon/publishable key. |
-| `SUPABASE_URL` | Yes* | `https://<project-ref>.supabase.co` — required to verify **asymmetric** JWTs (JWKS). Use the same project as Auth. |
-| `SUPABASE_SECRET_KEY` | For `POST /seeker/register` | Supabase secret key (`sb_secret_...`) used by the API to create auth users. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Legacy fallback | Older service-role key name still accepted by the backend for compatibility. |
-| `PORT` | No | HTTP port (default **2000**). |
-| `CORS_ORIGINS` | No | Comma-separated extra allowed origins. |
+| Variable                    | Required                    | Description                                                                                                        |
+| --------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `DATABASE_URL`              | Yes                         | PostgreSQL URL for Prisma.                                                                                         |
+| `SUPABASE_JWT_SECRET`       | Yes\*                       | Verifies **HS256** access tokens (legacy “JWT Secret” under API settings). **Not** the anon/publishable key.       |
+| `SUPABASE_URL`              | Yes\*                       | `https://<project-ref>.supabase.co` — required to verify **asymmetric** JWTs (JWKS). Use the same project as Auth. |
+| `SUPABASE_SECRET_KEY`       | For `POST /seeker/register` | Supabase secret key (`sb_secret_...`) used by the API to create auth users.                                        |
+| `SUPABASE_SERVICE_ROLE_KEY` | Legacy fallback             | Older service-role key name still accepted by the backend for compatibility.                                       |
+| `PORT`                      | No                          | HTTP port (default **2000**).                                                                                      |
+| `CORS_ORIGINS`              | No                          | Comma-separated extra allowed origins.                                                                             |
 
 \*For JWT: set **both** during Supabase migration, or whichever matches your token algorithm (**HS256** → `SUPABASE_JWT_SECRET`; **ES256** / signing keys → `SUPABASE_URL`).
 
 Often present in production configs but **not read by this codebase** (safe to set for your host / Docker image):
 
-| Variable | Notes |
-|----------|--------|
+| Variable       | Notes                                                                        |
+| -------------- | ---------------------------------------------------------------------------- |
 | `NODE_VERSION` | Common on Vercel, Railway, Docker, CI to select Node; Nest does not read it. |
 
 **About `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`:** those names are for **browser / Next.js-style frontends**. The **API does not use them**. The server needs **`SUPABASE_URL`** and/or **`SUPABASE_JWT_SECRET`** for JWT validation (see table above). If you only copy frontend anon keys, add these separately for `apps/api`.
@@ -102,9 +102,9 @@ pnpm start:api
 
 ## Scripts (package.json)
 
-| Script | Purpose |
-|--------|---------|
-| `start:dev` | Nest watch |
-| `build` | `prisma generate` + Nest build |
-| `start:prod` | Run compiled `dist/src/main.js` |
-| `lint` / `test` | ESLint / Jest |
+| Script          | Purpose                         |
+| --------------- | ------------------------------- |
+| `start:dev`     | Nest watch                      |
+| `build`         | `prisma generate` + Nest build  |
+| `start:prod`    | Run compiled `dist/src/main.js` |
+| `lint` / `test` | ESLint / Jest                   |

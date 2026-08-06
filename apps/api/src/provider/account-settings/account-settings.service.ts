@@ -49,7 +49,9 @@ export class ProviderAccountSettingsService {
     return { success: true };
   }
 
-  private validatePayload(rawPayload: unknown): UpdateProviderAccountSettingsPayload {
+  private validatePayload(
+    rawPayload: unknown,
+  ): UpdateProviderAccountSettingsPayload {
     if (!rawPayload || typeof rawPayload !== 'object') {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
@@ -62,7 +64,10 @@ export class ProviderAccountSettingsService {
     const errors: string[] = [];
 
     if (Object.prototype.hasOwnProperty.call(body, 'email')) {
-      if (typeof body.email !== 'string' || !EMAIL_REGEX.test(body.email.trim().toLowerCase())) {
+      if (
+        typeof body.email !== 'string' ||
+        !EMAIL_REGEX.test(body.email.trim().toLowerCase())
+      ) {
         errors.push('email must be a valid email address');
       } else {
         payload.email = body.email.trim().toLowerCase();
@@ -70,7 +75,10 @@ export class ProviderAccountSettingsService {
     }
 
     if (Object.prototype.hasOwnProperty.call(body, 'password')) {
-      if (typeof body.password !== 'string' || body.password.trim().length < 6) {
+      if (
+        typeof body.password !== 'string' ||
+        body.password.trim().length < 6
+      ) {
         errors.push('password must be at least 6 characters');
       } else {
         payload.password = body.password.trim();

@@ -15,8 +15,8 @@ The `users` table stores application-level state that Supabase `auth.users` does
 | ---------------------------- | --------------------------------------------- | ---------------------------------------------- |
 | `id`                         | UUID                                          | Equals Supabase `auth.users.id` (canonical id) |
 | `email`                      | string                                        | From Supabase auth                             |
-| `name`                       | string                                        | Required                                      |
-| `surname`                    | string                                        | Required                                      |
+| `name`                       | string                                        | Required                                       |
+| `surname`                    | string                                        | Required                                       |
 | `role`                       | `seeker` \| `provider` \| `admin`             | Application role                               |
 | `providerVerificationStatus` | `pending` \| `approved` \| `rejected` \| null | For providers only                             |
 

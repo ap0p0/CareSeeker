@@ -131,9 +131,7 @@ const SeekerMedicalHistoryStep = ({
         <Stack spacing={3}>
           <Box>
             <FormControl disabled={submitting}>
-              <FormLabel
-                sx={{ mb: 1, fontWeight: 600, color: "text.primary" }}
-              >
+              <FormLabel sx={{ mb: 1, fontWeight: 600, color: "text.primary" }}>
                 Is there anything about your health a caregiver should know?
               </FormLabel>
               <Typography
@@ -185,9 +183,7 @@ const SeekerMedicalHistoryStep = ({
 
           <Box>
             <FormControl disabled={submitting}>
-              <FormLabel
-                sx={{ mb: 1, fontWeight: 600, color: "text.primary" }}
-              >
+              <FormLabel sx={{ mb: 1, fontWeight: 600, color: "text.primary" }}>
                 Are you on any medications or a special care plan?
               </FormLabel>
               <Typography

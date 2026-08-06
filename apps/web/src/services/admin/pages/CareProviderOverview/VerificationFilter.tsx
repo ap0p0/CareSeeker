@@ -7,7 +7,10 @@ type VerificationFilterProps = {
   onChange: (v: VerificationFilter) => void;
 };
 
-const VerificationFilterControl = ({ value, onChange }: VerificationFilterProps) => {
+const VerificationFilterControl = ({
+  value,
+  onChange,
+}: VerificationFilterProps) => {
   return (
     <FormControl size="small" fullWidth>
       <InputLabel id="provider-verification-filter">Verification</InputLabel>

@@ -65,7 +65,10 @@ export class ProviderService {
         authUser.email,
       );
 
-      await this.providerRepository.findOrCreateByUser(appUser.id, appUser.email);
+      await this.providerRepository.findOrCreateByUser(
+        appUser.id,
+        appUser.email,
+      );
 
       return {
         id: appUser.id,

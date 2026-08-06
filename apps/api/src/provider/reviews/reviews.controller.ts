@@ -34,6 +34,10 @@ export class ProviderReviewsController {
     @Param('reviewId') reviewId: string,
     @Body() body: unknown,
   ) {
-    return this.reviewsService.update(requireProviderUserId(req), reviewId, body);
+    return this.reviewsService.update(
+      requireProviderUserId(req),
+      reviewId,
+      body,
+    );
   }
 }

@@ -13,15 +13,19 @@ export class SubscriptionsService {
   ) {}
 
   async getSubscription(userId: string) {
-    const subscription = await this.subscriptionsRepository.getSubscription(userId);
+    const subscription =
+      await this.subscriptionsRepository.getSubscription(userId);
     return subscription ? this.serializeSubscription(subscription) : null;
   }
 
   async getSubscriptionStatus(userId: string) {
-    const subscription = await this.subscriptionsRepository.getSubscription(userId);
+    const subscription =
+      await this.subscriptionsRepository.getSubscription(userId);
 
     return {
-      status: lowerCaseEnum(subscription?.status ?? SubscriptionStatus.INACTIVE),
+      status: lowerCaseEnum(
+        subscription?.status ?? SubscriptionStatus.INACTIVE,
+      ),
     };
   }
 

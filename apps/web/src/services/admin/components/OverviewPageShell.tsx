@@ -58,7 +58,9 @@ const OverviewPageShell = ({
             },
           }}
         />
-        {filterSlot ? <Box sx={{ minWidth: { sm: 180 } }}>{filterSlot}</Box> : null}
+        {filterSlot ? (
+          <Box sx={{ minWidth: { sm: 180 } }}>{filterSlot}</Box>
+        ) : null}
         <Button
           variant="outlined"
           startIcon={<FileDownloadOutlinedIcon />}

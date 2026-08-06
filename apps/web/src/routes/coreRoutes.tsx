@@ -29,6 +29,6 @@ export const coreRouter = createBrowserRouter(
         element={<Register />}
       />
       <Route path="*" element={<CoreNotFound />} />
-    </>
-  )
+    </>,
+  ),
 );

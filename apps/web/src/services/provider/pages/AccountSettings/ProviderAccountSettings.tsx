@@ -51,7 +51,9 @@ const ProviderAccountSettings = () => {
       description="Update your account information, password, and notification preferences."
     >
       <Stack spacing={2}>
-        {statusMessage ? <Alert severity="success">{statusMessage}</Alert> : null}
+        {statusMessage ? (
+          <Alert severity="success">{statusMessage}</Alert>
+        ) : null}
         {errorMessage ? <Alert severity="error">{errorMessage}</Alert> : null}
 
         <Paper
@@ -128,7 +130,9 @@ const ProviderAccountSettings = () => {
               control={
                 <Switch
                   checked={emailNotifications}
-                  onChange={(event) => setEmailNotifications(event.target.checked)}
+                  onChange={(event) =>
+                    setEmailNotifications(event.target.checked)
+                  }
                 />
               }
               label="Email notifications"
@@ -137,7 +141,9 @@ const ProviderAccountSettings = () => {
               control={
                 <Switch
                   checked={pushNotifications}
-                  onChange={(event) => setPushNotifications(event.target.checked)}
+                  onChange={(event) =>
+                    setPushNotifications(event.target.checked)
+                  }
                 />
               }
               label="Push notifications"

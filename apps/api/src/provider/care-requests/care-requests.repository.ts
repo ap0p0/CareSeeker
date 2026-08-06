@@ -16,7 +16,11 @@ export class ProviderCareRequestsRepository {
     });
   }
 
-  updateStatus(providerId: string, requestId: string, status: CareRequestStatus) {
+  updateStatus(
+    providerId: string,
+    requestId: string,
+    status: CareRequestStatus,
+  ) {
     return this.prisma.careRequest.updateMany({
       where: {
         id: requestId,

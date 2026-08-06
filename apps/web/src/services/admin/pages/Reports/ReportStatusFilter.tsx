@@ -7,7 +7,10 @@ type ReportStatusFilterProps = {
   onChange: (v: ReportStatusFilter) => void;
 };
 
-const ReportStatusFilterControl = ({ value, onChange }: ReportStatusFilterProps) => {
+const ReportStatusFilterControl = ({
+  value,
+  onChange,
+}: ReportStatusFilterProps) => {
   return (
     <FormControl size="small" fullWidth>
       <InputLabel id="report-status-filter">Status</InputLabel>

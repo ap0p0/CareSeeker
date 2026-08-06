@@ -15,7 +15,9 @@ import { ProviderCareRequestsService } from './care-requests.service';
 @Controller('provider/care-requests')
 @UseGuards(SupabaseJwtGuard)
 export class ProviderCareRequestsController {
-  constructor(private readonly careRequestsService: ProviderCareRequestsService) {}
+  constructor(
+    private readonly careRequestsService: ProviderCareRequestsService,
+  ) {}
 
   @Get()
   list(@Req() req: AuthRequest) {
@@ -24,12 +26,18 @@ export class ProviderCareRequestsController {
 
   @Patch(':requestId/accept')
   accept(@Req() req: AuthRequest, @Param('requestId') requestId: string) {
-    return this.careRequestsService.accept(requireProviderUserId(req), requestId);
+    return this.careRequestsService.accept(
+      requireProviderUserId(req),
+      requestId,
+    );
   }
 
   @Patch(':requestId/reject')
   reject(@Req() req: AuthRequest, @Param('requestId') requestId: string) {
-    return this.careRequestsService.reject(requireProviderUserId(req), requestId);
+    return this.careRequestsService.reject(
+      requireProviderUserId(req),
+      requestId,
+    );
   }
 
   @Patch(':requestId/status')

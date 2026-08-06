@@ -1,7 +1,4 @@
-import {
-  useMutation,
-  type UseMutationOptions,
-} from "@tanstack/react-query";
+import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
 import { getApiErrorMessage, httpClient } from "../../api/httpClient";
 import { supabase } from "../../supabase/supabase";
 import { ClientAuthApiError } from "./errors";

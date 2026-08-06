@@ -77,14 +77,6 @@ enum PaymentStatus {
   REFUNDED
 }
 
-enum NotificationType {
-  GENERAL
-  JOB
-  MESSAGE
-  PAYMENT
-  REVIEW
-}
-
 /// Who the care seeker is requesting support for.
 enum CareForType {
   SELF
@@ -192,31 +184,27 @@ model User {
   role                       UserRole                   @default(SEEKER)
   providerVerificationStatus ProviderVerificationStatus?
 
-  providerAvailabilities ProviderAvailability[] @relation("provider_availability_provider")
-  providedCareRequests   CareRequest[]          @relation("care_request_provider")
-  seekerCareRequests     CareRequest[]          @relation("care_request_seeker")
-  providedReviews        Review[]               @relation("review_provider")
-  seekerReviews          Review[]               @relation("review_seeker")
-  providerVerifications  ProviderVerification[] @relation("provider_verification_provider")
-  notifications          Notification[]
-  payments               Payment[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  jobs                    Job[]          @relation("SeekerJobs")
-  savedProviders          SavedProvider[] @relation("SavedProvidersBySeeker")
-  savedBySeekers          SavedProvider[] @relation("SavedProvidersByProvider")
-  notifications           Notification[]
-  sentMessages            Message[]      @relation("SentMessages")
-  receivedMessages        Message[]      @relation("ReceivedMessages")
-  writtenReviews          Review[]       @relation("SeekerReviews")
-  receivedReviews         Review[]       @relation("ProviderReviews")
-  subscriptions           Subscription[]
-  payments                Payment[]
+  providerAvailabilities ProviderAvailability[] @relation("provider_availability_provider")
+  providedCareRequests   CareRequest[]          @relation("care_request_provider")
+  seekerCareRequests     CareRequest[]          @relation("care_request_seeker")
+  providerVerifications  ProviderVerification[] @relation("provider_verification_provider")
+
+  jobs             Job[]           @relation("SeekerJobs")
+  savedProviders   SavedProvider[] @relation("SavedProvidersBySeeker")
+  savedBySeekers   SavedProvider[] @relation("SavedProvidersByProvider")
+  notifications    Notification[]
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  writtenReviews   Review[]        @relation("SeekerReviews")
+  receivedReviews  Review[]        @relation("ProviderReviews")
+  subscriptions    Subscription[]
+  payments         Payment[]
 
   /// 1:1 seeker onboarding / AI-training profile (`seekers_info.id`).
-  seekersInfo             SeekersInfo?
+  seekersInfo SeekersInfo?
 
   @@map("users")
 }
@@ -276,41 +264,6 @@ model CareRequest {
   @@map("care_requests")
 }
 
-model Review {
-  id           String   @id @default(uuid()) @db.Uuid
-  providerId   String   @db.Uuid
-  careSeekerId String   @map("seekerId") @db.Uuid
-  rating       Int
-  comment      String?
-  deletedAt    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  provider   User @relation("review_provider", fields: [providerId], references: [id], onDelete: Cascade)
-  careSeeker User @relation("review_seeker", fields: [careSeekerId], references: [id], onDelete: Restrict)
-
-  @@index([providerId])
-  @@index([careSeekerId])
-  @@map("reviews")
-}
-
-model Notification {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  title     String
-  body      String
-  type      NotificationType
-  readAt    DateTime?
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("notifications")
-}
-
 model ProviderVerification {
   id           String                           @id @default(uuid()) @db.Uuid
   providerId   String                           @map("provider_id") @db.Uuid
@@ -324,15 +277,6 @@ model ProviderVerification {
 
   @@index([providerId])
   @@map("provider_verifications")
-}
-
-model Payment {
-  id             String        @id @db.Uuid
-  userId         String        @db.Uuid
-  subscriptionId String?       @db.Uuid
-  amountCents    Int
-  currency       String
-  status         PaymentStatus
 }
 
 /// Seeker-specific onboarding / care-profile data kept off the root `User` row.
@@ -502,13 +446,11 @@ model Payment {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([userId, status])
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
 
+  @@index([userId])
+  @@index([userId, status])
   @@index([userId, createdAt])
   @@index([subscriptionId])
   @@map("payments")

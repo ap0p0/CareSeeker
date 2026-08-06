@@ -7,7 +7,10 @@ type PaymentStatusFilterProps = {
   onChange: (v: PaymentStatusFilter) => void;
 };
 
-const PaymentStatusFilterControl = ({ value, onChange }: PaymentStatusFilterProps) => {
+const PaymentStatusFilterControl = ({
+  value,
+  onChange,
+}: PaymentStatusFilterProps) => {
   return (
     <FormControl size="small" fullWidth>
       <InputLabel id="payment-status-filter">Status</InputLabel>

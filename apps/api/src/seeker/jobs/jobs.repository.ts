@@ -26,7 +26,9 @@ export class JobsRepository {
       where: {
         seekerId,
         deletedAt: null,
-        ...(statuses && statuses.length > 0 ? { status: { in: statuses } } : {}),
+        ...(statuses && statuses.length > 0
+          ? { status: { in: statuses } }
+          : {}),
       },
       orderBy: [{ createdAt: 'desc' }],
     });

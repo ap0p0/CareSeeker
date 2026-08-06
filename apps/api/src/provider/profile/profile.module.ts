@@ -9,6 +9,10 @@ import { ProviderProfileService } from './profile.service';
 @Module({
   imports: [AuthModule, UsersModule],
   controllers: [ProviderProfileController],
-  providers: [ProviderProfileService, ProviderProfileRepository, ProviderRepository],
+  providers: [
+    ProviderProfileService,
+    ProviderProfileRepository,
+    ProviderRepository,
+  ],
 })
 export class ProviderProfileModule {}

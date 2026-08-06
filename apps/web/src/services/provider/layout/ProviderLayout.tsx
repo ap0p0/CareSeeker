@@ -155,7 +155,7 @@ const ProviderLayout = () => {
 
       return location.pathname === path;
     },
-    [location.pathname]
+    [location.pathname],
   );
 
   const bottomNavValue = useMemo(() => {
@@ -168,7 +168,7 @@ const ProviderLayout = () => {
     {
       duration: theme.transitions.duration.shorter,
       easing: theme.transitions.easing.easeInOut,
-    }
+    },
   );
 
   const navList = (
@@ -234,11 +234,7 @@ const ProviderLayout = () => {
         flexDirection: "column",
       }}
     >
-      <Grid
-        container
-        wrap="nowrap"
-        sx={{ flex: 1, minHeight: 0, minWidth: 0 }}
-      >
+      <Grid container wrap="nowrap" sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>
         {!isMobile ? (
           <Grid
             size={{ md: collapsed ? 1 : 3 }}
@@ -268,14 +264,22 @@ const ProviderLayout = () => {
               }}
             >
               {!collapsed ? (
-                <Typography variant="subtitle1" fontWeight={700} noWrap sx={{ pl: 1 }}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  noWrap
+                  sx={{ pl: 1 }}
+                >
                   CareSeeker Provider
                 </Typography>
               ) : (
                 <Typography
                   variant="caption"
                   fontWeight={700}
-                  sx={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                  sx={{
+                    writingMode: "vertical-rl",
+                    transform: "rotate(180deg)",
+                  }}
                 >
                   Provider
                 </Typography>

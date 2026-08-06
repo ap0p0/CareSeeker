@@ -101,7 +101,9 @@ const ProviderDashboard = () => {
                             size="small"
                             label={request.status}
                             color={
-                              request.status === "pending" ? "warning" : "success"
+                              request.status === "pending"
+                                ? "warning"
+                                : "success"
                             }
                           />
                         }
@@ -151,7 +153,9 @@ const ProviderDashboard = () => {
                   <Button
                     component={RouterLink}
                     to={
-                      PROVIDER_ROUTE_PATHS[ProviderRoute.ProfilePersonalInformation]
+                      PROVIDER_ROUTE_PATHS[
+                        ProviderRoute.ProfilePersonalInformation
+                      ]
                     }
                     size="small"
                     sx={{ mt: 1.5 }}

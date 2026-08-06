@@ -25,7 +25,9 @@ const columns: AdminTableColumn<AdminOpenJobRow>[] = [
     id: "status",
     label: "Status",
     sortable: true,
-    render: (row) => <Chip size="small" label={row.status} variant="outlined" />,
+    render: (row) => (
+      <Chip size="small" label={row.status} variant="outlined" />
+    ),
   },
   {
     id: "postedAt",
@@ -40,21 +42,26 @@ const OpenJobsOverviewPage = () => {
   const { data = [], isLoading } = useAdminOpenJobsQuery();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<JobStatusFilter>(JOB_STATUS_FILTER_ALL);
-  const [orderBy, setOrderBy] = useState<keyof AdminOpenJobRow & string>("postedAt");
+  const [orderBy, setOrderBy] = useState<keyof AdminOpenJobRow & string>(
+    "postedAt",
+  );
   const [order, setOrder] = useState<SortOrder>("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const filtered = useMemo(() => filterOpenJobRows(data, search, status), [data, search, status]);
+  const filtered = useMemo(
+    () => filterOpenJobRows(data, search, status),
+    [data, search, status],
+  );
 
   const sorted = useMemo(
     () => sortAdminRows(filtered, orderBy, order, columns),
-    [filtered, orderBy, order]
+    [filtered, orderBy, order],
   );
 
   const paged = useMemo(
     () => sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [sorted, page, rowsPerPage]
+    [sorted, page, rowsPerPage],
   );
 
   const onSort = (columnId: keyof AdminOpenJobRow & string) => {
@@ -86,7 +93,10 @@ const OpenJobsOverviewPage = () => {
           />
         }
         onExportCsv={() =>
-          exportOpenJobsCsv(sorted, `open-jobs-${new Date().toISOString().slice(0, 10)}.csv`)
+          exportOpenJobsCsv(
+            sorted,
+            `open-jobs-${new Date().toISOString().slice(0, 10)}.csv`,
+          )
         }
         exportDisabled={sorted.length === 0}
       >

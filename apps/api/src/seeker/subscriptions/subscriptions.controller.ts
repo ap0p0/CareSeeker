@@ -7,9 +7,7 @@ import { SubscriptionsService } from './subscriptions.service';
 @Controller('seeker/subscriptions')
 @UseGuards(SupabaseJwtGuard)
 export class SubscriptionsController {
-  constructor(
-    private readonly subscriptionsService: SubscriptionsService,
-  ) {}
+  constructor(private readonly subscriptionsService: SubscriptionsService) {}
 
   @Get()
   async getSubscription(@Req() req: AuthRequest) {

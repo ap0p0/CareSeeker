@@ -113,14 +113,17 @@ const AdminLayout = () => {
 
   const bottomNavValue = useMemo(() => {
     const match = navItems.find(
-      (item) => ADMIN_ROUTE_PATHS[item.route] === location.pathname
+      (item) => ADMIN_ROUTE_PATHS[item.route] === location.pathname,
     );
     return match ? ADMIN_ROUTE_PATHS[match.route] : false;
   }, [location.pathname]);
 
   const sidebarTransition = theme.transitions.create(
     ["flex-basis", "max-width", "min-width"],
-    { duration: theme.transitions.duration.shorter, easing: theme.transitions.easing.easeInOut }
+    {
+      duration: theme.transitions.duration.shorter,
+      easing: theme.transitions.easing.easeInOut,
+    },
   );
 
   const navList = (
@@ -142,7 +145,11 @@ const AdminLayout = () => {
               },
             }}
           >
-            <Tooltip title={collapsed ? label : ""} placement="right" disableHoverListener={!collapsed}>
+            <Tooltip
+              title={collapsed ? label : ""}
+              placement="right"
+              disableHoverListener={!collapsed}
+            >
               <ListItemIcon
                 sx={{
                   minWidth: collapsed ? 0 : 40,
@@ -189,7 +196,9 @@ const AdminLayout = () => {
               transition: sidebarTransition,
               display: { xs: "none", md: "flex" },
               flexDirection: "column",
-              maxWidth: { md: collapsed ? `${100 / 12}%` : `${(3 / 12) * 100}%` },
+              maxWidth: {
+                md: collapsed ? `${100 / 12}%` : `${(3 / 12) * 100}%`,
+              },
             }}
           >
             <Toolbar
@@ -205,11 +214,23 @@ const AdminLayout = () => {
               }}
             >
               {!collapsed ? (
-                <Typography variant="subtitle1" fontWeight={700} noWrap sx={{ pl: 1 }}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  noWrap
+                  sx={{ pl: 1 }}
+                >
                   CareSeeker Admin
                 </Typography>
               ) : (
-                <Typography variant="caption" fontWeight={700} sx={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  sx={{
+                    writingMode: "vertical-rl",
+                    transform: "rotate(180deg)",
+                  }}
+                >
                   Admin
                 </Typography>
               )}

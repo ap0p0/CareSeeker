@@ -77,13 +77,10 @@ export const clientRouter = createBrowserRouter(
       <Route
         path="dashboard"
         element={
-          <Navigate
-            to={SEEKER_ROUTE_PATHS[SeekerRoute.Dashboard]}
-            replace
-          />
+          <Navigate to={SEEKER_ROUTE_PATHS[SeekerRoute.Dashboard]} replace />
         }
       />
       <Route path="*" element={<ClientNotFound />} />
-    </>
-  )
+    </>,
+  ),
 );

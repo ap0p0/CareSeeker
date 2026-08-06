@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProviderRepository } from '../provider.repository';
 import { ProviderAvailabilityRepository } from './availability.repository';
 import type {
@@ -46,7 +50,10 @@ export class ProviderAvailabilityService {
 
   async remove(userId: string, availabilityId: string) {
     const provider = await this.providerRepository.ensureByUserId(userId);
-    const deleted = await this.availabilityRepository.delete(provider.id, availabilityId);
+    const deleted = await this.availabilityRepository.delete(
+      provider.id,
+      availabilityId,
+    );
 
     if (deleted.count === 0) {
       throw new NotFoundException('Availability not found');
@@ -78,7 +85,11 @@ export class ProviderAvailabilityService {
     const payload: AvailabilityPayload | AvailabilityUpdatePayload = {};
 
     if (Object.prototype.hasOwnProperty.call(body, 'dayOfWeek')) {
-      if (typeof body.dayOfWeek !== 'number' || body.dayOfWeek < 0 || body.dayOfWeek > 6) {
+      if (
+        typeof body.dayOfWeek !== 'number' ||
+        body.dayOfWeek < 0 ||
+        body.dayOfWeek > 6
+      ) {
         errors.push('dayOfWeek must be an integer between 0 and 6');
       } else {
         payload.dayOfWeek = Math.trunc(body.dayOfWeek);
@@ -86,7 +97,10 @@ export class ProviderAvailabilityService {
     }
 
     if (Object.prototype.hasOwnProperty.call(body, 'date')) {
-      if (typeof body.date !== 'string' || Number.isNaN(new Date(body.date).getTime())) {
+      if (
+        typeof body.date !== 'string' ||
+        Number.isNaN(new Date(body.date).getTime())
+      ) {
         errors.push('date must be a valid date string');
       } else {
         payload.date = body.date;
@@ -94,7 +108,10 @@ export class ProviderAvailabilityService {
     }
 
     if (Object.prototype.hasOwnProperty.call(body, 'startTime')) {
-      if (typeof body.startTime !== 'string' || !TIME_REGEX.test(body.startTime)) {
+      if (
+        typeof body.startTime !== 'string' ||
+        !TIME_REGEX.test(body.startTime)
+      ) {
         errors.push('startTime must be in HH:mm format');
       } else {
         payload.startTime = body.startTime;

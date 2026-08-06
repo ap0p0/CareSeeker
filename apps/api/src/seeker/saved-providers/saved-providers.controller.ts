@@ -18,9 +18,7 @@ import { SavedProvidersService } from './saved-providers.service';
 @Controller('seeker/saved-providers')
 @UseGuards(SupabaseJwtGuard)
 export class SavedProvidersController {
-  constructor(
-    private readonly savedProvidersService: SavedProvidersService,
-  ) {}
+  constructor(private readonly savedProvidersService: SavedProvidersService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

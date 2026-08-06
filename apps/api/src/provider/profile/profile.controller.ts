@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { SupabaseJwtGuard } from '../../auth/supabase-jwt.guard';
 import type { AuthRequest } from '../../auth/auth-types';
 import { requireProviderUserId } from '../common/provider-auth';

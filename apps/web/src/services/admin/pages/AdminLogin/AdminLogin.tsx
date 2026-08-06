@@ -43,12 +43,7 @@ const AdminLoginPage = () => {
   }
 
   if (adminUser) {
-    return (
-      <Navigate
-        to={ADMIN_ROUTE_PATHS[AdminRoute.Dashboard]}
-        replace
-      />
-    );
+    return <Navigate to={ADMIN_ROUTE_PATHS[AdminRoute.Dashboard]} replace />;
   }
 
   const mainPlatformUrl = env.mainPlatformUrl;
@@ -76,7 +71,9 @@ const AdminLoginPage = () => {
       }
 
       if (outcome === "unauthorized") {
-        setFormError("Your session could not be verified. Please sign in again.");
+        setFormError(
+          "Your session could not be verified. Please sign in again.",
+        );
         return;
       }
 
@@ -125,7 +122,12 @@ const AdminLoginPage = () => {
           aria-busy={submitting}
         >
           <Box>
-            <Typography variant="h5" component="h1" fontWeight={600} gutterBottom>
+            <Typography
+              variant="h5"
+              component="h1"
+              fontWeight={600}
+              gutterBottom
+            >
               Admin Login
             </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
@@ -140,11 +142,7 @@ const AdminLoginPage = () => {
           </Box>
 
           {accessDeniedMessage ? (
-            <Alert
-              severity="error"
-              onClose={dismissBanners}
-              role="alert"
-            >
+            <Alert severity="error" onClose={dismissBanners} role="alert">
               {accessDeniedMessage}
             </Alert>
           ) : null}
@@ -202,7 +200,11 @@ const AdminLoginPage = () => {
             Back to home
           </Button>
 
-          <Typography variant="caption" color="text.secondary" textAlign="center">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            textAlign="center"
+          >
             Need help? Visit{" "}
             <MuiLink href={mainPlatformUrl} underline="hover">
               CareSeeker

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProviderRepository } from '../provider.repository';
 import { ProviderReviewsRepository } from './reviews.repository';
 import type { CreateReviewPayload, UpdateReviewPayload } from './reviews.types';
@@ -54,7 +58,8 @@ export class ProviderReviewsService {
       errors.push('careSeekerId is required');
     }
 
-    const rating = typeof body.rating === 'number' ? Math.trunc(body.rating) : NaN;
+    const rating =
+      typeof body.rating === 'number' ? Math.trunc(body.rating) : NaN;
     if (Number.isNaN(rating) || rating < 1 || rating > 5) {
       errors.push('rating must be an integer between 1 and 5');
     }

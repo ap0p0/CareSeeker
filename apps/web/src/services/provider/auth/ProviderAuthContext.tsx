@@ -38,7 +38,7 @@ type ProviderAuthContextValue = {
 };
 
 const ProviderAuthContext = createContext<ProviderAuthContextValue | null>(
-  null
+  null,
 );
 
 type ProviderAuthState = {
@@ -73,7 +73,7 @@ async function applyProviderSession(
   verifyProviderAccess: (accessToken: string) => Promise<{
     status: "ok" | "forbidden" | "unauthorized" | "error";
     user?: ProviderAppUser;
-  }>
+  }>,
 ): Promise<ProviderGateOutcome> {
   const devMockUser = getDevMockProviderUser();
   if (devMockUser) {
@@ -165,7 +165,7 @@ export function ProviderAuthProvider({ children }: { children: ReactNode }) {
       outcome = await applyProviderSession(
         data.session ?? null,
         setState,
-        verifyProviderAccess
+        verifyProviderAccess,
       );
     });
 
@@ -183,7 +183,7 @@ export function ProviderAuthProvider({ children }: { children: ReactNode }) {
     const run = (session: Session | null) => {
       void queueProviderGate(async () => {
         const guardedSetState: Dispatch<SetStateAction<ProviderAuthState>> = (
-          next
+          next,
         ) => {
           if (!cancelled) setState(next);
         };
@@ -191,7 +191,7 @@ export function ProviderAuthProvider({ children }: { children: ReactNode }) {
         await applyProviderSession(
           session,
           guardedSetState,
-          verifyProviderAccess
+          verifyProviderAccess,
         );
       });
     };
@@ -224,7 +224,7 @@ export function ProviderAuthProvider({ children }: { children: ReactNode }) {
       clearAccessDeniedMessage,
       signOut,
       verifyProviderGateFromSession,
-    ]
+    ],
   );
 
   return (
