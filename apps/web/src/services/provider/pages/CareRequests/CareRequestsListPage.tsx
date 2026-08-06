@@ -37,7 +37,7 @@ const CareRequestsListPage = ({
   const [search, setSearch] = useState("");
   const fetchRequests = useCallback(
     () => fetchProviderCareRequests(filter),
-    [filter]
+    [filter],
   );
   const { data, isLoading, error, reload } = useProviderPageQuery({
     fetcher: fetchRequests,
@@ -52,7 +52,7 @@ const CareRequestsListPage = ({
       (request) =>
         request.seekerName.toLowerCase().includes(query) ||
         request.serviceType.toLowerCase().includes(query) ||
-        request.location.toLowerCase().includes(query)
+        request.location.toLowerCase().includes(query),
     );
   }, [data, search]);
 
@@ -93,7 +93,11 @@ const CareRequestsListPage = ({
         ) : (
           <Paper
             elevation={0}
-            sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}
+            sx={{
+              borderRadius: 3,
+              border: "1px solid",
+              borderColor: "divider",
+            }}
           >
             <List disablePadding>
               {filteredRequests.map((request) => (

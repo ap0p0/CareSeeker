@@ -6,11 +6,8 @@ import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../../routes/enums";
 import {
   useRegisterProviderMutation,
   useSignInProviderMutation,
-} from "../../../../queries/providerAuth";
-import {
-  ProviderAuthLoadingScreen,
-  useProviderAuth,
-} from "../../auth";
+} from "../../../../queries/provider";
+import { ProviderAuthLoadingScreen, useProviderAuth } from "../../auth";
 import ProviderAuthLayout from "../../components/ProviderAuthLayout";
 
 const ProviderRegisterPage = () => {
@@ -65,7 +62,7 @@ const ProviderRegisterPage = () => {
         });
       } catch {
         setStatusMessage(
-          "Your account was created. Please sign in to continue."
+          "Your account was created. Please sign in to continue.",
         );
         return;
       }
@@ -81,7 +78,7 @@ const ProviderRegisterPage = () => {
 
       if (outcome === "unauthorized" || outcome === "no_session") {
         setFormError(
-          "Your account was created, but we could not verify the session. Please sign in."
+          "Your account was created, but we could not verify the session. Please sign in.",
         );
         navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Login], { replace: true });
         return;

@@ -16,7 +16,10 @@ const ProviderProfileSectionPage = ({
       title={title}
       description={description}
       subNav={
-        <ProviderSubNav items={profileSubNavItems} ariaLabel="Profile sections" />
+        <ProviderSubNav
+          items={profileSubNavItems}
+          ariaLabel="Profile sections"
+        />
       }
     >
       <Paper

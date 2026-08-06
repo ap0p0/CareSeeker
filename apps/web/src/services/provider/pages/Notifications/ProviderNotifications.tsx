@@ -49,14 +49,14 @@ const ProviderNotifications = () => {
   const markAsRead = (id: string) => {
     setNotifications((current) =>
       current.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification
-      )
+        notification.id === id ? { ...notification, read: true } : notification,
+      ),
     );
   };
 
   const markAllAsRead = () => {
     setNotifications((current) =>
-      current.map((notification) => ({ ...notification, read: true }))
+      current.map((notification) => ({ ...notification, read: true })),
     );
   };
 

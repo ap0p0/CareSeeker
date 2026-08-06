@@ -29,6 +29,145 @@ enum PresignupType {
   PROVIDER
 }
 
+enum ProviderProfileStatus {
+  ACTIVE
+  BLOCKED
+  PENDING_VERIFICATION
+}
+
+enum CareRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+enum ProviderVerificationRecordStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  GENERAL
+  JOB
+  MESSAGE
+  PAYMENT
+  REVIEW
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+/// Who the care seeker is requesting support for.
+enum CareForType {
+  SELF
+  OTHER
+}
+
+/// Optional disclosure choice for sensitive onboarding answers.
+enum DisclosePreference {
+  SHARE
+  PREFER_NOT_TO_SAY
+}
+
+/// Ethnic background options collected during seeker onboarding.
+enum EthnicBackground {
+  CAUCASIAN
+  AFRICAN_AMERICAN
+  LATINO
+  ASIAN
+  NATIVE_AMERICAN
+  MIDDLE_EASTERN
+  MULTIRACIAL_OTHER
+  PREFER_NOT_TO_SAY
+}
+
+/// Basic care need tags selected during seeker account creation.
+enum BasicCareNeed {
+  CLEANING
+  COOKING
+  HYGIENE
+  COMPANIONSHIP
+  ERRANDS
+  LAUNDRY
+  MOBILITY_SUPPORT
+  TRANSPORTATION
+  OTHER
+}
+
+/// Common languages spoken in the US (seeker onboarding).
+enum SpokenLanguage {
+  ENGLISH
+  SPANISH
+  CHINESE
+  VIETNAMESE
+  ARABIC
+  FRENCH
+  KOREAN
+  RUSSIAN
+  PORTUGUESE
+  HINDI
+  OTHER
+}
+
+/// Household living situation for the care recipient / seeker.
+enum LivingSituation {
+  LIVE_ALONE
+  WITH_SPOUSE_PARTNER
+  WITH_FAMILY
+  WITH_ROOMMATES
+  ASSISTED_LIVING
+  OTHER
+}
+
+/// Preferred caregiver gender for matching.
+enum PreferredCaregiverGender {
+  FEMALE
+  MALE
+  NO_PREFERENCE
+}
+
+/// Preferred visit / schedule pattern.
+enum ScheduleVibe {
+  DAYTIME
+  EVENINGS
+  OVERNIGHT
+  FLEXIBLE
+}
+
+/// Home access / logistics tags.
+enum HomeAccessibility {
+  STAIRS
+  ELEVATOR
+  PARKING
+}
+
+/// How soon care is needed.
+enum CareUrgency {
+  ASAP
+  WITHIN_A_WEEK
+  EXPLORING
+}
+
 /// Application-level user. Exists because Supabase auth.users only handles
 /// authentication (identity). Roles, verification, and app-specific state
 /// live here and are controlled server-side.
@@ -40,7 +179,6 @@ enum PresignupType {
 model User {
   id                         String                     @id @db.Uuid // auth.users.id
   email                      String
-  username                   String                     @unique
   name                       String
   surname                    String
   role                       UserRole                   @default(SEEKER)
@@ -48,6 +186,27 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  providerAvailabilities ProviderAvailability[] @relation("provider_availability_provider")
+  providedCareRequests   CareRequest[]          @relation("care_request_provider")
+  seekerCareRequests     CareRequest[]          @relation("care_request_seeker")
+  providerVerifications  ProviderVerification[] @relation("provider_verification_provider")
+
+  jobs             Job[]           @relation("SeekerJobs")
+  savedProviders   SavedProvider[] @relation("SavedProvidersBySeeker")
+  savedBySeekers   SavedProvider[] @relation("SavedProvidersByProvider")
+  notifications    Notification[]
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  writtenReviews   Review[]        @relation("SeekerReviews")
+  receivedReviews  Review[]        @relation("ProviderReviews")
+  subscriptions    Subscription[]
+  payments         Payment[]
+
+  /// 1:1 seeker onboarding / AI-training profile (`seekers_info.id`).
+  seekersInfo SeekersInfo?
+
+  @@map("users")
 }
 
 model Presignup {
@@ -65,4 +224,234 @@ model Presignup {
   updatedAt DateTime @updatedAt
 
   @@map("presignups")
+}
+
+model ProviderAvailability {
+  id         String    @id @default(uuid()) @db.Uuid
+  providerId String    @map("provider_id") @db.Uuid
+  dayOfWeek  Int?      @map("day_of_week")
+  date       DateTime? @db.Date
+  startTime  String    @map("start_time")
+  endTime    String    @map("end_time")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  provider User @relation("provider_availability_provider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@index([providerId, dayOfWeek])
+  @@index([providerId, date])
+  @@map("provider_availability")
+}
+
+model CareRequest {
+  id           String            @id @default(uuid()) @db.Uuid
+  providerId   String            @map("provider_id") @db.Uuid
+  careSeekerId String            @map("care_seeker_id") @db.Uuid
+  status       CareRequestStatus @default(PENDING)
+  scheduledAt  DateTime          @map("scheduled_at")
+  notes        String?
+  deletedAt    DateTime?         @map("deleted_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  provider   User @relation("care_request_provider", fields: [providerId], references: [id], onDelete: Cascade)
+  careSeeker User @relation("care_request_seeker", fields: [careSeekerId], references: [id], onDelete: Restrict)
+
+  @@index([providerId])
+  @@index([providerId, status])
+  @@index([careSeekerId])
+  @@map("care_requests")
+}
+
+model ProviderVerification {
+  id           String                           @id @default(uuid()) @db.Uuid
+  providerId   String                           @map("provider_id") @db.Uuid
+  documentType String                           @map("document_type")
+  documentUrl  String                           @map("document_url")
+  status       ProviderVerificationRecordStatus @default(PENDING)
+  createdAt    DateTime                         @default(now()) @map("created_at")
+  updatedAt    DateTime                         @updatedAt @map("updated_at")
+
+  provider User @relation("provider_verification_provider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("provider_verifications")
+}
+
+/// Seeker-specific onboarding / care-profile data kept off the root `User` row.
+///
+/// - `id`: seeker additional-info id (stable reference for AI / matching)
+/// - `userId`: FK to `User.id` (1:1 — one seekers_info row per seeker account)
+model SeekersInfo {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  age                   Int?
+  careFor               CareForType?
+  basicCareNeeds        BasicCareNeed[] @default([])
+  otherCareNeedDetails  String?
+  helpNeeded            String?
+  /// Free-text location for now; later replaced/augmented by geolocation.
+  location              String?
+  ethnicBackground      EthnicBackground?
+
+  languagesSpoken              SpokenLanguage[]           @default([])
+  livingSituation              LivingSituation?
+  /// Whether caregiver help is needed beyond household support.
+  needsHelpBesidesHousehold    Boolean?
+  preferredCaregiverGender     PreferredCaregiverGender?
+  preferredCaregiverLanguage   SpokenLanguage?
+  culturalConsiderationsPreference DisclosePreference?
+  culturalConsiderationsNotes  String?
+  scheduleVibe                 ScheduleVibe?
+  homeAccessibility            HomeAccessibility[]        @default([])
+  careUrgency                  CareUrgency?
+
+  needsMedicalHelp              Boolean?
+  healthDisclosePreference      DisclosePreference?
+  healthNotes                   String?
+  medicationsDisclosePreference DisclosePreference?
+  medicationsNotes              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([careFor])
+  @@index([needsMedicalHelp])
+  @@index([careUrgency])
+  @@index([scheduleVibe])
+  @@index([preferredCaregiverGender])
+  @@map("seekers_info")
+}
+
+model Job {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  seekerId        String    @db.Uuid
+  title           String
+  description     String
+  location        String?
+  scheduledAt     DateTime?
+  hourlyRateCents Int?
+  status          JobStatus @default(OPEN)
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  seeker User @relation("SeekerJobs", fields: [seekerId], references: [id], onDelete: Cascade)
+
+  @@index([seekerId, status])
+  @@index([seekerId, deletedAt])
+  @@map("jobs")
+}
+
+model SavedProvider {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  seekerId   String   @db.Uuid
+  providerId String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  seeker   User @relation("SavedProvidersBySeeker", fields: [seekerId], references: [id], onDelete: Cascade)
+  provider User @relation("SavedProvidersByProvider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([seekerId, providerId])
+  @@index([providerId])
+  @@map("saved_providers")
+}
+
+model Notification {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String           @db.Uuid
+  title     String
+  body      String
+  type      NotificationType @default(GENERAL)
+  readAt    DateTime?
+  deletedAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, deletedAt, createdAt])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model Message {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  senderId          String   @db.Uuid
+  recipientId       String   @db.Uuid
+  body              String
+  readAt            DateTime?
+  senderDeletedAt   DateTime?
+  recipientDeletedAt DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  sender    User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, recipientId, createdAt])
+  @@index([recipientId, readAt])
+  @@map("messages")
+}
+
+model Review {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  seekerId   String   @db.Uuid
+  providerId String   @db.Uuid
+  rating     Int
+  comment    String?
+  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  seeker   User @relation("SeekerReviews", fields: [seekerId], references: [id], onDelete: Cascade)
+  provider User @relation("ProviderReviews", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([seekerId, providerId])
+  @@index([providerId, deletedAt])
+  @@map("reviews")
+}
+
+model Subscription {
+  id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String             @db.Uuid
+  planName   String
+  status     SubscriptionStatus @default(INACTIVE)
+  startedAt  DateTime?
+  renewsAt   DateTime?
+  canceledAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@unique([userId])
+  @@map("subscriptions")
+}
+
+model Payment {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String        @db.Uuid
+  subscriptionId String?       @db.Uuid
+  amountCents    Int
+  currency       String        @default("USD")
+  status         PaymentStatus @default(PENDING)
+  description    String?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@index([subscriptionId])
+  @@map("payments")
 }

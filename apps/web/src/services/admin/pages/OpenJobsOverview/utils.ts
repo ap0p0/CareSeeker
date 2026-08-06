@@ -3,12 +3,14 @@ import { downloadCsv } from "../../utils/csv";
 
 export const JOB_STATUS_FILTER_ALL = "all" as const;
 
-export type JobStatusFilter = typeof JOB_STATUS_FILTER_ALL | AdminOpenJobRow["status"];
+export type JobStatusFilter =
+  | typeof JOB_STATUS_FILTER_ALL
+  | AdminOpenJobRow["status"];
 
 export function filterOpenJobRows(
   rows: AdminOpenJobRow[],
   search: string,
-  status: JobStatusFilter
+  status: JobStatusFilter,
 ): AdminOpenJobRow[] {
   const q = search.trim().toLowerCase();
   return rows.filter((row) => {

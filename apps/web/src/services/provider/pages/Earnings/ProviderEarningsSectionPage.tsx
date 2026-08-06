@@ -16,7 +16,10 @@ const ProviderEarningsSectionPage = ({
       title={title}
       description={description}
       subNav={
-        <ProviderSubNav items={earningsSubNavItems} ariaLabel="Earnings sections" />
+        <ProviderSubNav
+          items={earningsSubNavItems}
+          ariaLabel="Earnings sections"
+        />
       }
     >
       <Paper

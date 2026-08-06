@@ -7,7 +7,11 @@ type DashboardStatCardProps = {
   subtitle?: string;
 };
 
-const DashboardStatCard = ({ title, value, subtitle }: DashboardStatCardProps) => {
+const DashboardStatCard = ({
+  title,
+  value,
+  subtitle,
+}: DashboardStatCardProps) => {
   return (
     <Card variant="outlined" sx={{ height: 1 }}>
       <CardContent>
@@ -18,7 +22,11 @@ const DashboardStatCard = ({ title, value, subtitle }: DashboardStatCardProps) =
           {value}
         </Typography>
         {subtitle ? (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mt: 0.5, display: "block" }}
+          >
             {subtitle}
           </Typography>
         ) : null}

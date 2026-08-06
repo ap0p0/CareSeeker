@@ -5,26 +5,31 @@ import Grid from "@mui/material/Grid2";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { readMoreButtonSx, scrollButtonDockSx } from "./sectionButtonStyles";
+import { readMoreButtonSx } from "./sectionButtonStyles";
 
-import circleInCircle  from "../../../../../assets/core-images/core_sec_whyCareSeeker/circle_in_circles.svg";
-import handLeaf  from "../../../../../assets/core-images/core_sec_whyCareSeeker/hand_leaf.svg";
-import houseHeart  from "../../../../../assets/core-images/core_sec_whyCareSeeker/house_heart.svg";
-import searchComp  from "../../../../../assets/core-images/core_sec_whyCareSeeker/search_computer.svg";
-
+import circleInCircle from "../../../../../assets/core-images/core_sec_whyCareSeeker/circle_in_circles.svg";
+import handLeaf from "../../../../../assets/core-images/core_sec_whyCareSeeker/hand_leaf.svg";
+import houseHeart from "../../../../../assets/core-images/core_sec_whyCareSeeker/house_heart.svg";
+import searchComp from "../../../../../assets/core-images/core_sec_whyCareSeeker/search_computer.svg";
 
 const items = [
-  { id: 1, img: circleInCircle, lead: "Compatibility-based", rest: " matching" },
+  {
+    id: 1,
+    img: circleInCircle,
+    lead: "Compatibility-based",
+    rest: " matching",
+  },
   { id: 2, img: searchComp, lead: "Background-checked", rest: " options" },
   { id: 3, img: houseHeart, lead: "Bonded & insured", rest: " premium care" },
-  { id: 4, img: handLeaf, lead: "Independent or fully managed", rest: " support" },
+  {
+    id: 4,
+    img: handLeaf,
+    lead: "Independent or fully managed",
+    rest: " support",
+  },
 ] as const;
 
-type WhyCareSeekerProps = {
-  onReadMore?: () => void;
-};
-
-const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
+const WhyCareSeeker = () => {
   return (
     <Box
       component="section"
@@ -38,8 +43,6 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
         bgcolor: "#fbf9fc",
         py: { xs: 4, md: 6 },
         pb: { xs: "68px", md: "80px" },
-        scrollSnapAlign: "start",
-        scrollSnapStop: "always",
       }}
     >
       <Container maxWidth="lg" sx={{ width: "100%" }}>
@@ -47,7 +50,7 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
           <Typography
             variant="h1"
             fontWeight={700}
-            sx={{ fontSize: { xs: "3rem", md: "4rem"}, paddingBottom: "30px" }}
+            sx={{ fontSize: { xs: "3rem", md: "4rem" }, paddingBottom: "30px" }}
           >
             Why{" "}
             <Box component="span" sx={{ color: (t) => t.palette.custom.blue }}>
@@ -116,10 +119,8 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
                   py: 3.5,
                   gap: "20px",
                   width: "100%",
-
                 }}
               >
-                
                 <Typography variant="body1" fontWeight={500}>
                   <Box
                     component="span"
@@ -127,24 +128,20 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
                   >
                     {item.lead}
                   </Box>
-                  
-                  {item.rest}
 
-                  
+                  {item.rest}
                 </Typography>
                 <Box
-                    component="img"
-                    src={item.img}
-                    alt=""
-                    sx={{
-                      width: "30%",
-                      maxWidth: 100,
-                      height: "auto",
-                    }}
-                    >
-                  </Box>
+                  component="img"
+                  src={item.img}
+                  alt=""
+                  sx={{
+                    width: "30%",
+                    maxWidth: 100,
+                    height: "auto",
+                  }}
+                ></Box>
               </Grid>
-              
             ))}
           </Grid>
         </Box>
@@ -184,12 +181,19 @@ const WhyCareSeeker = ({ onReadMore }: WhyCareSeekerProps) => {
           </Box>
         </Typography>
 
-        <Box sx={scrollButtonDockSx}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+
+            height: "10vh",
+          }}
+        >
           <Button
-            onClick={onReadMore}
             variant="text"
             endIcon={<ArrowDownwardIcon />}
-            sx={{...readMoreButtonSx, textDecoration: "none !important"}}
+            sx={{ ...readMoreButtonSx, textDecoration: "none !important" }}
           >
             Read more
           </Button>

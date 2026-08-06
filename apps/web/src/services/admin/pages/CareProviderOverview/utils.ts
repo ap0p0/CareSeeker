@@ -10,11 +10,14 @@ export type VerificationFilter =
 export function filterCareProviderRows(
   rows: AdminCareProviderRow[],
   search: string,
-  verification: VerificationFilter
+  verification: VerificationFilter,
 ): AdminCareProviderRow[] {
   const q = search.trim().toLowerCase();
   return rows.filter((row) => {
-    if (verification !== VERIFICATION_FILTER_ALL && row.verificationStatus !== verification) {
+    if (
+      verification !== VERIFICATION_FILTER_ALL &&
+      row.verificationStatus !== verification
+    ) {
       return false;
     }
     if (!q) return true;
@@ -27,8 +30,18 @@ export function filterCareProviderRows(
   });
 }
 
-export function exportCareProvidersCsv(rows: AdminCareProviderRow[], filename: string) {
-  const headers = ["ID", "Name", "Email", "Verification", "Specialty", "Joined"];
+export function exportCareProvidersCsv(
+  rows: AdminCareProviderRow[],
+  filename: string,
+) {
+  const headers = [
+    "ID",
+    "Name",
+    "Email",
+    "Verification",
+    "Specialty",
+    "Joined",
+  ];
   const body = rows.map((r) => [
     r.id,
     r.name,

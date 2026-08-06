@@ -15,8 +15,7 @@ const RequireProvider = () => {
     return <ProviderAuthLoadingScreen />;
   }
 
-  const hasDevMockAccess =
-    isProviderDevMockEnabled && hasProviderMockSession();
+  const hasDevMockAccess = isProviderDevMockEnabled && hasProviderMockSession();
 
   if (!providerUser && !hasDevMockAccess) {
     return (

@@ -11,11 +11,8 @@ import {
   type SetStateAction,
 } from "react";
 import { supabase } from "../../../supabase/supabase";
-import {
-  SEEKER_ACCESS_DENIED_MESSAGE,
-  type ClientAppUser,
-} from "./seekerMe";
-import { useVerifySeekerAccessMutation } from "../../../queries/clientAuth";
+import { SEEKER_ACCESS_DENIED_MESSAGE, type ClientAppUser } from "./seekerMe";
+import { useVerifySeekerAccessMutation } from "../../../queries/client";
 
 export type ClientGateOutcome =
   | "seeker"
@@ -55,7 +52,7 @@ async function applyClientSession(
   verifySeekerAccess: (accessToken: string) => Promise<{
     status: "ok" | "forbidden" | "unauthorized" | "error";
     user?: ClientAppUser;
-  }>
+  }>,
 ): Promise<ClientGateOutcome> {
   let effective = session;
 
@@ -136,7 +133,7 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
       outcome = await applyClientSession(
         data.session ?? null,
         setState,
-        verifySeekerAccess
+        verifySeekerAccess,
       );
     });
 
@@ -154,16 +151,12 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
     const run = (session: Session | null) => {
       void queueClientGate(async () => {
         const guardedSetState: Dispatch<SetStateAction<ClientAuthState>> = (
-          next
+          next,
         ) => {
           if (!cancelled) setState(next);
         };
 
-        await applyClientSession(
-          session,
-          guardedSetState,
-          verifySeekerAccess
-        );
+        await applyClientSession(session, guardedSetState, verifySeekerAccess);
       });
     };
 
@@ -195,7 +188,7 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
       clearAccessDeniedMessage,
       signOut,
       verifySeekerGateFromSession,
-    ]
+    ],
   );
 
   return (

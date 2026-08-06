@@ -3,7 +3,6 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
-import { callToActionCardButtonSx } from "./sectionButtonStyles";
 
 import grandmaGrandson from "../../../../../assets/core-images/grandma_grandson.png";
 import grandpaGranddauther from "../../../../../assets/core-images/grandpa_granddauther.png";
@@ -19,39 +18,47 @@ const people = [
   {
     id: 1,
     img: grandmaGrandson,
-    htmlQuote:
-      "<i><b>CareSeeker</b> matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy.</i>",
+    quote: [
+      { text: "CareSeeker", bold: true },
+      {
+        text: " matched us with the perfect caregiver in days. The compatibility score made the decision feel confident and easy.",
+      },
+    ],
     quotePos: "bottom" as const,
   },
   {
     id: 2,
     img: grandpaGranddauther,
-    htmlQuote:
-      "<i>Finally, a platform that feels safe and professional. The verification gave our family <b>real peace of mind.</b></i>",
+    quote: [
+      {
+        text: "Finally, a platform that feels safe and professional. The verification gave our family ",
+      },
+      { text: "real peace of mind.", bold: true },
+    ],
     quotePos: "top" as const,
   },
   {
     id: 3,
     img: nurse,
-    htmlQuote:
-      "<i>As a caregiver, I’ve never had better client matches. <b>CareSeeker</b> respects my time and helps me grow.</i>",
+    quote: [
+      { text: "As a caregiver, I’ve never had better client matches. " },
+      { text: "CareSeeker", bold: true },
+      { text: " respects my time and helps me grow." },
+    ],
     quotePos: "bottom" as const,
   },
   {
     id: 4,
     img: helpingHand,
-    htmlQuote:
-      "<i>The premium service removed all the stress. <b>We felt supported every step of the way.</b></i>",
+    quote: [
+      { text: "The premium service removed all the stress. " },
+      { text: "We felt supported every step of the way.", bold: true },
+    ],
     quotePos: "top" as const,
   },
 ] as const;
 
-interface TestimonialsProps {
-  onReadMore?: () => void;
-}
-
-const Testimonials = ({ onReadMore }: TestimonialsProps) => {
-  console.log(onReadMore, "silence error");
+const Testimonials = () => {
   return (
     <Box
       component="section"
@@ -65,8 +72,6 @@ const Testimonials = ({ onReadMore }: TestimonialsProps) => {
         bgcolor: "#efe7f2",
         py: { xs: 3, md: 5 },
         pb: { xs: "68px", md: "80px" },
-        scrollSnapAlign: "start",
-        scrollSnapStop: "always",
       }}
     >
       <Container maxWidth="lg" sx={{ width: "100%" }}>
@@ -96,16 +101,28 @@ const Testimonials = ({ onReadMore }: TestimonialsProps) => {
                   sx={{
                     fontSize: "0.72rem",
                     lineHeight: 1.4,
-                    "& b": { fontWeight: 700, color: "black" },
+                    fontStyle: "italic",
                   }}
-                  dangerouslySetInnerHTML={{ __html: p.htmlQuote }}
-                />
+                >
+                  {p.quote.map((segment, i) => (
+                    <Box
+                      key={i}
+                      component="span"
+                      sx={
+                        segment.text
+                          ? { fontWeight: 700, color: "black" }
+                          : undefined
+                      }
+                    >
+                      {segment.text}
+                    </Box>
+                  ))}
+                </Typography>
               </Box>
             );
 
             return (
               <Grid key={p.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                {/* Flex layouts naturally push contents vertically based on order */}
                 <Box
                   sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
                 >
@@ -176,7 +193,6 @@ const Testimonials = ({ onReadMore }: TestimonialsProps) => {
                   to={BASE_ROUTE_PATHS[BaseRoute.GetCare]}
                   variant="outlined"
                   sx={{
-                    ...callToActionCardButtonSx,
                     textDecoration: "none !important",
                     alignItems: "center",
                   }}
@@ -232,7 +248,6 @@ const Testimonials = ({ onReadMore }: TestimonialsProps) => {
                   to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
                   variant="outlined"
                   sx={{
-                    ...callToActionCardButtonSx,
                     textDecoration: "none !important",
                     alignItems: "center",
                   }}
@@ -245,17 +260,6 @@ const Testimonials = ({ onReadMore }: TestimonialsProps) => {
             </Card>
           </Grid>
         </Grid>
-
-        {/* <Box sx={scrollButtonDockSx}>
-          <Button
-            onClick={onReadMore}
-            variant="text"
-            endIcon={<ArrowDownwardIcon />}
-            sx={{ ...readMoreButtonSx, textDecoration: "none !important" }}
-          >
-            Read more
-          </Button>
-        </Box> */}
       </Container>
     </Box>
   );

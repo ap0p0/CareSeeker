@@ -23,7 +23,7 @@ export function setProviderMockSession(
   session: ProviderMockSession = {
     email: "provider.demo@careseeker.local",
     name: "Demo Provider",
-  }
+  },
 ): void {
   if (!isProviderDevMockEnabled) return;
   sessionStorage.setItem(MOCK_SESSION_KEY, JSON.stringify(session));

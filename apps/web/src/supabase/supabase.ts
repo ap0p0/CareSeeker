@@ -6,7 +6,7 @@ const supabaseAnonKey = env.supabase.anonKey;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    "[Careseeker] Missing Supabase config. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY."
+    "[Careseeker] Missing Supabase config. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY.",
   );
 }
 

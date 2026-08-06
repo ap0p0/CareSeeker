@@ -7,11 +7,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid2";
 import { BaseRoute, BASE_ROUTE_PATHS } from "../../../../../routes/enums";
-import {
-  howItWorksCtaBaseSx,
-  readMoreButtonSx,
-  scrollButtonDockSx,
-} from "./sectionButtonStyles";
+import { howItWorksCtaBaseSx, readMoreButtonSx } from "./sectionButtonStyles";
 
 const steps = [
   { number: 1, title: "Share", description: "Tell us what you need." },
@@ -27,11 +23,7 @@ const steps = [
   },
 ] as const;
 
-type HowItWorksProps = {
-  onReadMore?: () => void;
-};
-
-const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
+const HowItWorks = () => {
   return (
     <Box
       component="section"
@@ -45,8 +37,6 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
         background: "linear-gradient(to top, #f0e8f2 0%, #fbf9fc 100%)",
         py: { xs: 3, md: 5 },
         pb: { xs: "68px", md: "80px" },
-        scrollSnapAlign: "start",
-        scrollSnapStop: "always",
       }}
     >
       <Box sx={{ width: "100%" }}>
@@ -93,18 +83,18 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
                 fontWeight: "normal",
                 bgcolor: "#b89fc1",
 
-                fontSize: "16px",   
-                
+                fontSize: "16px",
+
                 minWidth: {
                   xs: "160px",
                   sm: "190px",
                   md: "220px",
                 },
 
-                  height: {
-                    xs: "45px",
-                    md: "50px",
-                  },
+                height: {
+                  xs: "45px",
+                  md: "50px",
+                },
 
                 borderRadius: "25px",
                 "&:hover": {
@@ -116,7 +106,6 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
                   fontWeight: "normal",
                 },
               }}
-              
             >
               Find Care
             </Button>
@@ -124,7 +113,6 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
               component={RouterLink}
               to={BASE_ROUTE_PATHS[BaseRoute.GiveCare]}
               variant="contained"
-            
               sx={{
                 ...howItWorksCtaBaseSx,
                 textDecoration: "none !important",
@@ -146,8 +134,7 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
 
                 borderRadius: "25px",
 
-
-                 "&:hover": {
+                "&:hover": {
                   bgcolor: "#4b94c3",
                   transform: "scale(1.05)",
                   color: "#000",
@@ -211,7 +198,7 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
                       {step.title}
                     </Typography>
                     <Typography
-                      sx={{ fontSize: 15, fontWeight: 'normal', my: 2 }}
+                      sx={{ fontSize: 15, fontWeight: "normal", my: 2 }}
                       variant="body1"
                       color="white"
                     >
@@ -223,18 +210,29 @@ const HowItWorks = ({ onReadMore }: HowItWorksProps) => {
             ))}
           </Grid>
 
-          <Box sx={scrollButtonDockSx}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+
+              height: "10vh",
+            }}
+          >
             <Button
-              onClick={onReadMore}
               variant="text"
-              // endIcon={<ArrowDownwardIcon />}
               sx={{
                 ...readMoreButtonSx,
-                textDecoration: "none !important", 
-                textTransform: "none",  
-                fontWeight: 'bold',        
+                textDecoration: "none !important",
+                textTransform: "none",
+                fontWeight: "bold",
                 color: "secondary.main",
-                fontSize: { xs: "1.15rem", sm: "1.25rem", md: "1.5rem", lg: "1.5rem" },
+                fontSize: {
+                  xs: "1.15rem",
+                  sm: "1.25rem",
+                  md: "1.5rem",
+                  lg: "1.5rem",
+                },
               }}
             >
               That's it.

@@ -48,101 +48,106 @@ export const providerRouter = createBrowserRouter(
       <Route element={<RequireProvider />}>
         <Route element={<ProviderLayout />}>
           <Route index element={<ProviderDashboard />} />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfilePersonalInformation]}
-          element={<ProfilePersonalInformation />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileServicesOffered]}
-          element={<ProfileServicesOffered />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileExperience]}
-          element={<ProfileExperience />}
-        />
-        <Route
-          path={
-            PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileEducationCertifications]
-          }
-          element={<ProfileEducationCertifications />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileLanguages]}
-          element={<ProfileLanguages />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileHourlyRates]}
-          element={<ProfileHourlyRates />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfilePhotos]}
-          element={<ProfilePhotos />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileEdit]}
-          element={<ProfileEdit />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.Availability]}
-          element={<AvailabilitySummary />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.AvailabilityCalendar]}
-          element={<AvailabilityCalendar />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.AvailabilityTimeSlots]}
-          element={<AvailabilityTimeSlots />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.CareRequests]}
-          element={<CareRequestsAll />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.CareRequestsActive]}
-          element={<CareRequestsActive />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.CareRequestsCompleted]}
-          element={<CareRequestsCompleted />}
-        />
-        <Route path="care-requests/:requestId" element={<CareRequestDetails />} />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.Reviews]}
-          element={<ProviderReviews />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.Notifications]}
-          element={<ProviderNotifications />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.Verification]}
-          element={<ProviderVerification />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.AccountSettings]}
-          element={<ProviderAccountSettings />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.Earnings]}
-          element={<EarningsOverview />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.EarningsPayouts]}
-          element={<EarningsPayouts />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.EarningsTaxDocuments]}
-          element={<EarningsTaxDocuments />}
-        />
-        <Route
-          path={PROVIDER_ROUTE_PATHS[ProviderRoute.EarningsReports]}
-          element={<EarningsReports />}
-        />
-        <Route path="*" element={<ProviderNotFound />} />
+          <Route
+            path={
+              PROVIDER_ROUTE_PATHS[ProviderRoute.ProfilePersonalInformation]
+            }
+            element={<ProfilePersonalInformation />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileServicesOffered]}
+            element={<ProfileServicesOffered />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileExperience]}
+            element={<ProfileExperience />}
+          />
+          <Route
+            path={
+              PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileEducationCertifications]
+            }
+            element={<ProfileEducationCertifications />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileLanguages]}
+            element={<ProfileLanguages />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileHourlyRates]}
+            element={<ProfileHourlyRates />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfilePhotos]}
+            element={<ProfilePhotos />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileEdit]}
+            element={<ProfileEdit />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.Availability]}
+            element={<AvailabilitySummary />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.AvailabilityCalendar]}
+            element={<AvailabilityCalendar />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.AvailabilityTimeSlots]}
+            element={<AvailabilityTimeSlots />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.CareRequests]}
+            element={<CareRequestsAll />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.CareRequestsActive]}
+            element={<CareRequestsActive />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.CareRequestsCompleted]}
+            element={<CareRequestsCompleted />}
+          />
+          <Route
+            path="care-requests/:requestId"
+            element={<CareRequestDetails />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.Reviews]}
+            element={<ProviderReviews />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.Notifications]}
+            element={<ProviderNotifications />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.Verification]}
+            element={<ProviderVerification />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.AccountSettings]}
+            element={<ProviderAccountSettings />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.Earnings]}
+            element={<EarningsOverview />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.EarningsPayouts]}
+            element={<EarningsPayouts />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.EarningsTaxDocuments]}
+            element={<EarningsTaxDocuments />}
+          />
+          <Route
+            path={PROVIDER_ROUTE_PATHS[ProviderRoute.EarningsReports]}
+            element={<EarningsReports />}
+          />
+          <Route path="*" element={<ProviderNotFound />} />
         </Route>
       </Route>
       <Route path="*" element={<ProviderNotFound />} />
-    </>
-  )
+    </>,
+  ),
 );

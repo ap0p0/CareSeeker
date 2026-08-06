@@ -3,11 +3,8 @@ import { useState } from "react";
 import { Button, Stack, TextField } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../../routes/enums";
-import { useSignInProviderMutation } from "../../../../queries/providerAuth";
-import {
-  ProviderAuthLoadingScreen,
-  useProviderAuth,
-} from "../../auth";
+import { useSignInProviderMutation } from "../../../../queries/provider";
+import { ProviderAuthLoadingScreen, useProviderAuth } from "../../auth";
 import ProviderAuthLayout from "../../components/ProviderAuthLayout";
 import {
   isProviderDevMockEnabled,
@@ -60,7 +57,9 @@ const ProviderLoginPage = () => {
       }
 
       if (outcome === "unauthorized") {
-        setFormError("Sign-in did not return a valid session. Please try again.");
+        setFormError(
+          "Sign-in did not return a valid session. Please try again.",
+        );
         return;
       }
 
@@ -77,7 +76,9 @@ const ProviderLoginPage = () => {
     setProviderMockSession();
     void verifyProviderGateFromSession().then((outcome) => {
       if (outcome === "provider") {
-        navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], { replace: true });
+        navigate(PROVIDER_ROUTE_PATHS[ProviderRoute.Dashboard], {
+          replace: true,
+        });
       }
     });
   };

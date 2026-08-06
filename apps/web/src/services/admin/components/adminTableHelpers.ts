@@ -27,16 +27,13 @@ export function sortAdminRows<Row extends object>(
   rows: Row[],
   orderBy: keyof Row & string,
   order: SortOrder,
-  columns: AdminTableColumn<Row>[]
+  columns: AdminTableColumn<Row>[],
 ): Row[] {
   const col = columns.find((c) => c.id === orderBy);
   return [...rows].sort((a, b) => {
     const v = col?.sortComparator
       ? col.sortComparator(a, b)
-      : defaultComparator(
-          a[orderBy as keyof Row],
-          b[orderBy as keyof Row]
-        );
+      : defaultComparator(a[orderBy as keyof Row], b[orderBy as keyof Row]);
     return order === "asc" ? v : -v;
   });
 }

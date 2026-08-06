@@ -29,7 +29,9 @@ const ProviderVerification = () => {
       description="Upload required documents and track your verification status."
     >
       <Stack spacing={2}>
-        {statusMessage ? <Alert severity="success">{statusMessage}</Alert> : null}
+        {statusMessage ? (
+          <Alert severity="success">{statusMessage}</Alert>
+        ) : null}
 
         <Alert severity="info">Verification status: Pending review</Alert>
 
@@ -68,7 +70,9 @@ const ProviderVerification = () => {
             variant="contained"
             startIcon={<UploadFileOutlinedIcon />}
             onClick={() =>
-              setStatusMessage("ID document upload will be connected to the API.")
+              setStatusMessage(
+                "ID document upload will be connected to the API.",
+              )
             }
           >
             Upload ID document
@@ -78,7 +82,7 @@ const ProviderVerification = () => {
             startIcon={<UploadFileOutlinedIcon />}
             onClick={() =>
               setStatusMessage(
-                "Certification upload will be connected to the API."
+                "Certification upload will be connected to the API.",
               )
             }
           >

@@ -26,7 +26,12 @@ const columns: AdminTableColumn<AdminCareseekerRow>[] = [
     label: "Status",
     sortable: true,
     render: (row) => (
-      <Chip size="small" label={row.status} variant="outlined" color="primary" />
+      <Chip
+        size="small"
+        label={row.status}
+        variant="outlined"
+        color="primary"
+      />
     ),
   },
   {
@@ -41,25 +46,28 @@ const columns: AdminTableColumn<AdminCareseekerRow>[] = [
 const CareseekerOverviewPage = () => {
   const { data = [], isLoading } = useAdminCareseekersQuery();
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<CareseekerStatusFilter>(STATUS_FILTER_ALL);
-  const [orderBy, setOrderBy] = useState<keyof AdminCareseekerRow & string>("name");
+  const [status, setStatus] =
+    useState<CareseekerStatusFilter>(STATUS_FILTER_ALL);
+  const [orderBy, setOrderBy] = useState<keyof AdminCareseekerRow & string>(
+    "name",
+  );
   const [order, setOrder] = useState<SortOrder>("asc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const filtered = useMemo(
     () => filterCareseekerRows(data, search, status),
-    [data, search, status]
+    [data, search, status],
   );
 
   const sorted = useMemo(
     () => sortAdminRows(filtered, orderBy, order, columns),
-    [filtered, orderBy, order]
+    [filtered, orderBy, order],
   );
 
   const paged = useMemo(
     () => sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [sorted, page, rowsPerPage]
+    [sorted, page, rowsPerPage],
   );
 
   const onSort = (columnId: keyof AdminCareseekerRow & string) => {
@@ -91,7 +99,10 @@ const CareseekerOverviewPage = () => {
           />
         }
         onExportCsv={() =>
-          exportCareseekersCsv(sorted, `careseekers-${new Date().toISOString().slice(0, 10)}.csv`)
+          exportCareseekersCsv(
+            sorted,
+            `careseekers-${new Date().toISOString().slice(0, 10)}.csv`,
+          )
         }
         exportDisabled={sorted.length === 0}
       >

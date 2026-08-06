@@ -188,7 +188,6 @@
 
 // export default CoreMenuButton;
 
-
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
@@ -208,7 +207,7 @@ const CHIP_WIDTH = 80;
 const CHIP_HEIGHT = 44;
 const CHIP_RADIUS = 14;
 const ITEM_GAP = 12;
-const EDGE_GAP = 24; 
+const EDGE_GAP = 24;
 
 const SLIDE_DURATION = 250;
 const FADE_DURATION = 150;
@@ -223,10 +222,14 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
-  const [itemWidths, setItemWidths] = useState<number[]>(() => navItems.map(() => 0));
+  const [itemWidths, setItemWidths] = useState<number[]>(() =>
+    navItems.map(() => 0),
+  );
 
   useLayoutEffect(() => {
-    const widths = itemRefs.current.map((el) => el?.getBoundingClientRect().width ?? 0);
+    const widths = itemRefs.current.map(
+      (el) => el?.getBoundingClientRect().width ?? 0,
+    );
     setItemWidths(widths);
   }, []);
 
@@ -258,7 +261,7 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
   const menuOpenRight =
     itemWidths.reduce((sum, width) => sum + width + ITEM_GAP, EDGE_GAP) -
     ITEM_GAP +
-    EDGE_GAP; 
+    EDGE_GAP;
   const totalCascadeDuration = SLIDE_DURATION + navItems.length * STAGGER_STEP;
 
   const handleToggle = (event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -278,7 +281,6 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
         pointerEvents: "auto",
       }}
     >
-
       <Box
         aria-hidden
         sx={{
@@ -299,7 +301,6 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
 
       {navItems.map((item, i) => {
         const isActive = pathname === item.to;
-        const giveCare = item.label === "Give Care";
 
         const openDelay = i * STAGGER_STEP;
         const closeDelay = (navItems.length - 1 - i) * STAGGER_STEP;
@@ -324,13 +325,13 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
               whiteSpace: "nowrap",
               fontSize: "0.95rem",
               textTransform: "none",
-              bgcolor: "transparent", 
+              bgcolor: "transparent",
               border: "none",
               boxShadow: "none",
               opacity: open ? 1 : 0,
               pointerEvents: open ? "auto" : "none",
-              color: giveCare ? "#1a1a1a" : isActive ? "#fff" : "rgba(255,255,255,0.82)",
-              fontWeight: giveCare || isActive ? 700 : 500,
+              color: isActive ? "black" : "rgba(255,255,255,0.82)",
+              fontWeight: isActive ? 700 : 500,
               zIndex: 0,
               transition: [
                 `right ${SLIDE_DURATION}ms ease ${delay}ms`,
@@ -338,7 +339,7 @@ const CoreMenuButton = ({ sticky = false }: CoreMenuButtonProps) => {
               ].join(", "),
               "&:hover": {
                 bgcolor: "rgba(255,255,255,0.12)",
-                color: giveCare ? "#1a1a1a" : "#fff",
+                color: "black",
               },
             }}
           >

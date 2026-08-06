@@ -1,6 +1,14 @@
 import type { ReactNode } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Alert, Box, Button, Link as MuiLink, Paper, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Link as MuiLink,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { env } from "../../../config/env";
 import { PROVIDER_ROUTE_PATHS, ProviderRoute } from "../../../routes/enums";
@@ -57,7 +65,9 @@ const ProviderAuthLayout = ({
           </Stack>
 
           {formError ? <Alert severity="error">{formError}</Alert> : null}
-          {statusMessage ? <Alert severity="success">{statusMessage}</Alert> : null}
+          {statusMessage ? (
+            <Alert severity="success">{statusMessage}</Alert>
+          ) : null}
 
           {children}
 
@@ -73,7 +83,9 @@ const ProviderAuthLayout = ({
           </Button>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {footerMode === "login" ? "Need an account? " : "Already have an account? "}
+            {footerMode === "login"
+              ? "Need an account? "
+              : "Already have an account? "}
             <MuiLink
               component={RouterLink}
               to={

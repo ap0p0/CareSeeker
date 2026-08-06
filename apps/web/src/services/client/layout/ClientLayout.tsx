@@ -160,7 +160,7 @@ const ClientLayout = () => {
     {
       duration: theme.transitions.duration.shorter,
       easing: theme.transitions.easing.easeInOut,
-    }
+    },
   );
 
   const navList = (
@@ -253,14 +253,22 @@ const ClientLayout = () => {
               }}
             >
               {!collapsed ? (
-                <Typography variant="subtitle1" fontWeight={700} noWrap sx={{ pl: 1 }}>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  noWrap
+                  sx={{ pl: 1 }}
+                >
                   CareSeeker Client
                 </Typography>
               ) : (
                 <Typography
                   variant="caption"
                   fontWeight={700}
-                  sx={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                  sx={{
+                    writingMode: "vertical-rl",
+                    transform: "rotate(180deg)",
+                  }}
                 >
                   Client
                 </Typography>

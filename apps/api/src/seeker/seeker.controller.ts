@@ -1,16 +1,18 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { SupabaseJwtGuard } from '../auth/supabase-jwt.guard';
 import type { AuthRequest } from '../auth/auth-types';
+import { requireSeekerUser } from './require-seeker';
 import { SeekerService } from './seeker.service';
 
 /**
@@ -42,12 +44,64 @@ export class SeekerController {
   @UseGuards(SupabaseJwtGuard)
   @Get('me')
   seekerMe(@Req() req: AuthRequest) {
-    if (req.user.role !== 'seeker') {
-      throw new ForbiddenException(
-        'You do not have permission to access the seeker area.',
-      );
-    }
-
+    requireSeekerUser(req);
     return req.user;
+  }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Get('overview')
+  async overview(@Req() req: AuthRequest) {
+    const seekerId = requireSeekerUser(req);
+    return this.seekerService.getOverview(seekerId);
+  }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Get('history')
+  async history(@Req() req: AuthRequest) {
+    const seekerId = requireSeekerUser(req);
+    return this.seekerService.listHistory(seekerId);
+  }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Get('explore')
+  async explore(
+    @Req() req: AuthRequest,
+    @Query() query: Record<string, unknown>,
+  ) {
+    requireSeekerUser(req);
+    return this.seekerService.listExploreProviders(query);
+  }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Get('account')
+  async account(@Req() req: AuthRequest) {
+    const seekerId = requireSeekerUser(req);
+    return this.seekerService.getAccount(seekerId);
+  }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Patch('account')
+  async updateAccount(@Req() req: AuthRequest, @Body() body: unknown) {
+    const seekerId = requireSeekerUser(req);
+    const account = await this.seekerService.updateAccount(seekerId, body);
+
+    return {
+      success: true,
+      message: 'Account updated successfully',
+      data: account,
+    };
+  }
+
+  @UseGuards(SupabaseJwtGuard)
+  @Patch('info')
+  async updateSeekersInfo(@Req() req: AuthRequest, @Body() body: unknown) {
+    const seekerId = requireSeekerUser(req);
+    const info = await this.seekerService.updateSeekersInfo(seekerId, body);
+
+    return {
+      success: true,
+      message: 'Seeker info updated successfully',
+      data: info,
+    };
   }
 }

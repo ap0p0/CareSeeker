@@ -9,21 +9,22 @@
 
 ## Application User Model
 
-The `User` table stores application-level state that Supabase `auth.users` does not:
+The `users` table stores application-level state that Supabase `auth.users` does not:
 
 | Column                       | Type                                          | Description                                    |
 | ---------------------------- | --------------------------------------------- | ---------------------------------------------- |
 | `id`                         | UUID                                          | Equals Supabase `auth.users.id` (canonical id) |
 | `email`                      | string                                        | From Supabase auth                             |
-| `username`                   | string (unique)                               | Required; stable default on auto-create until profile is completed |
-| `name`                       | string                                        | Required                                      |
-| `surname`                    | string                                        | Required                                      |
+| `name`                       | string                                        | Required                                       |
+| `surname`                    | string                                        | Required                                       |
 | `role`                       | `seeker` \| `provider` \| `admin`             | Application role                               |
 | `providerVerificationStatus` | `pending` \| `approved` \| `rejected` \| null | For providers only                             |
 
+Seeker onboarding / AI-profile fields (age, medical history, care preferences) live in `seekers_info`, linked 1:1 via `seekers_info.userId` → `users.id`.
+
 **Why this table exists:** Supabase `auth.users` only proves identity. Roles, verification, and app state live in our DB and are controlled server-side.
 
-**Link to `auth.users`:** `User.id` is the same UUID as `auth.users.id`. The column is stored as PostgreSQL `uuid` so it can match Supabase’s type. Optionally, add a real foreign key on Supabase (not applied by Prisma’s shadow DB): run [`prisma/manual/supabase_user_fk.sql`](../prisma/manual/supabase_user_fk.sql) in the Supabase SQL Editor after migrations. That enforces `User.id` → `auth.users(id)` with `ON DELETE CASCADE` (deleting the auth user removes the app row).
+**Link to `auth.users`:** `users.id` is the same UUID as `auth.users.id`. The column is stored as PostgreSQL `uuid` so it can match Supabase’s type. Optionally, add a real foreign key on Supabase (not applied by Prisma’s shadow DB): run [`prisma/manual/supabase_user_fk.sql`](../prisma/manual/supabase_user_fk.sql) in the Supabase SQL Editor after migrations. That enforces `users.id` → `auth.users(id)` with `ON DELETE CASCADE` (deleting the auth user removes the app row).
 
 **Admin is never self-assignable:** New users default to `SEEKER`. Only existing admins (or migrations) can set `role = ADMIN`.
 

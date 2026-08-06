@@ -25,10 +25,7 @@ export const adminRouter = createBrowserRouter(
           <Route
             index
             element={
-              <Navigate
-                to={ADMIN_ROUTE_PATHS[AdminRoute.Dashboard]}
-                replace
-              />
+              <Navigate to={ADMIN_ROUTE_PATHS[AdminRoute.Dashboard]} replace />
             }
           />
           <Route path="dashboard" element={<DashboardPage />} />
@@ -38,10 +35,7 @@ export const adminRouter = createBrowserRouter(
           <Route
             path="jobs"
             element={
-              <Navigate
-                to={ADMIN_ROUTE_PATHS[AdminRoute.OpenJobs]}
-                replace
-              />
+              <Navigate to={ADMIN_ROUTE_PATHS[AdminRoute.OpenJobs]} replace />
             }
           />
           <Route path="payments-history" element={<PaymentsHistoryPage />} />
@@ -58,6 +52,6 @@ export const adminRouter = createBrowserRouter(
           <Route path="*" element={<AdminNotFound />} />
         </Route>
       </Route>
-    </>
-  )
+    </>,
+  ),
 );

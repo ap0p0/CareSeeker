@@ -18,7 +18,7 @@ function validateAppVariant() {
       if (!valid) {
         throw new Error(
           `[Vite] VITE_APP_VARIANT must be set for production build. ` +
-            `Expected one of: ${VALID_VARIANTS.join(", ")}. Got: "${v ?? "(undefined)"}"`
+            `Expected one of: ${VALID_VARIANTS.join(", ")}. Got: "${v ?? "(undefined)"}"`,
         );
       }
     },

@@ -29,24 +29,22 @@ export async function verifySupabaseAccessToken(
   }
 
   const useSymmetric =
-    headerAlg === 'HS256' ||
-    headerAlg === 'HS384' ||
-    headerAlg === 'HS512';
+    headerAlg === 'HS256' || headerAlg === 'HS384' || headerAlg === 'HS512';
 
   if (useSymmetric) {
     if (!secret) {
       throw new UnauthorizedException('Server auth configuration error');
     }
-  try {
-    const { payload } = await jwtVerify(
-      token,
-      new TextEncoder().encode(secret),
-    );
-    return payload;
-  } catch (err) {
-    logVerifyFailure(err);
-    throw new UnauthorizedException('Invalid or expired token');
-  }
+    try {
+      const { payload } = await jwtVerify(
+        token,
+        new TextEncoder().encode(secret),
+      );
+      return payload;
+    } catch (err) {
+      logVerifyFailure(err);
+      throw new UnauthorizedException('Invalid or expired token');
+    }
   }
 
   if (!supabaseUrl) {

@@ -34,13 +34,13 @@ function resolveVariant(): AppVariant {
     throw new Error(
       `[Careseeker] Invalid or missing VITE_APP_VARIANT in production build. ` +
         `Expected one of: ${VALID_VARIANTS.join(", ")}. ` +
-        `Got: "${raw ?? "(undefined)"}"`
+        `Got: "${raw ?? "(undefined)"}"`,
     );
   }
 
   console.warn(
     `[Careseeker] VITE_APP_VARIANT is missing or invalid. Defaulting to "core" in dev. ` +
-      `Valid values: ${VALID_VARIANTS.join(", ")}`
+      `Valid values: ${VALID_VARIANTS.join(", ")}`,
   );
 
   return "core";

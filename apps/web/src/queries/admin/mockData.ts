@@ -97,7 +97,9 @@ export async function fetchMockCareseekers(): Promise<AdminCareseekerRow[]> {
   ];
 }
 
-export async function fetchMockCareProviders(): Promise<AdminCareProviderRow[]> {
+export async function fetchMockCareProviders(): Promise<
+  AdminCareProviderRow[]
+> {
   await delay(180);
   return [
     {

@@ -7,6 +7,7 @@ import {
 import { Prisma } from '../../generated/prisma/client.js';
 import { getSupabaseAdminClient } from '../auth/supabase-admin';
 import { UsersService } from '../users/users.service';
+import { ProviderRepository } from './provider.repository';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,7 +18,10 @@ type RegisterProviderPayload = {
 
 @Injectable()
 export class ProviderService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly providerRepository: ProviderRepository,
+  ) {}
 
   async register(rawPayload: unknown) {
     const payload = this.validateRegisterPayload(rawPayload);
@@ -59,6 +63,11 @@ export class ProviderService {
       const appUser = await this.usersService.createDefaultProviderUser(
         authUser.id,
         authUser.email,
+      );
+
+      await this.providerRepository.findOrCreateByUser(
+        appUser.id,
+        appUser.email,
       );
 
       return {
