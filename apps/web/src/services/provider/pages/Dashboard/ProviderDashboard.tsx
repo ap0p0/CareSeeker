@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Chip,
@@ -26,17 +27,37 @@ import {
 } from "../../components";
 import { fetchProviderDashboardData } from "../../data/mockProviderData";
 import { useProviderPageQuery } from "../../hooks/useProviderPageQuery";
+import { useProviderOverviewQuery } from "../../../../queries/provider";
+import { accountSettingsPath } from "../AccountSettings/settingsTabs";
+import { availabilitySummaryLine } from "../Overview/labels";
 
 const ProviderDashboard = () => {
   const fetchDashboard = useCallback(() => fetchProviderDashboardData(), []);
   const { data, isLoading, error, reload } = useProviderPageQuery({
     fetcher: fetchDashboard,
   });
+  // Real account data for the photo, completion and availability widgets;
+  // request / earnings figures still come from the mock until those APIs exist.
+  const { data: queryData } = useProviderOverviewQuery();
+  const profile = queryData?.profile;
+  const completion =
+    queryData?.completion.percentage ?? data?.stats.profileCompletion ?? 0;
 
   return (
     <ProviderPageShell
-      title="Dashboard"
+      title={profile ? `Welcome back, ${profile.name}` : "Dashboard"}
       description="Your home base for requests, profile progress, and availability."
+      headerAdornment={
+        profile ? (
+          <Avatar
+            src={profile.profileImageUrl ?? undefined}
+            alt={`${profile.name} ${profile.surname}`}
+            sx={{ width: 64, height: 64, fontSize: 24 }}
+          >
+            {profile.name.charAt(0)}
+          </Avatar>
+        ) : undefined
+      }
       isLoading={isLoading}
       error={error}
       onRetry={reload}
@@ -59,7 +80,7 @@ const ProviderDashboard = () => {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <ProviderStatCard
                 label="Profile completion"
-                value={`${data.stats.profileCompletion}%`}
+                value={`${completion}%`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -144,23 +165,31 @@ const ProviderDashboard = () => {
                   </Typography>
                   <LinearProgress
                     variant="determinate"
-                    value={data.stats.profileCompletion}
+                    value={completion}
                     sx={{ height: 10, borderRadius: 999, mb: 1 }}
                   />
                   <Typography variant="body2" color="text.secondary">
-                    {data.stats.profileCompletion}% complete
+                    {completion}% complete
+                    {queryData
+                      ? queryData.completion.sections
+                          .filter((section) => !section.complete)
+                          .map((section) => ` · ${section.label}`)
+                          .join("")
+                      : ""}
                   </Typography>
                   <Button
                     component={RouterLink}
                     to={
-                      PROVIDER_ROUTE_PATHS[
-                        ProviderRoute.ProfilePersonalInformation
-                      ]
+                      completion === 100
+                        ? PROVIDER_ROUTE_PATHS[
+                            ProviderRoute.ProfilePersonalInformation
+                          ]
+                        : accountSettingsPath("personal")
                     }
                     size="small"
                     sx={{ mt: 1.5 }}
                   >
-                    Complete profile
+                    {completion === 100 ? "View profile" : "Complete profile"}
                   </Button>
                 </Paper>
 
@@ -214,7 +243,9 @@ const ProviderDashboard = () => {
                     Availability summary
                   </Typography>
                   <Typography color="text.secondary">
-                    {data.availabilitySummary}
+                    {queryData
+                      ? availabilitySummaryLine(queryData.workPreferences)
+                      : data.availabilitySummary}
                   </Typography>
                   <Button
                     component={RouterLink}

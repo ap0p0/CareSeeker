@@ -1,13 +1,17 @@
-import { Box, Paper, Typography } from "@mui/material";
+import type { ReactNode } from "react";
+import { Box, Paper, Stack, Typography } from "@mui/material";
 
 type ProviderPageHeaderProps = {
   title: string;
   description?: string;
+  /** Optional leading element, e.g. the provider's avatar. */
+  adornment?: ReactNode;
 };
 
 const ProviderPageHeader = ({
   title,
   description,
+  adornment,
 }: ProviderPageHeaderProps) => {
   return (
     <Paper
@@ -20,14 +24,17 @@ const ProviderPageHeader = ({
         bgcolor: "background.paper",
       }}
     >
-      <Box display="flex" flexDirection="column" gap={1}>
-        <Typography variant="h4" fontWeight={700}>
-          {title}
-        </Typography>
-        {description ? (
-          <Typography color="text.secondary">{description}</Typography>
-        ) : null}
-      </Box>
+      <Stack direction="row" spacing={2} alignItems="center">
+        {adornment ?? null}
+        <Box display="flex" flexDirection="column" gap={1} sx={{ minWidth: 0 }}>
+          <Typography variant="h4" fontWeight={700}>
+            {title}
+          </Typography>
+          {description ? (
+            <Typography color="text.secondary">{description}</Typography>
+          ) : null}
+        </Box>
+      </Stack>
     </Paper>
   );
 };

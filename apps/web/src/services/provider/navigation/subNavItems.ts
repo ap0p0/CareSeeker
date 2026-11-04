@@ -32,7 +32,7 @@ export const profileSubNavItems: ProviderSubNavItem[] = [
   },
   {
     label: "Edit profile",
-    to: PROVIDER_ROUTE_PATHS[ProviderRoute.ProfileEdit],
+    to: PROVIDER_ROUTE_PATHS[ProviderRoute.AccountSettings],
   },
 ];
 

@@ -1,12 +1,7 @@
-import {
-  Controller,
-  ForbiddenException,
-  Get,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { SupabaseJwtGuard } from '../auth/supabase-jwt.guard';
 import type { AuthRequest } from '../auth/auth-types';
+import { requireAdminUserId } from './admin-auth';
 
 /**
  * Admin-only endpoints.
@@ -23,11 +18,7 @@ export class AdminController {
   @UseGuards(SupabaseJwtGuard)
   @Get('me')
   adminMe(@Req() req: AuthRequest) {
-    if (req.user.role !== 'admin') {
-      throw new ForbiddenException(
-        'You do not have permission to access the admin area.',
-      );
-    }
+    requireAdminUserId(req);
     return req.user;
   }
 }

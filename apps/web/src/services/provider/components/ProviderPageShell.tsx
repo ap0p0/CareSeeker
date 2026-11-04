@@ -7,6 +7,8 @@ import ProviderPageHeader from "./ProviderPageHeader";
 type ProviderPageShellProps = {
   title: string;
   description?: string;
+  /** Leading header element, e.g. an avatar. */
+  headerAdornment?: ReactNode;
   subNav?: ReactNode;
   isLoading?: boolean;
   error?: string | null;
@@ -17,6 +19,7 @@ type ProviderPageShellProps = {
 const ProviderPageShell = ({
   title,
   description,
+  headerAdornment,
   subNav,
   isLoading = false,
   error = null,
@@ -25,7 +28,11 @@ const ProviderPageShell = ({
 }: ProviderPageShellProps) => {
   return (
     <Stack spacing={2}>
-      <ProviderPageHeader title={title} description={description} />
+      <ProviderPageHeader
+        title={title}
+        description={description}
+        adornment={headerAdornment}
+      />
       {subNav}
       {error ? <ProviderErrorAlert message={error} onRetry={onRetry} /> : null}
       {isLoading ? <ProviderLoadingState /> : children}

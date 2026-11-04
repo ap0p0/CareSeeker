@@ -3,15 +3,35 @@
  * `VITE_PUBLIC_BASE_URL`, `VITE_APP_VARIANT`, `VITE_SUPABASE_URL`,
  * `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY`.
  *
- * Optional: `VITE_API_BASE_URL` / `VITE_API_URL` for API origin (see apiBaseUrl below).
+ * Optional: `VITE_API_BASE_URL` / `VITE_API_URL` for API origin (see apiBaseUrl below),
+ * `VITE_AUTH_MODE=local` to force the offline auth shim (see authMode below).
  */
 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseAnonKey = import.meta.env
+  .VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY as string | undefined;
+
+/**
+ * `supabase` (default when the Supabase vars are set) or `local`.
+ *
+ * `local` talks to the API's offline auth shim (`AUTH_MODE=local` on the API)
+ * instead of Supabase. It is selected explicitly with `VITE_AUTH_MODE=local`,
+ * or automatically when no Supabase config is present so the apps can run in
+ * a closed environment.
+ */
+const resolveAuthMode = (): "supabase" | "local" => {
+  const configured = (import.meta.env.VITE_AUTH_MODE as string | undefined)
+    ?.trim()
+    .toLowerCase();
+  if (configured === "local" || configured === "supabase") return configured;
+  return supabaseUrl && supabaseAnonKey ? "supabase" : "local";
+};
+
 export const env = {
+  authMode: resolveAuthMode(),
   supabase: {
-    url: import.meta.env.VITE_SUPABASE_URL as string | undefined,
-    anonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY as
-      | string
-      | undefined,
+    url: supabaseUrl,
+    anonKey: supabaseAnonKey,
   },
   apiBaseUrl: (() => {
     const defaultProductionApiBaseUrl = "https://backend.careseeker.app";

@@ -20,7 +20,7 @@ The `users` table stores application-level state that Supabase `auth.users` does
 | `role`                       | `seeker` \| `provider` \| `admin`             | Application role                               |
 | `providerVerificationStatus` | `pending` \| `approved` \| `rejected` \| null | For providers only                             |
 
-Seeker onboarding / AI-profile fields (age, medical history, care preferences) live in `seekers_info`, linked 1:1 via `seekers_info.userId` → `users.id`.
+Seeker onboarding / AI-profile fields (age, medical history, care preferences) live in `seekers_info`, linked 1:1 via `seekers_info.userId` → `users.id`. Provider personal information (date of birth, gender, E.164 phone, structured US address, profile-picture storage path) lives in `providers_info`, linked the same way. Both tables are private: they are only ever returned to the owning user through authenticated `/seeker/*` and `/provider/*` endpoints.
 
 **Why this table exists:** Supabase `auth.users` only proves identity. Roles, verification, and app state live in our DB and are controlled server-side.
 
@@ -39,6 +39,22 @@ Seeker onboarding / AI-profile fields (age, medical history, care preferences) l
 This endpoint uses `SUPABASE_SECRET_KEY` on the backend (or legacy
 `SUPABASE_SERVICE_ROLE_KEY`) so the auth row and the app row stay in sync from
 the start, rather than waiting for first login.
+
+## Provider Registration
+
+`POST /provider/register` (multipart) is onboarding step 1 and creates, in order:
+
+1. A new Supabase auth user
+2. The profile picture in the private `provider-profile-images` Storage bucket (`<userId>/profile-<uuid>.<ext>`)
+3. A `User` row (`role = PROVIDER`, `providerVerificationStatus = PENDING`) **and** its `providers_info` row in a single nested write
+
+If step 2 or 3 fails the uploaded object and the auth user are deleted again, so
+a provider can never end up with credentials but no profile. Later onboarding
+steps run authenticated (after sign-in) against `/provider/*` endpoints, like the
+seeker flow.
+
+Profile pictures are never public: `GET /provider/profile` returns a
+short-lived signed URL generated with the service key.
 
 ## Authentication Guard
 
@@ -78,7 +94,7 @@ the start, rather than waiting for first login.
 - `DATABASE_URL` — PostgreSQL connection string
 - `SUPABASE_JWT_SECRET` — Used when access tokens are signed with **HS256** (legacy “JWT Secret” in Project Settings → API).
 - `SUPABASE_URL` — Project URL, e.g. `https://<ref>.supabase.co`. **Required** when Supabase issues **asymmetric** JWTs (JWT signing keys / ES256): verification uses `{SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
-- `SUPABASE_SECRET_KEY` — Required for backend-managed signup like `POST /seeker/register`.
+- `SUPABASE_SECRET_KEY` — Required for backend-managed signup like `POST /seeker/register` / `POST /provider/register` and for private Storage access.
 - `SUPABASE_SERVICE_ROLE_KEY` — Legacy fallback name supported for compatibility.
 
 The API loads `.env` from **`apps/api/.env`** even when the process `cwd` is the monorepo root (see `src/load-env.ts`). If you still see **401** with a fresh ES256 token, set **`AUTH_DEBUG=true`** on the API and check the server log for the underlying `jose` error (e.g. wrong `SUPABASE_URL` / wrong project vs token `iss`).

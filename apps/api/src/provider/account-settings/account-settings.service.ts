@@ -1,5 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { getSupabaseAdminClient } from '../../auth/supabase-admin';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  AUTH_USER_PROVIDER,
+  type AuthUserProvider,
+} from '../../auth/auth-user-provider';
 import { ProviderRepository } from '../provider.repository';
 import { ProviderAccountSettingsRepository } from './account-settings.repository';
 import type { UpdateProviderAccountSettingsPayload } from './account-settings.types';
@@ -11,6 +14,7 @@ export class ProviderAccountSettingsService {
   constructor(
     private readonly providerRepository: ProviderRepository,
     private readonly accountSettingsRepository: ProviderAccountSettingsRepository,
+    @Inject(AUTH_USER_PROVIDER) private readonly authUsers: AuthUserProvider,
   ) {}
 
   async get(userId: string) {
@@ -28,20 +32,11 @@ export class ProviderAccountSettingsService {
     await this.providerRepository.ensureByUserId(userId);
     const payload = this.validatePayload(rawPayload);
 
-    const supabaseAdmin = getSupabaseAdminClient();
-
     if (payload.email || payload.password) {
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      await this.authUsers.updateUser(userId, {
         email: payload.email,
         password: payload.password,
       });
-
-      if (error) {
-        throw new BadRequestException({
-          code: 'AUTH_UPDATE_FAILED',
-          message: error.message,
-        });
-      }
     }
 
     await this.accountSettingsRepository.updateByUserId(userId, payload);

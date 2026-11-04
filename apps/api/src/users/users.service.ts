@@ -2,9 +2,29 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CareForType,
+  type ProviderGender,
   ProviderVerificationStatus,
   UserRole,
 } from '../../generated/prisma/client.js';
+
+/**
+ * Provider onboarding step 1 data. Identity fields go on `users`; the rest on
+ * the 1:1 `providers_info` row created in the same transaction.
+ */
+export type CreateProviderUserProfile = {
+  name: string;
+  surname: string;
+  personalInfo: {
+    dateOfBirth: Date;
+    gender: ProviderGender | null;
+    phone: string;
+    addressLine1: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    profileImagePath: string | null;
+  };
+};
 
 /**
  * Application user service. Handles user creation and lookup.
@@ -87,22 +107,33 @@ export class UsersService {
     });
   }
 
-  private buildDefaultProviderData(supabaseId: string, email: string) {
+  /**
+   * Creates the provider `User` row together with its `providers_info` row in
+   * a single nested write, so authentication identity and personal data can
+   * never end up half-saved.
+   */
+  async createProviderUser(
+    supabaseId: string,
+    email: string,
+    profile: CreateProviderUserProfile,
+  ) {
     const identity = this.requireAuthIdentity(supabaseId, email);
 
-    return {
-      id: identity.supabaseId,
-      email: identity.email,
-      name: 'Unknown',
-      surname: 'User',
-      role: UserRole.PROVIDER,
-      providerVerificationStatus: ProviderVerificationStatus.PENDING,
-    };
-  }
-
-  async createDefaultProviderUser(supabaseId: string, email: string) {
     return this.prisma.user.create({
-      data: this.buildDefaultProviderData(supabaseId, email),
+      data: {
+        id: identity.supabaseId,
+        email: identity.email,
+        name: profile.name,
+        surname: profile.surname,
+        role: UserRole.PROVIDER,
+        providerVerificationStatus: ProviderVerificationStatus.PENDING,
+        providersInfo: {
+          create: profile.personalInfo,
+        },
+      },
+      include: {
+        providersInfo: true,
+      },
     });
   }
 

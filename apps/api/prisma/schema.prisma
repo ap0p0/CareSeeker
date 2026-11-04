@@ -119,6 +119,7 @@ enum SpokenLanguage {
   ENGLISH
   SPANISH
   CHINESE
+  TAGALOG
   VIETNAMESE
   ARABIC
   FRENCH
@@ -168,6 +169,148 @@ enum CareUrgency {
   EXPLORING
 }
 
+/// Optional gender disclosure collected during provider onboarding.
+enum ProviderGender {
+  FEMALE
+  MALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
+/// Care service categories. Used both for what a provider offers and for the
+/// job categories a provider wants to find (onboarding step 2).
+enum CareServiceCategory {
+  ELDERLY_CARE
+  CHILD_CARE
+  DISABILITY_ASSISTANCE
+  PERSONAL_CARE
+  COMPANIONSHIP
+  HOUSEHOLD_ASSISTANCE
+  MEDICAL_NURSING
+  OTHER
+}
+
+/// Relevant caregiving skills (provider onboarding step 2).
+enum CareSkill {
+  FIRST_AID_CPR
+  MEDICATION_MANAGEMENT
+  MOBILITY_TRANSFER_ASSISTANCE
+  DEMENTIA_ALZHEIMERS_CARE
+  MEAL_PREPARATION
+  HOUSEKEEPING
+  PERSONAL_HYGIENE_ASSISTANCE
+  TRANSPORTATION
+  COMPANIONSHIP_EMOTIONAL_SUPPORT
+  CHILD_DEVELOPMENT
+  SPECIAL_NEEDS_SUPPORT
+  PALLIATIVE_HOSPICE_CARE
+  OTHER
+}
+
+/// Professional qualifications / certifications (provider onboarding step 2).
+enum ProfessionalQualification {
+  CNA
+  HHA
+  RN
+  LPN_LVN
+  CPR_FIRST_AID_CERTIFICATION
+  CAREGIVER_CERTIFICATION
+  EARLY_CHILDHOOD_EDUCATION
+  SOCIAL_WORK
+  NURSING_DEGREE
+  OTHER
+}
+
+/// Concrete care tasks a provider is willing / unwilling to perform.
+enum CareTask {
+  BATHING_HYGIENE
+  TOILETING_INCONTINENCE_CARE
+  DRESSING_GROOMING
+  FEEDING_ASSISTANCE
+  MEAL_PREPARATION
+  MEDICATION_REMINDERS
+  MOBILITY_TRANSFERS
+  HEAVY_LIFTING
+  LIGHT_HOUSEKEEPING
+  LAUNDRY
+  SHOPPING_ERRANDS
+  TRANSPORTATION_DRIVING
+  COMPANIONSHIP
+  OVERNIGHT_CARE
+  PET_CARE
+}
+
+enum TaskPreference {
+  WILLING
+  UNWILLING
+}
+
+/// Kinds of supporting documents a provider can upload (onboarding step 3).
+enum ProviderDocumentCategory {
+  CV_RESUME
+  REFERENCE_LETTER
+  EDUCATIONAL_CERTIFICATE
+  PROFESSIONAL_CERTIFICATE
+  MEDICAL_LICENSE_PERMIT
+  OTHER
+}
+
+/// Weekly schedule entry meaning (onboarding step 4). `BLOCKED` windows are
+/// used by providers who prefer to mark the hours they can *never* work.
+enum AvailabilityWindowKind {
+  AVAILABLE
+  BLOCKED
+}
+
+/// How a provider described a working day: the whole day, explicit
+/// available windows, or everything except explicit blocked windows.
+enum DayAvailabilityMode {
+  ALL_DAY
+  AVAILABLE_WINDOWS
+  BLOCKED_WINDOWS
+}
+
+enum WorkType {
+  FULL_TIME
+  PART_TIME
+  FLEXIBLE
+}
+
+enum AvailabilityStart {
+  IMMEDIATE
+  SPECIFIC_DATE
+}
+
+enum VehicleType {
+  CAR
+  SUV
+  MINIVAN
+  VAN
+  TRUCK
+  OTHER
+}
+
+/// Which storage adapter holds an object. Recorded per file so a later move
+/// to Supabase (or a mixed state during migration) needs no schema change.
+enum StorageProvider {
+  LOCAL
+  SUPABASE
+}
+
+/// Patient / client groups a provider prefers to work with.
+enum ClientGroup {
+  SENIORS
+  ADULTS_WITH_DISABILITIES
+  CHILDREN
+  INFANTS_TODDLERS
+  PEOPLE_WITH_DEMENTIA
+  POST_SURGERY_RECOVERY
+  CHRONIC_ILLNESS
+  HOSPICE_PALLIATIVE
+  MENTAL_HEALTH
+  VETERANS
+}
+
 /// Application-level user. Exists because Supabase auth.users only handles
 /// authentication (identity). Roles, verification, and app-specific state
 /// live here and are controlled server-side.
@@ -206,6 +349,22 @@ model User {
   /// 1:1 seeker onboarding / AI-training profile (`seekers_info.id`).
   seekersInfo SeekersInfo?
 
+  /// 1:1 provider onboarding personal information (`providers_info.id`).
+  providersInfo ProvidersInfo?
+
+  /// 1:1 provider onboarding step 2 (services, skills, job interests).
+  providerServiceProfile ProviderServiceProfile?
+  providerCareServices   ProviderCareService[]
+  providerSkills         ProviderSkill[]
+  providerQualifications ProviderQualification[]
+  providerLanguages      ProviderLanguage[]
+  providerJobCategories  ProviderJobCategory[]
+  providerTaskPreferences ProviderTaskPreference[]
+  providerClientGroups   ProviderClientGroup[]
+  providerDocuments      ProviderDocument[]
+  providerWorkingDays    ProviderWorkingDay[]     @relation("provider_working_day_provider")
+  providerWorkPreferences ProviderWorkPreferences?
+
   @@map("users")
 }
 
@@ -226,22 +385,102 @@ model Presignup {
   @@map("presignups")
 }
 
+/// Time windows of a provider's schedule. Weekly entries use `dayOfWeek`
+/// (0 = Sunday … 6 = Saturday), one-off entries use `date`. Times are
+/// zero-padded `HH:mm`, so string comparison works for range queries.
+/// `kind` distinguishes available windows from blocked ones (see
+/// `ProviderWorkingDay.mode` for how to interpret a day).
+///
+/// Overnight windows set `endsNextDay` (e.g. 22:00 → 06:00): the window covers
+/// `[startTime, 24:00)` on its day and `[00:00, endTime)` on the following day,
+/// so a query for day D must also look at D-1 rows with `endsNextDay`.
 model ProviderAvailability {
-  id         String    @id @default(uuid()) @db.Uuid
-  providerId String    @map("provider_id") @db.Uuid
-  dayOfWeek  Int?      @map("day_of_week")
-  date       DateTime? @db.Date
-  startTime  String    @map("start_time")
-  endTime    String    @map("end_time")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
+  id          String                 @id @default(uuid()) @db.Uuid
+  providerId  String                 @map("provider_id") @db.Uuid
+  dayOfWeek   Int?                   @map("day_of_week")
+  date        DateTime?              @db.Date
+  startTime   String                 @map("start_time")
+  endTime     String                 @map("end_time")
+  endsNextDay Boolean                @default(false) @map("ends_next_day")
+  kind        AvailabilityWindowKind @default(AVAILABLE)
+  createdAt  DateTime               @default(now()) @map("created_at")
+  updatedAt  DateTime               @updatedAt @map("updated_at")
 
   provider User @relation("provider_availability_provider", fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([providerId])
   @@index([providerId, dayOfWeek])
   @@index([providerId, date])
+  @@index([dayOfWeek, kind, startTime, endTime])
   @@map("provider_availability")
+}
+
+/// A weekday the provider works (onboarding step 4), with how the day's
+/// windows in `provider_availability` should be read:
+/// - ALL_DAY: available any time that day (no windows)
+/// - AVAILABLE_WINDOWS: available only inside the AVAILABLE windows
+/// - BLOCKED_WINDOWS: available except inside the BLOCKED windows
+model ProviderWorkingDay {
+  providerId String              @map("provider_id") @db.Uuid
+  /// 0 = Sunday … 6 = Saturday
+  dayOfWeek  Int                 @map("day_of_week")
+  mode       DayAvailabilityMode
+
+  provider User @relation("provider_working_day_provider", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, dayOfWeek])
+  @@index([dayOfWeek, mode])
+  @@map("provider_working_days")
+}
+
+/// Working conditions a provider accepts (onboarding step 4): kept as
+/// individual typed columns so matching can filter on each one directly.
+/// Money is in cents (like `jobs.hourlyRateCents`); distance in whole miles
+/// (convert with ×1609.344 for metre-based radius queries once provider
+/// coordinates exist).
+model ProviderWorkPreferences {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  workType          WorkType
+  availabilityStart AvailabilityStart
+  /// Required when `availabilityStart = SPECIFIC_DATE`.
+  availableFrom     DateTime?         @db.Date
+
+  acceptsHourly     Boolean
+  acceptsFixedPrice Boolean
+
+  acceptsOneTimeJobs Boolean
+  acceptsDailyJobs   Boolean
+  acceptsWeeklyJobs  Boolean
+  acceptsMonthlyJobs Boolean
+
+  availableOvernight Boolean
+  availableLiveIn    Boolean
+  availableEmergency Boolean
+
+  maxTravelDistanceMiles Int
+  offersTransportation   Boolean
+  vehicleType            VehicleType?
+  vehicleWheelchairAccessible Boolean?
+
+  minWeeklyHours Int
+  maxWeeklyHours Int
+
+  preferredHourlyRateCents Int
+  minHourlyRateCents       Int
+
+  matchingNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([workType])
+  @@index([maxTravelDistanceMiles])
+  @@index([minHourlyRateCents])
+  @@map("provider_work_preferences")
 }
 
 model CareRequest {
@@ -325,6 +564,186 @@ model SeekersInfo {
   @@index([scheduleVibe])
   @@index([preferredCaregiverGender])
   @@map("seekers_info")
+}
+
+/// Provider personal information collected in onboarding step 1, kept off the
+/// root `User` row. Identity fields (`name`, `surname`, `email`) stay on `users`
+/// so they are not duplicated here.
+///
+/// - `id`: provider personal-info id (stable reference for future onboarding steps)
+/// - `userId`: FK to `User.id` (1:1 — one providers_info row per provider account)
+/// - `profileImagePath`: object path inside the private Supabase Storage bucket.
+///   Never exposed directly; the API returns short-lived signed URLs instead.
+/// - Address is US-only and stored as structured fields (`state` is the USPS
+///   code, `postalCode` the ZIP) so it can later be populated from the Google
+///   Places API without a schema change.
+model ProvidersInfo {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  dateOfBirth DateTime        @db.Date
+  gender      ProviderGender?
+  /// US phone number in E.164 form (`+1XXXXXXXXXX`). Confirmation is handled
+  /// in a later step.
+  phone       String
+
+  addressLine1 String
+  city         String
+  state        String
+  postalCode   String
+
+  profileImagePath String?
+
+  /// Set when the provider finishes the onboarding flow. Until then
+  /// `/register` resumes at the first unfinished step.
+  onboardingCompletedAt DateTime?
+  /// Set when the provider reviewed the overview and confirmed the data; the
+  /// dashboard becomes the landing page from then on.
+  profileConfirmedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("providers_info")
+}
+
+/// Provider onboarding step 2 — free-text / scalar part. Every multi-select
+/// answer lives in its own relational table (one row per selection, keyed by
+/// the provider's user id) so filtering and matching can query them directly
+/// instead of parsing delimited strings. The `other*` columns hold the
+/// "Other (specify)" text for the matching `OTHER` selection.
+model ProviderServiceProfile {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  otherCareService   String?
+  otherSkill         String?
+  yearsOfExperience  Int
+  previousCareExperience String
+  otherQualification String?
+  otherLanguage      String?
+  coverLetter        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([yearsOfExperience])
+  @@map("provider_service_profiles")
+}
+
+/// Care services a provider offers (one row per category).
+model ProviderCareService {
+  providerId String              @map("provider_id") @db.Uuid
+  service    CareServiceCategory
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, service])
+  @@index([service])
+  @@map("provider_care_services")
+}
+
+model ProviderSkill {
+  providerId String    @map("provider_id") @db.Uuid
+  skill      CareSkill
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, skill])
+  @@index([skill])
+  @@map("provider_skills")
+}
+
+model ProviderQualification {
+  providerId    String                    @map("provider_id") @db.Uuid
+  qualification ProfessionalQualification
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, qualification])
+  @@index([qualification])
+  @@map("provider_qualifications")
+}
+
+/// Languages a provider speaks; shares `SpokenLanguage` with seekers so
+/// `seekers_info.preferredCaregiverLanguage` can be matched directly.
+model ProviderLanguage {
+  providerId String         @map("provider_id") @db.Uuid
+  language   SpokenLanguage
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, language])
+  @@index([language])
+  @@map("provider_languages")
+}
+
+/// Job categories a provider wants to find (same vocabulary as services).
+model ProviderJobCategory {
+  providerId String              @map("provider_id") @db.Uuid
+  category   CareServiceCategory
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, category])
+  @@index([category])
+  @@map("provider_job_categories")
+}
+
+/// Tasks a provider is willing or unwilling to perform (a task appears once).
+model ProviderTaskPreference {
+  providerId String         @map("provider_id") @db.Uuid
+  task       CareTask
+  preference TaskPreference
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, task])
+  @@index([task, preference])
+  @@map("provider_task_preferences")
+}
+
+/// Supporting document uploaded by a provider (CV, references, certificates,
+/// licenses, …). Only metadata lives here; the bytes are in the private
+/// `provider-documents` bucket of the configured `FileStorage` under
+/// `storageKey` (`<providerId>/<uuid>.<ext>`). Rows are soft-deleted
+/// (`deletedAt`) so admins keep an audit trail; storage objects are kept
+/// until a purge.
+model ProviderDocument {
+  id         String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  providerId String                   @map("provider_id") @db.Uuid
+  category   ProviderDocumentCategory
+
+  originalFilename String          @map("original_filename")
+  storageKey       String          @unique @map("storage_key")
+  storageProvider  StorageProvider @map("storage_provider")
+  mimeType         String          @map("mime_type")
+  sizeBytes        Int             @map("size_bytes")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId, deletedAt])
+  @@index([providerId, category])
+  @@map("provider_documents")
+}
+
+model ProviderClientGroup {
+  providerId  String      @map("provider_id") @db.Uuid
+  clientGroup ClientGroup @map("client_group")
+
+  provider User @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@id([providerId, clientGroup])
+  @@index([clientGroup])
+  @@map("provider_client_groups")
 }
 
 model Job {

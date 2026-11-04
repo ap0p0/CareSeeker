@@ -1,8 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -17,7 +17,10 @@ import {
   ScheduleVibe,
   SpokenLanguage,
 } from '../../generated/prisma/client.js';
-import { getSupabaseAdminClient } from '../auth/supabase-admin';
+import {
+  AUTH_USER_PROVIDER,
+  type AuthUserProvider,
+} from '../auth/auth-user-provider';
 import { UsersService } from '../users/users.service';
 import { SeekerRepository } from './seeker.repository';
 import {
@@ -79,43 +82,16 @@ export class SeekerService {
   constructor(
     private readonly usersService: UsersService,
     private readonly seekerRepository: SeekerRepository,
+    @Inject(AUTH_USER_PROVIDER) private readonly authUsers: AuthUserProvider,
   ) {}
 
   async register(rawPayload: unknown) {
     const payload = this.validateRegisterPayload(rawPayload);
-    const supabaseAdmin = getSupabaseAdminClient();
 
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    const authUser = await this.authUsers.createUser({
       email: payload.email,
       password: payload.password,
-      email_confirm: true,
     });
-
-    if (error) {
-      if (
-        error.message.toLowerCase().includes('already') ||
-        error.message.toLowerCase().includes('exists')
-      ) {
-        throw new ConflictException({
-          code: 'DUPLICATE_EMAIL',
-          message: 'This email has already been registered',
-        });
-      }
-
-      throw new BadRequestException({
-        code: 'AUTH_SIGNUP_FAILED',
-        message: error.message,
-      });
-    }
-
-    const authUser = data.user;
-
-    if (!authUser?.id || !authUser.email) {
-      throw new InternalServerErrorException({
-        code: 'AUTH_USER_CREATION_FAILED',
-        message: 'Supabase did not return a valid user record.',
-      });
-    }
 
     try {
       const appUser = await this.usersService.createSeekerUser(
@@ -135,7 +111,7 @@ export class SeekerService {
         role: appUser.role.toLowerCase(),
       };
     } catch (error: unknown) {
-      await supabaseAdmin.auth.admin.deleteUser(authUser.id);
+      await this.authUsers.deleteUser(authUser.id);
 
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&

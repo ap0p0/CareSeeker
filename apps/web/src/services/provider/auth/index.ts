@@ -4,6 +4,7 @@ export {
   type ProviderGateOutcome,
 } from "./ProviderAuthContext";
 export { default as RequireProvider } from "./RequireProvider";
+export { default as RequireOnboarding } from "./RequireOnboarding";
 export { ProviderAuthLoadingScreen } from "./ProviderAuthLoadingScreen";
 export {
   PROVIDER_ACCESS_DENIED_MESSAGE,
