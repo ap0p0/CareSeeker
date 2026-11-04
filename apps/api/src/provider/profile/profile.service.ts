@@ -1,24 +1,118 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  hasOwn,
+  parseAddress,
+  parseDateOfBirth,
+  parseGender,
+  parseName,
+  parsePhone,
+} from '../common/personal-info.validation';
+import { ProviderProfileImageStorageService } from '../common/profile-image-storage.service';
+import {
+  requireValidProfileImage,
+  type UploadedFile,
+} from '../common/uploaded-file';
 import { ProviderRepository } from '../provider.repository';
-import { ProviderProfileRepository } from './profile.repository';
+import {
+  ProviderProfileRepository,
+  type ProviderProfileRecord,
+} from './profile.repository';
 import type {
   ProviderProfileResponse,
   UpdateProviderProfilePayload,
 } from './profile.types';
+
+const ADDRESS_FIELDS = ['addressLine1', 'city', 'state', 'postalCode'] as const;
+
+const PERSONAL_INFO_FIELDS = [
+  'dateOfBirth',
+  'gender',
+  'phone',
+  ...ADDRESS_FIELDS,
+] as const;
 
 @Injectable()
 export class ProviderProfileService {
   constructor(
     private readonly providerRepository: ProviderRepository,
     private readonly profileRepository: ProviderProfileRepository,
+    private readonly profileImageStorage: ProviderProfileImageStorageService,
   ) {}
 
   async getProfile(userId: string): Promise<ProviderProfileResponse> {
     const profile = await this.requireProfile(userId);
+    return this.toResponse(profile);
+  }
+
+  async updateProfile(
+    userId: string,
+    rawPayload: unknown,
+  ): Promise<ProviderProfileResponse> {
+    const existing = await this.requireProfile(userId);
+    const payload = this.validateUpdatePayload(rawPayload, {
+      // Accounts created before onboarding step 1 have no providers_info row:
+      // the first personal-info update must then contain every required field.
+      requireCompletePersonalInfo: existing.providersInfo === null,
+    });
+
+    const updated = await this.profileRepository.updateByUserId(
+      userId,
+      payload,
+      { hasPersonalInfo: existing.providersInfo !== null },
+    );
+
+    return this.toResponse(updated);
+  }
+
+  /**
+   * Replaces the profile picture. The previous object is removed from storage
+   * only after the new path has been persisted.
+   */
+  async updateProfilePicture(
+    userId: string,
+    file: UploadedFile | undefined,
+  ): Promise<ProviderProfileResponse> {
+    const existing = await this.requireProfile(userId);
+    const picture = requireValidProfileImage(file);
+
+    if (!existing.providersInfo) {
+      throw new ConflictException({
+        code: 'PERSONAL_INFO_REQUIRED',
+        message:
+          'Complete your personal information before uploading a profile picture.',
+      });
+    }
+
+    const previousPath = existing.providersInfo.profileImagePath;
+    const newPath = await this.profileImageStorage.upload(userId, picture);
+
+    let updated: ProviderProfileRecord;
+    try {
+      updated = await this.profileRepository.updateProfileImagePath(
+        userId,
+        newPath,
+      );
+    } catch (error) {
+      await this.profileImageStorage.remove(newPath);
+      throw error;
+    }
+
+    if (previousPath && previousPath !== newPath) {
+      await this.profileImageStorage.remove(previousPath);
+    }
+
+    return this.toResponse(updated);
+  }
+
+  private async toResponse(
+    profile: ProviderProfileRecord,
+  ): Promise<ProviderProfileResponse> {
+    const info = profile.providersInfo;
     const status =
       profile.providerVerificationStatus === 'APPROVED'
         ? 'active'
@@ -28,44 +122,29 @@ export class ProviderProfileService {
       id: profile.id,
       userId: profile.id,
       name: profile.name,
+      surname: profile.surname,
       email: profile.email,
-      phone: null,
-      bio: null,
-      profileImage: null,
+      dateOfBirth: info ? info.dateOfBirth.toISOString().slice(0, 10) : null,
+      gender: info?.gender ? info.gender.toLowerCase() : null,
+      phone: info?.phone ?? null,
+      address: info
+        ? {
+            addressLine1: info.addressLine1,
+            city: info.city,
+            state: info.state,
+            postalCode: info.postalCode,
+          }
+        : null,
+      profileImageUrl: await this.profileImageStorage.getSignedUrl(
+        info?.profileImagePath,
+      ),
       status,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
     };
   }
 
-  async updateProfile(userId: string, rawPayload: unknown) {
-    const payload = this.validateUpdatePayload(rawPayload);
-
-    await this.requireProfile(userId);
-
-    const updated = await this.profileRepository.updateByUserId(
-      userId,
-      payload,
-    );
-    const status =
-      updated.providerVerificationStatus === 'APPROVED'
-        ? 'active'
-        : 'pending_verification';
-
-    return {
-      id: updated.id,
-      userId: updated.id,
-      name: updated.name,
-      email: updated.email,
-      phone: null,
-      bio: null,
-      profileImage: null,
-      status,
-      updatedAt: updated.updatedAt,
-    };
-  }
-
-  private async requireProfile(userId: string) {
+  private async requireProfile(userId: string): Promise<ProviderProfileRecord> {
     const existing = await this.profileRepository.findByUserId(userId);
     if (existing) return existing;
 
@@ -80,6 +159,7 @@ export class ProviderProfileService {
 
   private validateUpdatePayload(
     rawPayload: unknown,
+    options: { requireCompletePersonalInfo: boolean },
   ): UpdateProviderProfilePayload {
     if (!rawPayload || typeof rawPayload !== 'object') {
       throw new BadRequestException({
@@ -92,48 +172,48 @@ export class ProviderProfileService {
     const payload: UpdateProviderProfilePayload = {};
     const errors: string[] = [];
 
-    if (Object.prototype.hasOwnProperty.call(body, 'name')) {
-      if (typeof body.name !== 'string' || body.name.trim().length === 0) {
-        errors.push('name must be a non-empty string');
-      } else {
-        payload.name = body.name.trim();
-      }
+    if (hasOwn(body, 'name')) {
+      const name = parseName(body.name, 'name', errors);
+      if (name) payload.name = name;
     }
 
-    if (Object.prototype.hasOwnProperty.call(body, 'phone')) {
-      if (body.phone === null) {
-        payload.phone = null;
-      } else if (typeof body.phone !== 'string') {
-        errors.push('phone must be a string or null');
-      } else {
-        payload.phone = body.phone.trim();
-      }
+    if (hasOwn(body, 'surname')) {
+      const surname = parseName(body.surname, 'surname', errors);
+      if (surname) payload.surname = surname;
     }
 
-    if (Object.prototype.hasOwnProperty.call(body, 'bio')) {
-      if (body.bio === null) {
-        payload.bio = null;
-      } else if (typeof body.bio !== 'string') {
-        errors.push('bio must be a string or null');
-      } else {
-        payload.bio = body.bio.trim();
-      }
+    const touchesPersonalInfo = PERSONAL_INFO_FIELDS.some((field) =>
+      hasOwn(body, field),
+    );
+    const touchesAddress = ADDRESS_FIELDS.some((field) => hasOwn(body, field));
+    const mustBeComplete =
+      options.requireCompletePersonalInfo && touchesPersonalInfo;
+
+    if (hasOwn(body, 'dateOfBirth') || mustBeComplete) {
+      const dateOfBirth = parseDateOfBirth(body.dateOfBirth, errors);
+      if (dateOfBirth) payload.dateOfBirth = dateOfBirth;
     }
 
-    if (Object.prototype.hasOwnProperty.call(body, 'profileImage')) {
-      if (body.profileImage === null) {
-        payload.profileImage = null;
-      } else if (typeof body.profileImage !== 'string') {
-        errors.push('profileImage must be a string or null');
-      } else {
-        payload.profileImage = body.profileImage.trim();
-      }
+    if (hasOwn(body, 'gender')) {
+      payload.gender = parseGender(body.gender, errors);
+    }
+
+    if (hasOwn(body, 'phone') || mustBeComplete) {
+      const phone = parsePhone(body.phone, errors);
+      if (phone) payload.phone = phone;
+    }
+
+    if (touchesAddress || mustBeComplete) {
+      const address = parseAddress(body, errors);
+      if (address) payload.address = address;
     }
 
     if (errors.length > 0) {
       throw new BadRequestException({
         code: 'VALIDATION_ERROR',
-        message: 'Invalid profile payload',
+        message: mustBeComplete
+          ? 'Complete personal information is required before partial updates'
+          : 'Invalid profile payload',
         errors,
       });
     }

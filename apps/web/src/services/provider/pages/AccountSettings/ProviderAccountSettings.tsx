@@ -1,165 +1,88 @@
-import { useState } from "react";
-import {
-  Alert,
-  Button,
-  FormControlLabel,
-  Paper,
-  Stack,
-  Switch,
-  TextField,
-} from "@mui/material";
+import { Box, Paper, Tab, Tabs } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
 import { ProviderPageShell } from "../../components";
+import ProviderDocumentsStep from "../Register/steps/ProviderDocumentsStep";
+import {
+  ACCOUNT_SETTINGS_TABS,
+  isAccountSettingsTab,
+  type AccountSettingsTab,
+} from "./settingsTabs";
+import {
+  AvailabilityEditor,
+  PersonalInfoEditor,
+  ServicesEditor,
+} from "../../components/profile-editors";
+import AccountCredentialsTab from "./tabs/AccountCredentialsTab";
 
+/**
+ * The single place where a provider edits what they submitted during
+ * registration. Each tab reuses the matching onboarding form and saves that
+ * section on its own — no need to run through the whole flow again.
+ * The active tab lives in the URL (`?tab=`) so the overview can deep-link.
+ */
 const ProviderAccountSettings = () => {
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [email, setEmail] = useState("provider@example.com");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requested = searchParams.get("tab");
+  const tab: AccountSettingsTab = isAccountSettingsTab(requested)
+    ? requested
+    : "personal";
 
-  const handleSaveAccount = () => {
-    setErrorMessage(null);
-    if (!email.trim()) {
-      setErrorMessage("Email is required.");
-      return;
-    }
-    setStatusMessage("Account information saved.");
-  };
-
-  const handleChangePassword = () => {
-    setErrorMessage(null);
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setErrorMessage("All password fields are required.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setErrorMessage("New passwords do not match.");
-      return;
-    }
-    setStatusMessage("Password updated.");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+  const selectTab = (next: AccountSettingsTab) => {
+    setSearchParams({ tab: next }, { replace: true });
   };
 
   return (
     <ProviderPageShell
       title="Account settings"
-      description="Update your account information, password, and notification preferences."
+      description="Update the information you shared with us. Changes are saved per section."
     >
-      <Stack spacing={2}>
-        {statusMessage ? (
-          <Alert severity="success">{statusMessage}</Alert>
-        ) : null}
-        {errorMessage ? <Alert severity="error">{errorMessage}</Alert> : null}
-
-        <Paper
-          elevation={0}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+        }}
+      >
+        <Tabs
+          value={tab}
+          onChange={(_event, next: AccountSettingsTab) => selectTab(next)}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          aria-label="Account settings sections"
           sx={{
-            p: { xs: 2.5, md: 3 },
-            borderRadius: 3,
-            border: "1px solid",
+            px: { xs: 1, md: 2 },
+            borderBottom: 1,
             borderColor: "divider",
+            "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
           }}
         >
-          <Stack spacing={2}>
-            <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              fullWidth
+          {ACCOUNT_SETTINGS_TABS.map((item) => (
+            <Tab
+              key={item.key}
+              value={item.key}
+              label={item.label}
+              id={`settings-tab-${item.key}`}
+              aria-controls={`settings-panel-${item.key}`}
             />
-            <Button variant="contained" onClick={handleSaveAccount}>
-              Save account information
-            </Button>
-          </Stack>
-        </Paper>
+          ))}
+        </Tabs>
 
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2.5, md: 3 },
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "divider",
-          }}
+        <Box
+          role="tabpanel"
+          id={`settings-panel-${tab}`}
+          aria-labelledby={`settings-tab-${tab}`}
+          sx={{ p: { xs: 2, md: 3 } }}
         >
-          <Stack spacing={2}>
-            <TextField
-              label="Current password"
-              type="password"
-              value={currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="New password"
-              type="password"
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Confirm new password"
-              type="password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              fullWidth
-            />
-            <Button variant="contained" onClick={handleChangePassword}>
-              Change password
-            </Button>
-          </Stack>
-        </Paper>
-
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 2.5, md: 3 },
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Stack spacing={1}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={emailNotifications}
-                  onChange={(event) =>
-                    setEmailNotifications(event.target.checked)
-                  }
-                />
-              }
-              label="Email notifications"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={pushNotifications}
-                  onChange={(event) =>
-                    setPushNotifications(event.target.checked)
-                  }
-                />
-              }
-              label="Push notifications"
-            />
-          </Stack>
-        </Paper>
-
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-          <Button variant="outlined" color="warning">
-            Deactivate account
-          </Button>
-          <Button variant="outlined" color="error">
-            Delete account
-          </Button>
-        </Stack>
-      </Stack>
+          {tab === "personal" ? <PersonalInfoEditor /> : null}
+          {tab === "services" ? <ServicesEditor /> : null}
+          {tab === "documents" ? <ProviderDocumentsStep /> : null}
+          {tab === "availability" ? <AvailabilityEditor /> : null}
+          {tab === "account" ? <AccountCredentialsTab /> : null}
+        </Box>
+      </Paper>
     </ProviderPageShell>
   );
 };

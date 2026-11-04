@@ -6,13 +6,16 @@ import {
 } from '@nestjs/common';
 import { type Request } from 'express';
 import { UsersService } from '../users/users.service';
+import { isLocalAuthMode } from './auth-mode';
 import type { AppUser, AuthRequest } from './auth-types';
+import { verifyLocalAccessToken } from './local/local-auth.tokens';
 import { verifySupabaseAccessToken } from './verify-supabase-jwt';
 
 /**
  * Auth guard that:
  * 1. Reads Authorization: Bearer <supabase_access_token>
- * 2. Verifies the token (HS* via JWT secret, asymmetric via JWKS + SUPABASE_URL)
+ * 2. Verifies the token (HS* via JWT secret, asymmetric via JWKS + SUPABASE_URL;
+ *    with `AUTH_MODE=local` the API's own HS256 tokens are verified instead)
  * 3. Extracts sub → Supabase user ID
  * 4. Loads application user from DB (creates with default role SEEKER if new)
  * 5. Attaches req.user = AppUser
@@ -44,7 +47,9 @@ export class SupabaseJwtGuard implements CanActivate {
 
     let payload: Awaited<ReturnType<typeof verifySupabaseAccessToken>>;
     try {
-      payload = await verifySupabaseAccessToken(token);
+      payload = isLocalAuthMode()
+        ? await verifyLocalAccessToken(token)
+        : await verifySupabaseAccessToken(token);
     } catch (err) {
       if (err instanceof UnauthorizedException) throw err;
       throw new UnauthorizedException('Invalid or expired token');

@@ -126,6 +126,14 @@ export class ProviderAvailabilityService {
       }
     }
 
+    if (
+      typeof payload.startTime === 'string' &&
+      typeof payload.endTime === 'string' &&
+      payload.startTime >= payload.endTime
+    ) {
+      errors.push('endTime must be after startTime');
+    }
+
     if (!partial) {
       if (!('startTime' in payload)) errors.push('startTime is required');
       if (!('endTime' in payload)) errors.push('endTime is required');

@@ -85,6 +85,7 @@ export const SEEKER_ROUTE_PATHS: Record<SeekerRoute, string> = {
 
 export enum ProviderRoute {
   Dashboard = "dashboard",
+  Overview = "overview",
   Login = "login",
   Register = "register",
   ProfilePersonalInformation = "profilePersonalInformation",
@@ -113,6 +114,7 @@ export enum ProviderRoute {
 
 export const PROVIDER_ROUTE_PATHS: Record<ProviderRoute, string> = {
   [ProviderRoute.Dashboard]: "/",
+  [ProviderRoute.Overview]: "/overview",
   [ProviderRoute.Login]: "/login",
   [ProviderRoute.Register]: "/register",
   [ProviderRoute.ProfilePersonalInformation]: "/profile/personal-information",

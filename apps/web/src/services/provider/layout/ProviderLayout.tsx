@@ -149,11 +149,11 @@ const ProviderLayout = () => {
       const path = PROVIDER_ROUTE_PATHS[route];
       const prefix = routePrefixes[route];
 
-      if (prefix) {
-        return location.pathname.startsWith(prefix);
+      if (location.pathname === path) {
+        return true;
       }
 
-      return location.pathname === path;
+      return prefix ? location.pathname.startsWith(prefix) : false;
     },
     [location.pathname],
   );

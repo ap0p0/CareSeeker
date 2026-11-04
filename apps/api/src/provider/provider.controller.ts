@@ -7,10 +7,18 @@ import {
   HttpStatus,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { SupabaseJwtGuard } from '../auth/supabase-jwt.guard';
 import type { AuthRequest } from '../auth/auth-types';
+import {
+  PROFILE_IMAGE_FIELD,
+  profileImageUploadOptions,
+  type UploadedFile as UploadedProfileImage,
+} from './common/uploaded-file';
 import { ProviderService } from './provider.service';
 
 /**
@@ -23,10 +31,21 @@ import { ProviderService } from './provider.service';
 export class ProviderController {
   constructor(private readonly providerService: ProviderService) {}
 
+  /**
+   * Onboarding step 1 — personal information.
+   *
+   * Expects `multipart/form-data` (text fields + a `profilePicture` image).
+   */
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() body: unknown) {
-    const user = await this.providerService.register(body);
+  @UseInterceptors(
+    FileInterceptor(PROFILE_IMAGE_FIELD, profileImageUploadOptions),
+  )
+  async register(
+    @Body() body: unknown,
+    @UploadedFile() profilePicture?: UploadedProfileImage,
+  ) {
+    const user = await this.providerService.register(body, profilePicture);
 
     return {
       success: true,

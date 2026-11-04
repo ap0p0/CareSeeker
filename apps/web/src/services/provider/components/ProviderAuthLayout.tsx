@@ -20,6 +20,10 @@ type ProviderAuthLayoutProps = {
   footerMode: "login" | "register";
   formError?: string | null;
   statusMessage?: string | null;
+  /** Card width; wider forms (e.g. onboarding steps) can opt in. Defaults to 460. */
+  maxWidth?: number;
+  /** When false, hides the login/register switch link. Defaults to true. */
+  showAuthFooter?: boolean;
 };
 
 const ProviderAuthLayout = ({
@@ -29,6 +33,8 @@ const ProviderAuthLayout = ({
   footerMode,
   formError = null,
   statusMessage = null,
+  maxWidth = 460,
+  showAuthFooter = true,
 }: ProviderAuthLayoutProps) => {
   return (
     <Box
@@ -46,7 +52,7 @@ const ProviderAuthLayout = ({
       <Paper
         elevation={0}
         sx={{
-          maxWidth: 460,
+          maxWidth,
           width: 1,
           p: { xs: 3, sm: 4 },
           borderRadius: 4,
@@ -82,22 +88,28 @@ const ProviderAuthLayout = ({
             Back to home
           </Button>
 
-          <Typography variant="body2" color="text.secondary" textAlign="center">
-            {footerMode === "login"
-              ? "Need an account? "
-              : "Already have an account? "}
-            <MuiLink
-              component={RouterLink}
-              to={
-                footerMode === "login"
-                  ? PROVIDER_ROUTE_PATHS[ProviderRoute.Register]
-                  : PROVIDER_ROUTE_PATHS[ProviderRoute.Login]
-              }
-              underline="hover"
+          {showAuthFooter ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              textAlign="center"
             >
-              {footerMode === "login" ? "Register" : "Log in"}
-            </MuiLink>
-          </Typography>
+              {footerMode === "login"
+                ? "Need an account? "
+                : "Already have an account? "}
+              <MuiLink
+                component={RouterLink}
+                to={
+                  footerMode === "login"
+                    ? PROVIDER_ROUTE_PATHS[ProviderRoute.Register]
+                    : PROVIDER_ROUTE_PATHS[ProviderRoute.Login]
+                }
+                underline="hover"
+              >
+                {footerMode === "login" ? "Register" : "Log in"}
+              </MuiLink>
+            </Typography>
+          ) : null}
         </Stack>
       </Paper>
     </Box>
