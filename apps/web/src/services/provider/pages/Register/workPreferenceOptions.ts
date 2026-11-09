@@ -4,18 +4,15 @@ import type {
   VehicleType,
   WorkType,
 } from "../../../../queries/provider";
-import type { Option } from "./serviceOptions";
+import type { Option } from "../../../../utils/careOptions";
+import {
+  DAY_OPTIONS,
+  MAX_WINDOWS_PER_DAY,
+  TIME_FORMAT,
+} from "../../../../utils/weeklySchedule";
 
-/** 0 = Sunday … 6 = Saturday (same convention as the API); shown Mon → Sun. */
-export const DAY_OPTIONS: { value: number; label: string; short: string }[] = [
-  { value: 1, label: "Monday", short: "Mon" },
-  { value: 2, label: "Tuesday", short: "Tue" },
-  { value: 3, label: "Wednesday", short: "Wed" },
-  { value: 4, label: "Thursday", short: "Thu" },
-  { value: 5, label: "Friday", short: "Fri" },
-  { value: 6, label: "Saturday", short: "Sat" },
-  { value: 0, label: "Sunday", short: "Sun" },
-];
+/** Schedule basics are shared with the seeker side (`utils/weeklySchedule`). */
+export { DAY_OPTIONS, MAX_WINDOWS_PER_DAY, TIME_FORMAT };
 
 export const DAY_MODE_OPTIONS: {
   value: DayAvailabilityMode;
@@ -59,5 +56,3 @@ export const MAX_TRAVEL_DISTANCE_MILES = 100;
 export const MAX_WEEKLY_HOURS = 168;
 export const MAX_HOURLY_RATE = 500;
 export const MATCHING_NOTES_MAX_LENGTH = 1000;
-export const MAX_WINDOWS_PER_DAY = 6;
-export const TIME_FORMAT = "HH:mm";

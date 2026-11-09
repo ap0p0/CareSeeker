@@ -17,7 +17,10 @@ import {
 import { accountSettingsPath } from "../../AccountSettings/settingsTabs";
 import { formatFileSize } from "../../Register/documentOptions";
 import { documentCategoryLabel } from "../labels";
-import { MissingSection, OverviewCard } from "./OverviewCard";
+import {
+  MissingSection,
+  OverviewCard,
+} from "../../../../../components/OverviewCard";
 
 type DocumentsCardProps = {
   documents: ProviderDocument[];

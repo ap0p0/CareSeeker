@@ -1,4 +1,4 @@
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
@@ -19,8 +19,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import CheckboxGroupField from "../components/CheckboxGroupField";
-import { focusFirstInvalidField } from "../focusField";
+import { FormSection } from "../../../../../components/FormLayout";
+import CheckboxGroupField from "../../../../../components/CheckboxGroupField";
+import { focusFirstInvalidField } from "../../../../../utils/focusField";
 import {
   CARE_SERVICE_OPTIONS,
   CARE_SKILL_OPTIONS,
@@ -30,7 +31,7 @@ import {
   LANGUAGE_OPTIONS,
   QUALIFICATION_OPTIONS,
   type SpokenLanguage,
-} from "../serviceOptions";
+} from "../../../../../utils/careOptions";
 import type {
   ProviderServicesJobsErrors,
   ProviderServicesJobsField,
@@ -77,30 +78,6 @@ const FIELD_ORDER: ProviderServicesJobsField[] = [
 
 const languageLabel = (value: SpokenLanguage) =>
   LANGUAGE_OPTIONS.find((option) => option.value === value)?.label ?? value;
-
-const FormSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: ReactNode;
-}) => (
-  <Stack spacing={2.5}>
-    <Stack spacing={0.25}>
-      <Typography variant="subtitle1" component="h2" fontWeight={700}>
-        {title}
-      </Typography>
-      {description ? (
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      ) : null}
-    </Stack>
-    {children}
-  </Stack>
-);
 
 const ProviderServicesJobsStep = ({
   value,
@@ -175,7 +152,7 @@ const ProviderServicesJobsStep = ({
         everything that applies.
       </Typography>
 
-      <FormSection title="Care services">
+      <FormSection spacing={2.5} title="Care services">
         <CheckboxGroupField
           name="careServices"
           label="Services you offer"
@@ -210,7 +187,7 @@ const ProviderServicesJobsStep = ({
 
       <Divider />
 
-      <FormSection title="Skills & experience">
+      <FormSection spacing={2.5} title="Skills & experience">
         <CheckboxGroupField
           name="skills"
           label="Relevant skills"
@@ -387,6 +364,7 @@ const ProviderServicesJobsStep = ({
       <Divider />
 
       <FormSection
+        spacing={2.5}
         title="Job interests"
         description="Tell us what kind of work you are looking for so we only suggest matching requests."
       >

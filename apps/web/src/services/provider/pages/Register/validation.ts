@@ -6,15 +6,21 @@ import type {
   ProviderServicesJobsForm,
   ProviderWorkPreferencesErrors,
   ProviderWorkPreferencesForm,
-  TimeWindowForm,
 } from "./types";
-import { isUsStateCode } from "./usStates";
+import {
+  DATE_OF_BIRTH_FORMAT,
+  getDateOfBirthBounds as getBoundsForRules,
+  validateDateOfBirth as validateDateOfBirthForRules,
+} from "../../../../utils/dateOfBirth";
+import { normalizeUsPhone } from "../../../../utils/usPhone";
+import { dollarsToCents } from "../../../../utils/money";
+import { validateUsAddress } from "../../../../utils/usAddress";
+import { validateWeekSchedule } from "../../../../utils/weeklySchedule";
 import {
   MATCHING_NOTES_MAX_LENGTH,
   MAX_HOURLY_RATE,
   MAX_TRAVEL_DISTANCE_MILES,
   MAX_WEEKLY_HOURS,
-  MAX_WINDOWS_PER_DAY,
 } from "./workPreferenceOptions";
 
 /** Mirrors the API rules so users get instant feedback before submitting. */
@@ -23,30 +29,25 @@ export const MAX_PROVIDER_AGE = 120;
 export const PASSWORD_MIN_LENGTH = 6;
 export const PROFILE_PICTURE_MAX_BYTES = 5 * 1024 * 1024;
 export const PROFILE_PICTURE_ACCEPT = "image/jpeg,image/png,image/webp";
-export const DATE_OF_BIRTH_FORMAT = "YYYY-MM-DD";
+export { DATE_OF_BIRTH_FORMAT };
+
+const PROVIDER_AGE_RULES = {
+  minAge: MIN_PROVIDER_AGE,
+  maxAge: MAX_PROVIDER_AGE,
+};
 
 const PROFILE_PICTURE_MIME_TYPES = new Set(PROFILE_PICTURE_ACCEPT.split(","));
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-/** US number: 10 national digits, optionally prefixed with the country code 1. */
-const US_PHONE_REGEX = /^\+?1?([2-9][0-9]{9})$/;
-/** US ZIP or ZIP+4. */
-const US_ZIP_REGEX = /^\d{5}(-\d{4})?$/;
 
 /**
  * Latest / earliest selectable dates of birth, used for the picker bounds and
  * for validation. Compared at day precision.
  */
-export const getDateOfBirthBounds = (today: Dayjs = dayjs()) => ({
-  max: today.startOf("day").subtract(MIN_PROVIDER_AGE, "year"),
-  min: today.startOf("day").subtract(MAX_PROVIDER_AGE, "year"),
-});
+export const getDateOfBirthBounds = (today: Dayjs = dayjs()) =>
+  getBoundsForRules(PROVIDER_AGE_RULES, today);
 
-/** E.164 (`+1XXXXXXXXXX`) or `null` when not a valid US number. */
-export const normalizeUsPhone = (value: string): string | null => {
-  const digits = value.trim().replace(/[\s().-]/g, "");
-  const match = US_PHONE_REGEX.exec(digits);
-  return match ? `+1${match[1]}` : null;
-};
+/** Phone rules are shared with the other registration flows (`utils/usPhone`). */
+export { normalizeUsPhone };
 
 const requiredText = (value: string, message: string): string | undefined =>
   value.trim().length === 0 ? message : undefined;
@@ -54,27 +55,16 @@ const requiredText = (value: string, message: string): string | undefined =>
 export const validateDateOfBirth = (
   value: Dayjs | null,
   today: Dayjs = dayjs(),
-): string | undefined => {
-  if (!value) {
-    return "Please enter your date of birth.";
-  }
-
-  if (!value.isValid()) {
-    return "Please enter a valid date.";
-  }
-
-  const { max, min } = getDateOfBirthBounds(today);
-
-  if (value.isAfter(max, "day")) {
-    return `You must be at least ${MIN_PROVIDER_AGE} years old to register.`;
-  }
-
-  if (value.isBefore(min, "day")) {
-    return "Please enter a valid date of birth.";
-  }
-
-  return undefined;
-};
+): string | undefined =>
+  validateDateOfBirthForRules(
+    value,
+    PROVIDER_AGE_RULES,
+    {
+      missing: "Please enter your date of birth.",
+      tooYoung: `You must be at least ${MIN_PROVIDER_AGE} years old to register.`,
+    },
+    today,
+  );
 
 export const validateProfilePicture = (
   file: File | null,
@@ -146,26 +136,7 @@ export const validateProviderPersonalInfo = (
     errors.phone = "Please enter a valid US phone number (10 digits).";
   }
 
-  const addressLine1 = requiredText(
-    form.addressLine1,
-    "Please enter your street address.",
-  );
-  if (addressLine1) errors.addressLine1 = addressLine1;
-
-  const city = requiredText(form.city, "Please enter your city.");
-  if (city) errors.city = city;
-
-  if (!form.state) {
-    errors.state = "Please select your state.";
-  } else if (!isUsStateCode(form.state)) {
-    errors.state = "Please select a valid state.";
-  }
-
-  if (!form.postalCode.trim()) {
-    errors.postalCode = "Please enter your ZIP code.";
-  } else if (!US_ZIP_REGEX.test(form.postalCode.trim())) {
-    errors.postalCode = "Please enter a valid ZIP code (12345 or 12345-6789).";
-  }
+  Object.assign(errors, validateUsAddress(form, "your"));
 
   if (!editing || form.profilePicture) {
     const profilePicture = validateProfilePicture(form.profilePicture);
@@ -299,48 +270,8 @@ export const validateProviderServicesJobs = (
 
 // ─── Step 4: availability & work preferences ─────────────────────────────────
 
-/** Dollars (up to 2 decimals) → cents, or `null` when not a valid amount. */
-export const dollarsToCents = (value: string): number | null => {
-  const text = value.trim().replace(/^\$/, "");
-  if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
-  return Math.round(Number(text) * 100);
-};
-
-const validateWindows = (windows: TimeWindowForm[]): string | undefined => {
-  if (windows.length === 0) return "Add at least one time window.";
-  if (windows.length > MAX_WINDOWS_PER_DAY) {
-    return `Use at most ${MAX_WINDOWS_PER_DAY} time windows per day.`;
-  }
-
-  const parsed: { start: number; end: number }[] = [];
-  for (const window of windows) {
-    if (!window.start?.isValid() || !window.end?.isValid()) {
-      return "Each time window needs a valid start and end time.";
-    }
-    const start = window.start.hour() * 60 + window.start.minute();
-    const sameDayEnd = window.end.hour() * 60 + window.end.minute();
-    if (!window.endsNextDay && start >= sameDayEnd) {
-      return "A time window must end after it starts — turn on “Ends next day” for overnight hours.";
-    }
-    if (window.endsNextDay && sameDayEnd > start) {
-      return "An overnight window cannot be longer than 24 hours.";
-    }
-    // Overnight ends are counted past midnight so overlap checks still work.
-    parsed.push({
-      start,
-      end: sameDayEnd + (window.endsNextDay ? 24 * 60 : 0),
-    });
-  }
-
-  parsed.sort((a, b) => a.start - b.start);
-  for (let i = 1; i < parsed.length; i += 1) {
-    if (parsed[i].start < parsed[i - 1].end) {
-      return "Time windows must not overlap.";
-    }
-  }
-
-  return undefined;
-};
+/** Money helpers are shared (`utils/money`). */
+export { dollarsToCents };
 
 const wholeNumber = (
   value: string,
@@ -363,17 +294,13 @@ export const validateProviderWorkPreferences = (
 ): ProviderWorkPreferencesErrors => {
   const errors: ProviderWorkPreferencesErrors = {};
 
-  const enabledDays = Object.entries(form.days).filter(
-    ([, day]) => day.enabled,
+  Object.assign(
+    errors,
+    validateWeekSchedule(
+      form.days,
+      "Select at least one day you are available to work.",
+    ),
   );
-  if (enabledDays.length === 0) {
-    errors.days = "Select at least one day you are available to work.";
-  }
-  for (const [day, schedule] of enabledDays) {
-    if (schedule.mode === "all_day") continue;
-    const windowError = validateWindows(schedule.windows);
-    if (windowError) errors[`day-${day}`] = windowError;
-  }
 
   if (!form.workType) {
     errors.workType = "Please choose how much you want to work.";

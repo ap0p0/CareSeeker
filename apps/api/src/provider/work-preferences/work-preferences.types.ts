@@ -1,24 +1,21 @@
 import type {
   AvailabilityStart,
-  DayAvailabilityMode,
   VehicleType,
   WorkType,
 } from '../../../generated/prisma/client.js';
 
-/**
- * `HH:mm` (zero-padded, 24h) window. Same-day windows have `start < end`;
- * overnight windows set `endsNextDay` and have `end <= start` (at most 24h),
- * e.g. `{ start: "22:00", end: "06:00", endsNextDay: true }`.
- */
-export type TimeWindow = { start: string; end: string; endsNextDay: boolean };
+import type {
+  ScheduleDayInput,
+  TimeWindow,
+} from '../../common/weekly-schedule.validation';
 
-export type WorkingDayInput = {
-  /** 0 = Sunday … 6 = Saturday */
-  dayOfWeek: number;
-  mode: DayAvailabilityMode;
-  /** AVAILABLE windows for AVAILABLE_WINDOWS, BLOCKED windows for BLOCKED_WINDOWS, empty for ALL_DAY. */
-  windows: TimeWindow[];
-};
+export type { TimeWindow };
+
+/**
+ * AVAILABLE windows for AVAILABLE_WINDOWS, BLOCKED windows for
+ * BLOCKED_WINDOWS, empty for ALL_DAY.
+ */
+export type WorkingDayInput = ScheduleDayInput;
 
 /** Validated / normalized onboarding step 4 payload. */
 export type ProviderWorkPreferencesInput = {

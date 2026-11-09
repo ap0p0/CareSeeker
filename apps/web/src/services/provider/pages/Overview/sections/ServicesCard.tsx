@@ -14,7 +14,7 @@ import {
   DetailRow,
   MissingSection,
   OverviewCard,
-} from "./OverviewCard";
+} from "../../../../../components/OverviewCard";
 
 type ServicesCardProps = {
   serviceProfile: ProviderServiceProfile | null;

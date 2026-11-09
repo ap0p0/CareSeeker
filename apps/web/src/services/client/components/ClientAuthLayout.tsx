@@ -24,6 +24,10 @@ type ClientAuthLayoutProps = {
   showAuthFooter?: boolean;
   /** In-flow back action (e.g. previous register step). */
   onBack?: () => void;
+  /** Card width; wider multi-column forms pass a larger value. Defaults to 460. */
+  maxWidth?: number;
+  /** Rendered between the heading and the form (e.g. a step indicator). */
+  header?: ReactNode;
 };
 
 const ClientAuthLayout = ({
@@ -35,6 +39,8 @@ const ClientAuthLayout = ({
   statusMessage = null,
   showAuthFooter = true,
   onBack,
+  maxWidth = 460,
+  header = null,
 }: ClientAuthLayoutProps) => {
   return (
     <Box
@@ -52,7 +58,7 @@ const ClientAuthLayout = ({
       <Paper
         elevation={0}
         sx={{
-          maxWidth: 460,
+          maxWidth,
           width: 1,
           p: { xs: 3, sm: 4 },
           borderRadius: 4,
@@ -74,6 +80,8 @@ const ClientAuthLayout = ({
             </Typography>
             <Typography color="text.secondary">{description}</Typography>
           </Stack>
+
+          {header}
 
           {formError ? <Alert severity="error">{formError}</Alert> : null}
           {statusMessage ? (

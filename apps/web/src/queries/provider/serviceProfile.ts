@@ -7,7 +7,7 @@ export const PROVIDER_SERVICE_PROFILE_PATH =
 
 /**
  * Onboarding step 2 payload — every multi-select is an array of lower-cased
- * option values (see `serviceOptions.ts` in the register page).
+ * option values (see `utils/careOptions.ts`).
  */
 export type ProviderServiceProfilePayload = {
   careServices: string[];

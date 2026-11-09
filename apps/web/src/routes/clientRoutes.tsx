@@ -5,12 +5,16 @@ import {
   Route,
 } from "react-router-dom";
 import { SeekerRoute, SEEKER_ROUTE_PATHS } from "./enums";
-import { RequireClient } from "../services/client/auth";
+import {
+  RequireClient,
+  RequireSeekerOnboarding,
+} from "../services/client/auth";
 import ClientDashboard from "../services/client/pages/ClientDashboard";
 import ClientLayout from "../services/client/layout/ClientLayout";
 import ClientLoginPage from "../services/client/pages/Login/ClientLogin";
 import ClientNotFound from "../services/client/pages/NotFound";
 import ClientRegisterPage from "../services/client/pages/Register/ClientRegister";
+import ClientRegistrationReview from "../services/client/pages/Review/ClientRegistrationReview";
 import ClientSectionPage from "../services/client/pages/ClientSectionPage";
 
 export const clientRouter = createBrowserRouter(
@@ -25,53 +29,63 @@ export const clientRouter = createBrowserRouter(
         element={<ClientRegisterPage />}
       />
       <Route element={<RequireClient />}>
-        <Route element={<ClientLayout />}>
-          <Route index element={<ClientDashboard />} />
+        {/* One-time review after registering on behalf of someone else; outside the app layout. */}
+        <Route element={<RequireSeekerOnboarding stage="review" />}>
           <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.Overview]}
-            element={<ClientDashboard />}
+            path={SEEKER_ROUTE_PATHS[SeekerRoute.RegistrationReview]}
+            element={<ClientRegistrationReview />}
           />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.Jobs]}
-            element={<ClientSectionPage title="Open Jobs" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.NewJob]}
-            element={<ClientSectionPage title="Add New Job" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.History]}
-            element={<ClientSectionPage title="History" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.SavedProviders]}
-            element={<ClientSectionPage title="Saved Providers" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.Explore]}
-            element={<ClientSectionPage title="Explore" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.Notifications]}
-            element={<ClientSectionPage title="Notifications" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.Messages]}
-            element={<ClientSectionPage title="Messaging" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.ReviewsRatings]}
-            element={<ClientSectionPage title="Reviews & Ratings" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.SubscriptionsPayments]}
-            element={<ClientSectionPage title="Subscription & Payments" />}
-          />
-          <Route
-            path={SEEKER_ROUTE_PATHS[SeekerRoute.MyAccount]}
-            element={<ClientSectionPage title="My Account" />}
-          />
-          <Route path="*" element={<ClientNotFound />} />
+        </Route>
+        {/* The app proper: on-behalf accounts need a completed + confirmed registration. */}
+        <Route element={<RequireSeekerOnboarding stage="app" />}>
+          <Route element={<ClientLayout />}>
+            <Route index element={<ClientDashboard />} />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.Overview]}
+              element={<ClientDashboard />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.Jobs]}
+              element={<ClientSectionPage title="Open Jobs" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.NewJob]}
+              element={<ClientSectionPage title="Add New Job" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.History]}
+              element={<ClientSectionPage title="History" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.SavedProviders]}
+              element={<ClientSectionPage title="Saved Providers" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.Explore]}
+              element={<ClientSectionPage title="Explore" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.Notifications]}
+              element={<ClientSectionPage title="Notifications" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.Messages]}
+              element={<ClientSectionPage title="Messaging" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.ReviewsRatings]}
+              element={<ClientSectionPage title="Reviews & Ratings" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.SubscriptionsPayments]}
+              element={<ClientSectionPage title="Subscription & Payments" />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.MyAccount]}
+              element={<ClientSectionPage title="My Account" />}
+            />
+            <Route path="*" element={<ClientNotFound />} />
+          </Route>
         </Route>
       </Route>
       <Route

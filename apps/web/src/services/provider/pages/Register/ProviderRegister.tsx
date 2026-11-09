@@ -26,7 +26,6 @@ import {
   EMPTY_PROVIDER_PERSONAL_INFO,
   EMPTY_PROVIDER_SERVICES_JOBS,
   EMPTY_PROVIDER_WORK_PREFERENCES,
-  formatTime,
   servicesJobsFormFromProfile,
   workPreferencesFormFromSaved,
   type ProviderPersonalInfoForm,
@@ -34,6 +33,7 @@ import {
   type ProviderServicesJobsForm,
   type ProviderWorkPreferencesForm,
 } from "./types";
+import { toScheduleDaysPayload } from "../../../../utils/weeklySchedule";
 import {
   DATE_OF_BIRTH_FORMAT,
   dollarsToCents,
@@ -95,21 +95,7 @@ const toServiceProfilePayload = (
 const toWorkPreferencesPayload = (
   form: ProviderWorkPreferencesForm,
 ): ProviderWorkPreferencesPayload => ({
-  workingDays: Object.entries(form.days)
-    .filter(([, day]) => day.enabled)
-    .map(([day, schedule]) => ({
-      dayOfWeek: Number(day),
-      mode: schedule.mode,
-      windows:
-        schedule.mode === "all_day"
-          ? []
-          : schedule.windows.map((window) => ({
-              // Validated by the step before submit.
-              start: window.start ? formatTime(window.start) : "",
-              end: window.end ? formatTime(window.end) : "",
-              endsNextDay: window.endsNextDay,
-            })),
-    })),
+  workingDays: toScheduleDaysPayload(form.days),
   workType: form.workType as ProviderWorkPreferencesPayload["workType"],
   availabilityStart: form.availabilityStart,
   availableFrom:

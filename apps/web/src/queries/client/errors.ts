@@ -1,5 +1,6 @@
 export type ClientAuthApiErrorCode =
   | "DUPLICATE_EMAIL"
+  | "VALIDATION_ERROR"
   | "AUTH_SIGNUP_FAILED"
   | "UNKNOWN_ERROR";
 

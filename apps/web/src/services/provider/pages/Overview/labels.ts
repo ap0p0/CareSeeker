@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import type {
   ProviderDocumentCategory,
   ProviderWorkPreferences,
-  TimeWindow,
   WorkingDay,
 } from "../../../../queries/provider";
 import { DOCUMENT_CATEGORY_OPTIONS } from "../Register/documentOptions";
@@ -13,10 +12,18 @@ import {
   CLIENT_GROUP_OPTIONS,
   LANGUAGE_OPTIONS,
   QUALIFICATION_OPTIONS,
-  type Option,
-} from "../Register/serviceOptions";
+} from "../../../../utils/careOptions";
 import { PROVIDER_GENDER_OPTIONS } from "../Register/types";
-import { US_STATE_OPTIONS } from "../Register/usStates";
+import {
+  formatCents,
+  formatTimeWindow,
+  labelFor,
+  labelsFor,
+} from "../../../../utils/formatters";
+import { US_STATE_OPTIONS } from "../../../../utils/usStates";
+
+/** Shared formatters, re-exported for the provider pages. */
+export { formatCents, formatTimeWindow };
 import {
   AVAILABILITY_START_OPTIONS,
   DAY_OPTIONS,
@@ -25,23 +32,6 @@ import {
 } from "../Register/workPreferenceOptions";
 
 /** Human labels for the option values stored by the API. */
-
-const labelFor = <T extends string>(
-  options: readonly Option<T>[],
-  value: string | null | undefined,
-): string | null =>
-  options.find((option) => option.value === value)?.label ?? null;
-
-const labelsFor = <T extends string>(
-  options: readonly Option<T>[],
-  values: readonly string[],
-  other?: string | null,
-): string[] =>
-  values.map((value) =>
-    value === "other" && other
-      ? `Other: ${other}`
-      : (labelFor(options, value) ?? value),
-  );
 
 export const careServiceLabels = (values: string[], other?: string | null) =>
   labelsFor(CARE_SERVICE_OPTIONS, values, other);
@@ -82,17 +72,6 @@ export const professionalTitle = (
       : labelFor(CARE_SERVICE_OPTIONS, first);
   return label ? `${label} provider` : null;
 };
-
-export const formatCents = (cents: number): string =>
-  `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
-
-const formatClock = (value: string): string =>
-  dayjs(`1970-01-01T${value}:00`).format("h:mm A");
-
-export const formatTimeWindow = (window: TimeWindow): string =>
-  `${formatClock(window.start)} – ${formatClock(window.end)}${
-    window.endsNextDay ? " (next day)" : ""
-  }`;
 
 export const formatDaySchedule = (day: WorkingDay): string => {
   if (day.mode === "all_day") return "All day";

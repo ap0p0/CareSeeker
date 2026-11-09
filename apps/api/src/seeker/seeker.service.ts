@@ -3,6 +3,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import {
@@ -22,6 +23,8 @@ import {
   type AuthUserProvider,
 } from '../auth/auth-user-provider';
 import { UsersService } from '../users/users.service';
+import type { RegisterSeekerOnBehalfResponse } from './registrant/registrant.types';
+import { validateRegisterOnBehalfPayload } from './registrant/registrant.validation';
 import { SeekerRepository } from './seeker.repository';
 import {
   ensureObject,
@@ -79,6 +82,8 @@ type UpdateSeekersInfoPayload =
 
 @Injectable()
 export class SeekerService {
+  private readonly logger = new Logger(SeekerService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly seekerRepository: SeekerRepository,
@@ -124,6 +129,90 @@ export class SeekerService {
       }
 
       throw error;
+    }
+  }
+
+  /**
+   * Registration on behalf of someone else — step 1 (the registrant).
+   *
+   * Creates the auth user, then `users` + `seekers_info` (`careFor = OTHER`)
+   * + `registrants_info` in one nested write. If the database write fails the
+   * auth user is removed again, so nobody is left with credentials but no
+   * account. The care recipient's details come in the next steps, saved with
+   * the new session like the self-registration flow.
+   */
+  async registerOnBehalf(
+    rawPayload: unknown,
+  ): Promise<RegisterSeekerOnBehalfResponse> {
+    const payload = validateRegisterOnBehalfPayload(rawPayload);
+
+    const authUser = await this.authUsers.createUser({
+      email: payload.email,
+      password: payload.password,
+    });
+
+    try {
+      const appUser = await this.usersService.createSeekerOnBehalfUser(
+        authUser.id,
+        authUser.email,
+        {
+          name: payload.name,
+          surname: payload.surname,
+          registrantInfo: {
+            phone: payload.phone,
+            relationship: payload.relationship,
+            relationshipOther: payload.relationshipOther,
+            consentConfirmedAt: new Date(),
+          },
+        },
+      );
+
+      // The nested write always creates the row; guard for type-safety only.
+      const registrant = appUser.registrantsInfo;
+      if (!registrant) {
+        throw new Error('registrants_info row was not created');
+      }
+
+      return {
+        id: appUser.id,
+        email: appUser.email,
+        name: appUser.name,
+        surname: appUser.surname,
+        role: appUser.role.toLowerCase(),
+        careFor: 'other',
+        registrant: {
+          phone: registrant.phone,
+          relationship: registrant.relationship.toLowerCase(),
+          relationshipOther: registrant.relationshipOther,
+          consentConfirmedAt: registrant.consentConfirmedAt,
+        },
+      };
+    } catch (error: unknown) {
+      await this.rollbackAuthUser(authUser.id);
+
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException({
+          code: 'DUPLICATE_USER',
+          message: 'This user already exists.',
+        });
+      }
+
+      throw error;
+    }
+  }
+
+  private async rollbackAuthUser(authUserId: string) {
+    try {
+      await this.authUsers.deleteUser(authUserId);
+    } catch (error) {
+      this.logger.error(
+        `Could not roll back auth user ${authUserId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
 

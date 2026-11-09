@@ -1,5 +1,5 @@
-import type { FormEvent, ReactNode } from "react";
-import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
+import { useState } from "react";
 import {
   Alert,
   Button,
@@ -15,28 +15,34 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { FieldRow, FormSection } from "../../../../../components/FormLayout";
 import { Link as RouterLink } from "react-router-dom";
+import DateOfBirthField from "../../../../../components/DateOfBirthField";
 import PasswordTextField from "../../../../../components/PasswordTextField";
+import UsAddressFields from "../../../../../components/UsAddressFields";
 import type { ProviderGender } from "../../../../../queries/provider";
 import {
   PROVIDER_ROUTE_PATHS,
   ProviderRoute,
 } from "../../../../../routes/enums";
 import ProfilePictureField from "../components/ProfilePictureField";
-import { focusFirstInvalidField } from "../focusField";
+import { focusFirstInvalidField } from "../../../../../utils/focusField";
 import {
   PROVIDER_GENDER_OPTIONS,
   type ProviderPersonalInfoErrors,
   type ProviderPersonalInfoField,
   type ProviderPersonalInfoForm,
 } from "../types";
-import { US_STATE_OPTIONS } from "../usStates";
 import {
+  MAX_PROVIDER_AGE,
   MIN_PROVIDER_AGE,
-  getDateOfBirthBounds,
   validateProviderPersonalInfo,
 } from "../validation";
+
+const PROVIDER_AGE_RULES = {
+  minAge: MIN_PROVIDER_AGE,
+  maxAge: MAX_PROVIDER_AGE,
+};
 
 type ProviderPersonalInfoStepProps = {
   value: ProviderPersonalInfoForm;
@@ -74,37 +80,6 @@ const FIELD_ORDER: ProviderPersonalInfoField[] = [
   "confirmPassword",
 ];
 
-const FormSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: ReactNode;
-}) => (
-  <Stack spacing={2}>
-    <Stack spacing={0.25}>
-      <Typography variant="subtitle1" component="h2" fontWeight={700}>
-        {title}
-      </Typography>
-      {description ? (
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      ) : null}
-    </Stack>
-    {children}
-  </Stack>
-);
-
-/** Two fields side by side on tablet+, stacked on phones. */
-const FieldRow = ({ children }: { children: ReactNode }) => (
-  <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-    {children}
-  </Stack>
-);
-
 const ProviderPersonalInfoStep = ({
   value,
   onChange,
@@ -121,8 +96,6 @@ const ProviderPersonalInfoStep = ({
   const [fieldErrors, setFieldErrors] = useState<ProviderPersonalInfoErrors>(
     {},
   );
-  const [dateOfBirthOpen, setDateOfBirthOpen] = useState(false);
-  const dateOfBirthBounds = useMemo(() => getDateOfBirthBounds(), []);
 
   const update = <K extends ProviderPersonalInfoField>(
     field: K,
@@ -220,32 +193,14 @@ const ProviderPersonalInfoStep = ({
         </FieldRow>
 
         <FieldRow>
-          <DatePicker
-            label="Date of birth"
+          <DateOfBirthField
             value={value.dateOfBirth}
             onChange={(next) => update("dateOfBirth", next)}
-            open={dateOfBirthOpen}
-            onOpen={() => setDateOfBirthOpen(true)}
-            onClose={() => setDateOfBirthOpen(false)}
-            openTo="year"
-            views={["year", "month", "day"]}
-            minDate={dateOfBirthBounds.min}
-            maxDate={dateOfBirthBounds.max}
+            rules={PROVIDER_AGE_RULES}
+            error={fieldErrors.dateOfBirth}
+            helperText={`You must be at least ${MIN_PROVIDER_AGE} years old.`}
+            required
             disabled={submitting}
-            slotProps={{
-              textField: {
-                ...textFieldProps("dateOfBirth"),
-                required: true,
-                autoComplete: "bday",
-                // Open the calendar from the whole field, not only the icon.
-                onClick: () => {
-                  if (!submitting) setDateOfBirthOpen(true);
-                },
-                helperText:
-                  fieldErrors.dateOfBirth ??
-                  `You must be at least ${MIN_PROVIDER_AGE} years old.`,
-              },
-            }}
           />
           <FormControl
             fullWidth
@@ -330,59 +285,13 @@ const ProviderPersonalInfoStep = ({
         title="Home address"
         description="CareSeeker is currently available in the United States only."
       >
-        <TextField
-          {...textFieldProps("addressLine1")}
-          label="Street address"
-          autoComplete="address-line1"
-          value={value.addressLine1}
-          onChange={(event) => update("addressLine1", event.target.value)}
-          required
+        <UsAddressFields
+          idPrefix="provider"
+          value={value}
+          onChange={(field, fieldValue) => update(field, fieldValue)}
+          errors={fieldErrors}
+          disabled={submitting}
         />
-        <TextField
-          {...textFieldProps("city")}
-          label="City"
-          autoComplete="address-level2"
-          value={value.city}
-          onChange={(event) => update("city", event.target.value)}
-          required
-        />
-        <FieldRow>
-          <FormControl
-            fullWidth
-            required
-            disabled={submitting}
-            error={Boolean(fieldErrors.state)}
-          >
-            <InputLabel id="provider-state-label">State</InputLabel>
-            <Select
-              labelId="provider-state-label"
-              label="State"
-              name="state"
-              autoComplete="address-level1"
-              value={value.state}
-              onChange={(event) => update("state", event.target.value)}
-              MenuProps={{ PaperProps: { sx: { maxHeight: 320 } } }}
-            >
-              {US_STATE_OPTIONS.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-            {fieldErrors.state ? (
-              <FormHelperText>{fieldErrors.state}</FormHelperText>
-            ) : null}
-          </FormControl>
-          <TextField
-            {...textFieldProps("postalCode")}
-            label="ZIP code"
-            autoComplete="postal-code"
-            inputProps={{ inputMode: "numeric", maxLength: 10 }}
-            value={value.postalCode}
-            onChange={(event) => update("postalCode", event.target.value)}
-            required
-          />
-        </FieldRow>
       </FormSection>
 
       {!editing ? (

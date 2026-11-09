@@ -1,4 +1,4 @@
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
@@ -21,20 +21,20 @@ import {
   Select,
   Slider,
   Stack,
-  Switch,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import { FormSection, SwitchRow } from "../../../../../components/FormLayout";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import type {
   AvailabilityStart,
   VehicleType,
   WorkType,
 } from "../../../../../queries/provider";
-import WeeklyScheduleField from "../components/WeeklyScheduleField";
-import { focusFirstInvalidField } from "../focusField";
+import WeeklyScheduleField from "../../../../../components/WeeklyScheduleField";
+import { focusFirstInvalidField } from "../../../../../utils/focusField";
 import type {
   ProviderWorkPreferencesErrors,
   ProviderWorkPreferencesForm,
@@ -42,6 +42,7 @@ import type {
 import { validateProviderWorkPreferences } from "../validation";
 import {
   AVAILABILITY_START_OPTIONS,
+  DAY_MODE_OPTIONS,
   MATCHING_NOTES_MAX_LENGTH,
   MAX_TRAVEL_DISTANCE_MILES,
   MAX_WEEKLY_HOURS,
@@ -91,65 +92,6 @@ const DISTANCE_MARKS = [5, 25, 50, 75, 100].map((miles) => ({
   value: miles,
   label: `${miles} mi`,
 }));
-
-const FormSection = ({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: ReactNode;
-}) => (
-  <Stack spacing={2.5}>
-    <Stack spacing={0.25}>
-      <Typography variant="subtitle1" component="h2" fontWeight={700}>
-        {title}
-      </Typography>
-      {description ? (
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      ) : null}
-    </Stack>
-    {children}
-  </Stack>
-);
-
-const SwitchRow = ({
-  label,
-  hint,
-  checked,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  hint?: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  disabled: boolean;
-}) => (
-  <FormControlLabel
-    control={
-      <Switch
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-        disabled={disabled}
-      />
-    }
-    label={
-      <Box>
-        <Typography variant="body2">{label}</Typography>
-        {hint ? (
-          <Typography variant="caption" color="text.secondary">
-            {hint}
-          </Typography>
-        ) : null}
-      </Box>
-    }
-    sx={{ alignItems: "flex-start", ml: 0, "& .MuiSwitch-root": { mt: -0.5 } }}
-  />
-);
 
 const ProviderWorkPreferencesStep = ({
   value,
@@ -288,6 +230,7 @@ const ProviderWorkPreferencesStep = ({
       </Typography>
 
       <FormSection
+        spacing={2.5}
         title="Weekly availability"
         description="Turn on the days you can work. For each day choose all day, the hours you are available, or block the hours you can never work."
       >
@@ -301,13 +244,14 @@ const ProviderWorkPreferencesStep = ({
             );
           }}
           errors={fieldErrors}
+          modeOptions={DAY_MODE_OPTIONS}
           disabled={submitting}
         />
       </FormSection>
 
       <Divider />
 
-      <FormSection title="Work preferences">
+      <FormSection spacing={2.5} title="Work preferences">
         <FormControl
           required
           error={Boolean(fieldErrors.workType)}
@@ -506,6 +450,7 @@ const ProviderWorkPreferencesStep = ({
       <Divider />
 
       <FormSection
+        spacing={2.5}
         title="Location & travel"
         description="Distances are measured from the home address you gave us."
       >
@@ -608,6 +553,7 @@ const ProviderWorkPreferencesStep = ({
       <Divider />
 
       <FormSection
+        spacing={2.5}
         title="Hours & pay"
         description="Per single job. Rates are in US dollars per hour."
       >
@@ -671,7 +617,7 @@ const ProviderWorkPreferencesStep = ({
 
       <Divider />
 
-      <FormSection title="Anything else?">
+      <FormSection spacing={2.5} title="Anything else?">
         <TextField
           {...textFieldProps("matchingNotes")}
           label="Notes for matching (optional)"
