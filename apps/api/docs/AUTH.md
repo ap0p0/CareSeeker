@@ -20,7 +20,7 @@ The `users` table stores application-level state that Supabase `auth.users` does
 | `role`                       | `seeker` \| `provider` \| `admin`             | Application role                               |
 | `providerVerificationStatus` | `pending` \| `approved` \| `rejected` \| null | For providers only                             |
 
-Seeker onboarding / AI-profile fields (age, medical history, care preferences) live in `seekers_info`, linked 1:1 via `seekers_info.userId` → `users.id`. Provider personal information (date of birth, gender, E.164 phone, structured US address, profile-picture storage path) lives in `providers_info`, linked the same way. Both tables are private: they are only ever returned to the owning user through authenticated `/seeker/*` and `/provider/*` endpoints.
+Seeker onboarding / AI-profile fields (age, medical history, care preferences) live in `seekers_info`, linked 1:1 via `seekers_info.userId` → `users.id`. When a seeker account is opened on behalf of someone else, the registrant's details (E.164 phone, relationship to the care recipient, consent timestamp) live in `registrants_info` and the care recipient's identity and US address in `care_recipients`, both linked the same way; `seekers_info.careFor` is `OTHER` and `seekers_info` then describes the care recipient's needs. Provider personal information (date of birth, gender, E.164 phone, structured US address, profile-picture storage path) lives in `providers_info`. All of these tables are private: they are only ever returned to the owning user through authenticated `/seeker/*` and `/provider/*` endpoints.
 
 **Why this table exists:** Supabase `auth.users` only proves identity. Roles, verification, and app state live in our DB and are controlled server-side.
 
@@ -39,6 +39,26 @@ Seeker onboarding / AI-profile fields (age, medical history, care preferences) l
 This endpoint uses `SUPABASE_SECRET_KEY` on the backend (or legacy
 `SUPABASE_SERVICE_ROLE_KEY`) so the auth row and the app row stay in sync from
 the start, rather than waiting for first login.
+
+## Client Registration on Behalf of Someone Else
+
+`POST /seeker/register/on-behalf` is step 1 of the flow for people who open an
+account to find care for a loved one. The **registrant** is the account holder:
+the endpoint creates, in order,
+
+1. A new Supabase auth user with the registrant's email / password
+2. A `User` row (`role = SEEKER`, the registrant's name and surname) **and**, in
+   the same nested write, `seekers_info` (`careFor = OTHER`) and
+   `registrants_info` (phone, relationship to the recipient, consent timestamp)
+
+If step 2 fails the auth user is deleted again. The following registration
+steps run authenticated with the new session (`role = seeker` required):
+`GET`/`PUT /seeker/registrant` (correct step 1),
+`GET`/`PUT /seeker/care-recipient` (step 2, the person who needs care) and
+`GET`/`PUT /seeker/care-preferences` (step 3, care needs & assistance
+preferences) and `GET /seeker/onboarding` + `POST …/complete` / `…/confirm`
+(the final review: finished → review page → confirmed → dashboard). All of
+them refuse accounts registered for oneself.
 
 ## Provider Registration
 

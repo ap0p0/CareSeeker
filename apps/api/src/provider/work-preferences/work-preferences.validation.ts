@@ -1,30 +1,23 @@
 import { BadRequestException } from '@nestjs/common';
 import {
   AvailabilityStart,
-  DayAvailabilityMode,
   VehicleType,
   WorkType,
 } from '../../../generated/prisma/client.js';
-import type {
-  ProviderWorkPreferencesInput,
-  TimeWindow,
-  WorkingDayInput,
-} from './work-preferences.types';
+import { parseBoolean, parseInteger } from '../../common/field-parsers';
+import { parseWeeklySchedule } from '../../common/weekly-schedule.validation';
+import type { ProviderWorkPreferencesInput } from './work-preferences.types';
 
 export const MAX_TRAVEL_DISTANCE_MILES = 100;
 export const MAX_WEEKLY_HOURS = 168;
 export const MAX_HOURLY_RATE_CENTS = 500 * 100;
 export const MATCHING_NOTES_MAX_LENGTH = 1000;
-const MAX_WINDOWS_PER_DAY = 6;
-
-const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 const enumSet = <T extends string>(values: T[]) => new Set<string>(values);
 const WORK_TYPES = enumSet(Object.values(WorkType));
 const AVAILABILITY_STARTS = enumSet(Object.values(AvailabilityStart));
 const VEHICLE_TYPES = enumSet(Object.values(VehicleType));
-const DAY_MODES = enumSet(Object.values(DayAvailabilityMode));
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -52,168 +45,6 @@ function parseEnum<T extends string>(
   return normalized as T;
 }
 
-function parseBoolean(
-  value: unknown,
-  field: string,
-  errors: string[],
-): boolean {
-  if (typeof value === 'boolean') return value;
-  errors.push(`${field} must be true or false`);
-  return false;
-}
-
-function parseInteger(
-  value: unknown,
-  field: string,
-  errors: string[],
-  min: number,
-  max: number,
-): number | null {
-  const number =
-    typeof value === 'number'
-      ? value
-      : typeof value === 'string' && value.trim() !== ''
-        ? Number(value)
-        : NaN;
-  if (!Number.isInteger(number) || number < min || number > max) {
-    errors.push(`${field} must be a whole number between ${min} and ${max}`);
-    return null;
-  }
-  return number;
-}
-
-const MINUTES_PER_DAY = 24 * 60;
-
-const toMinutes = (time: string): number => {
-  const [hours, minutes] = time.split(':').map(Number);
-  return hours * 60 + minutes;
-};
-
-/** Window as minutes from the day's midnight; overnight ends exceed 24h. */
-function windowRange(window: TimeWindow): { start: number; end: number } {
-  return {
-    start: toMinutes(window.start),
-    end: toMinutes(window.end) + (window.endsNextDay ? MINUTES_PER_DAY : 0),
-  };
-}
-
-function parseWindow(
-  value: unknown,
-  field: string,
-  errors: string[],
-): TimeWindow | null {
-  if (!isRecord(value)) {
-    errors.push(`${field} must be an object with start and end`);
-    return null;
-  }
-  const start = typeof value.start === 'string' ? value.start.trim() : '';
-  const end = typeof value.end === 'string' ? value.end.trim() : '';
-  const endsNextDay = value.endsNextDay === true;
-  if (!TIME_REGEX.test(start) || !TIME_REGEX.test(end)) {
-    errors.push(`${field} times must be in HH:mm format`);
-    return null;
-  }
-  if (
-    typeof value.endsNextDay !== 'undefined' &&
-    typeof value.endsNextDay !== 'boolean'
-  ) {
-    errors.push(`${field}.endsNextDay must be true or false`);
-    return null;
-  }
-  if (!endsNextDay && start >= end) {
-    errors.push(
-      `${field} must end after it starts (set endsNextDay for overnight hours)`,
-    );
-    return null;
-  }
-  if (endsNextDay && end > start) {
-    errors.push(`${field} cannot be longer than 24 hours`);
-    return null;
-  }
-  return { start, end, endsNextDay };
-}
-
-/**
- * Working days: each weekday at most once; windows required for the window
- * modes, forbidden for ALL_DAY; windows sorted and non-overlapping.
- */
-function parseWorkingDays(value: unknown, errors: string[]): WorkingDayInput[] {
-  if (!Array.isArray(value) || value.length === 0) {
-    errors.push('workingDays must include at least one day');
-    return [];
-  }
-
-  const seen = new Set<number>();
-  const days: WorkingDayInput[] = [];
-
-  value.forEach((entry, index) => {
-    const field = `workingDays[${index}]`;
-    if (!isRecord(entry)) {
-      errors.push(`${field} must be an object`);
-      return;
-    }
-
-    const dayOfWeek = parseInteger(
-      entry.dayOfWeek,
-      `${field}.dayOfWeek`,
-      errors,
-      0,
-      6,
-    );
-    if (dayOfWeek === null) return;
-    if (seen.has(dayOfWeek)) {
-      errors.push(`${field}.dayOfWeek ${dayOfWeek} is listed more than once`);
-      return;
-    }
-    seen.add(dayOfWeek);
-
-    const mode = parseEnum<DayAvailabilityMode>(
-      entry.mode,
-      `${field}.mode`,
-      DAY_MODES,
-      errors,
-    );
-    if (!mode) return;
-
-    const rawWindows = Array.isArray(entry.windows) ? entry.windows : [];
-    if (mode === DayAvailabilityMode.ALL_DAY) {
-      days.push({ dayOfWeek, mode, windows: [] });
-      return;
-    }
-
-    if (rawWindows.length === 0) {
-      errors.push(
-        `${field}.windows must include at least one time window for this mode`,
-      );
-      return;
-    }
-    if (rawWindows.length > MAX_WINDOWS_PER_DAY) {
-      errors.push(
-        `${field}.windows may include at most ${MAX_WINDOWS_PER_DAY} windows`,
-      );
-      return;
-    }
-
-    const windows = rawWindows
-      .map((window, windowIndex) =>
-        parseWindow(window, `${field}.windows[${windowIndex}]`, errors),
-      )
-      .filter((window): window is TimeWindow => window !== null)
-      .sort((a, b) => a.start.localeCompare(b.start));
-
-    for (let i = 1; i < windows.length; i += 1) {
-      if (windowRange(windows[i]).start < windowRange(windows[i - 1]).end) {
-        errors.push(`${field}.windows must not overlap`);
-        break;
-      }
-    }
-
-    days.push({ dayOfWeek, mode, windows });
-  });
-
-  return days.sort((a, b) => a.dayOfWeek - b.dayOfWeek);
-}
-
 export function validateWorkPreferencesPayload(
   rawPayload: unknown,
 ): ProviderWorkPreferencesInput {
@@ -227,7 +58,12 @@ export function validateWorkPreferencesPayload(
   const body = rawPayload;
   const errors: string[] = [];
 
-  const workingDays = parseWorkingDays(body.workingDays, errors);
+  // Providers may describe a day by available or by blocked hours.
+  const workingDays = parseWeeklySchedule(
+    body.workingDays,
+    'workingDays',
+    errors,
+  );
   const workType = parseEnum<WorkType>(
     body.workType,
     'workType',

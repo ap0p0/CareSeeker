@@ -2,8 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CareForType,
-  type ProviderGender,
+  type Gender,
   ProviderVerificationStatus,
+  type RegistrantRelationship,
   UserRole,
 } from '../../generated/prisma/client.js';
 
@@ -16,13 +17,29 @@ export type CreateProviderUserProfile = {
   surname: string;
   personalInfo: {
     dateOfBirth: Date;
-    gender: ProviderGender | null;
+    gender: Gender | null;
     phone: string;
     addressLine1: string;
     city: string;
     state: string;
     postalCode: string;
     profileImagePath: string | null;
+  };
+};
+
+/**
+ * Step 1 of a seeker registration made on behalf of someone else. Identity
+ * fields go on `users`; the registrant-specific details on the 1:1
+ * `registrants_info` row created in the same transaction.
+ */
+export type CreateSeekerOnBehalfUserProfile = {
+  name: string;
+  surname: string;
+  registrantInfo: {
+    phone: string;
+    relationship: RegistrantRelationship;
+    relationshipOther: string | null;
+    consentConfirmedAt: Date;
   };
 };
 
@@ -103,6 +120,42 @@ export class UsersService {
       },
       include: {
         seekersInfo: true,
+      },
+    });
+  }
+
+  /**
+   * Creates the `User` row for a seeker registering on behalf of someone else
+   * together with its `seekers_info` (`careFor = OTHER`) and
+   * `registrants_info` rows in a single nested write, so the account can never
+   * exist without the registrant details that justify it.
+   */
+  async createSeekerOnBehalfUser(
+    supabaseId: string,
+    email: string,
+    profile: CreateSeekerOnBehalfUserProfile,
+  ) {
+    const identity = this.requireAuthIdentity(supabaseId, email);
+
+    return this.prisma.user.create({
+      data: {
+        id: identity.supabaseId,
+        email: identity.email,
+        name: profile.name,
+        surname: profile.surname,
+        role: UserRole.SEEKER,
+        seekersInfo: {
+          create: {
+            careFor: CareForType.OTHER,
+          },
+        },
+        registrantsInfo: {
+          create: profile.registrantInfo,
+        },
+      },
+      include: {
+        seekersInfo: true,
+        registrantsInfo: true,
       },
     });
   }

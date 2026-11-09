@@ -1,4 +1,4 @@
-import type { ProviderGender } from '../../../generated/prisma/client.js';
+import type { Gender } from '../../../generated/prisma/client.js';
 
 /** US-only: `state` is the USPS code, `postalCode` the ZIP. */
 export type ProviderProfileAddress = {
@@ -17,7 +17,7 @@ export type UpdateProviderProfilePayload = {
   name?: string;
   surname?: string;
   dateOfBirth?: Date;
-  gender?: ProviderGender | null;
+  gender?: Gender | null;
   phone?: string;
   address?: ProviderProfileAddress;
 };

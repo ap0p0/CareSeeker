@@ -11,7 +11,10 @@ import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 import type { ProviderOverview } from "../../../../../queries/provider";
 import { accountSettingsPath } from "../../AccountSettings/settingsTabs";
 import { genderLabel, professionalTitle, stateLabel } from "../labels";
-import { DetailRow, OverviewCard } from "./OverviewCard";
+import {
+  DetailRow,
+  OverviewCard,
+} from "../../../../../components/OverviewCard";
 
 type ProfileSummaryCardProps = {
   overview: ProviderOverview;

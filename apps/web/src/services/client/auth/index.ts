@@ -12,3 +12,4 @@ export {
   type ClientAppUser,
   type SeekerMeResult,
 } from "./seekerMe";
+export { default as RequireSeekerOnboarding } from "./RequireSeekerOnboarding";

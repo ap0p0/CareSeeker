@@ -7,10 +7,10 @@ import {
 import ProviderWorkPreferencesStep from "../../pages/Register/steps/ProviderWorkPreferencesStep";
 import {
   EMPTY_PROVIDER_WORK_PREFERENCES,
-  formatTime,
   workPreferencesFormFromSaved,
   type ProviderWorkPreferencesForm,
 } from "../../pages/Register/types";
+import { toScheduleDaysPayload } from "../../../../utils/weeklySchedule";
 import {
   DATE_OF_BIRTH_FORMAT,
   dollarsToCents,
@@ -40,20 +40,7 @@ const AvailabilityEditor = () => {
     setSaved(false);
     try {
       await saveMutation.mutateAsync({
-        workingDays: Object.entries(form.days)
-          .filter(([, day]) => day.enabled)
-          .map(([day, schedule]) => ({
-            dayOfWeek: Number(day),
-            mode: schedule.mode,
-            windows:
-              schedule.mode === "all_day"
-                ? []
-                : schedule.windows.map((window) => ({
-                    start: window.start ? formatTime(window.start) : "",
-                    end: window.end ? formatTime(window.end) : "",
-                    endsNextDay: window.endsNextDay,
-                  })),
-          })),
+        workingDays: toScheduleDaysPayload(form.days),
         workType: form.workType as "full_time" | "part_time" | "flexible",
         availabilityStart: form.availabilityStart,
         availableFrom:

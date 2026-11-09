@@ -169,12 +169,74 @@ enum CareUrgency {
   EXPLORING
 }
 
-/// Optional gender disclosure collected during provider onboarding.
-enum ProviderGender {
+/// How the person opening a seeker account on behalf of someone else (the
+/// registrant) is related to the care recipient. Read from the registrant's
+/// side: `CHILD` means "I am their child" (e.g. registering for a parent).
+enum RegistrantRelationship {
+  PARENT
+  CHILD
+  SPOUSE_PARTNER
+  SIBLING
+  GRANDPARENT
+  GRANDCHILD
+  OTHER_RELATIVE
+  FRIEND_NEIGHBOR
+  LEGAL_GUARDIAN
+  OTHER
+}
+
+/// Gender disclosure. Optional for providers (onboarding step 1), required
+/// (with a "prefer not to say" choice) for care recipients. Was named
+/// `ProviderGender` before care recipients started using it.
+enum Gender {
   FEMALE
   MALE
   NON_BINARY
   PREFER_NOT_TO_SAY
+}
+
+/// How often care is needed. Mirrors the job frequencies providers accept
+/// (`provider_work_preferences.accepts*Jobs`) so both sides match directly.
+enum CareFrequency {
+  ONE_TIME
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+/// How a family wants to pay for the care they request. Mirrors what
+/// providers accept (`provider_work_preferences.acceptsHourly` /
+/// `acceptsFixedPrice`).
+enum PaymentType {
+  HOURLY
+  /// A set amount: for the whole visit (one-time care) or per visit
+  /// (recurring care).
+  FIXED_PRICE
+}
+
+/// How long the care arrangement is expected to last.
+enum CareDuration {
+  /// Less than a month (e.g. recovery after a hospital stay).
+  SHORT_TERM
+  /// One to six months.
+  MEDIUM_TERM
+  /// More than six months / ongoing.
+  LONG_TERM
+  NOT_SURE
+}
+
+/// How independently the person receiving care moves around.
+enum MobilityLevel {
+  /// Moves around without help.
+  INDEPENDENT
+  /// Walks with a cane, walker or similar aid.
+  WALKING_AID
+  /// Needs a person's help to walk, stand up or transfer.
+  NEEDS_ASSISTANCE
+  /// Uses a wheelchair most of the time.
+  WHEELCHAIR
+  /// Mostly confined to bed.
+  BEDBOUND
 }
 
 /// Care service categories. Used both for what a provider offers and for the
@@ -349,6 +411,20 @@ model User {
   /// 1:1 seeker onboarding / AI-training profile (`seekers_info.id`).
   seekersInfo SeekersInfo?
 
+  /// 1:1 details of the person who opened this seeker account for someone
+  /// else (`registrants_info.id`). Only set when `seekersInfo.careFor = OTHER`.
+  registrantsInfo RegistrantsInfo?
+
+  /// 1:1 identity of the person receiving care when the account was opened
+  /// on behalf of someone else (`care_recipients.id`).
+  careRecipient CareRecipient?
+
+  /// Care needs & assistance preferences (on-behalf step 3) and the weekly
+  /// schedule care is requested for.
+  carePreferences     CarePreferences?
+  careScheduleDays    CareScheduleDay[]
+  careScheduleWindows CareScheduleWindow[]
+
   /// 1:1 provider onboarding personal information (`providers_info.id`).
   providersInfo ProvidersInfo?
 
@@ -520,6 +596,11 @@ model ProviderVerification {
 
 /// Seeker-specific onboarding / care-profile data kept off the root `User` row.
 ///
+/// This is the care profile of *the person receiving care*: the seeker
+/// themself when `careFor = SELF`, the care recipient when `careFor = OTHER`
+/// (their identity lives in `care_recipients`). Matching can therefore read
+/// one table for both kinds of account.
+///
 /// - `id`: seeker additional-info id (stable reference for AI / matching)
 /// - `userId`: FK to `User.id` (1:1 — one seekers_info row per seeker account)
 model SeekersInfo {
@@ -547,8 +628,23 @@ model SeekersInfo {
   homeAccessibility            HomeAccessibility[]        @default([])
   careUrgency                  CareUrgency?
 
+  /// How independently the person receiving care moves around.
+  mobilityLevel                 MobilityLevel?
+  /// Free text for `languagesSpoken` = OTHER.
+  otherLanguage                 String?
+  /// Anything else caregivers should know about the person receiving care.
+  additionalInfo                String?
+
   needsMedicalHelp              Boolean?
   healthDisclosePreference      DisclosePreference?
+
+  /// Set when the seeker finishes the registration flow (on-behalf flow:
+  /// registrant, care recipient and care preferences saved). Until then
+  /// `/register` resumes at the first unfinished step.
+  onboardingCompletedAt DateTime?
+  /// Set when the seeker reviewed the registration summary and confirmed it;
+  /// the dashboard becomes the landing page from then on.
+  profileConfirmedAt    DateTime?
   healthNotes                   String?
   medicationsDisclosePreference DisclosePreference?
   medicationsNotes              String?
@@ -563,7 +659,188 @@ model SeekersInfo {
   @@index([careUrgency])
   @@index([scheduleVibe])
   @@index([preferredCaregiverGender])
+  @@index([mobilityLevel])
   @@map("seekers_info")
+}
+
+/// The person receiving care when a seeker account was opened on behalf of
+/// someone else — step 2 of that registration flow. Only identity and
+/// address live here; the care profile (living situation, mobility, care
+/// needs, languages, ethnicity, notes) is written to `seekers_info` so it is
+/// read the same way as for people who register for themselves.
+///
+/// - `userId`: FK to `User.id` (the registrant's account). Unique for now —
+///   one recipient per account; dropping the unique index is enough to allow
+///   several later.
+/// - `dateOfBirth`: no minimum age (children can receive care too).
+/// - Address is US-only and structured like `providers_info` (`state` is the
+///   USPS code, `postalCode` the ZIP).
+model CareRecipient {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  name        String
+  surname     String
+  dateOfBirth DateTime @db.Date
+  gender      Gender
+
+  addressLine1 String
+  city         String
+  state        String
+  postalCode   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([state, postalCode])
+  @@map("care_recipients")
+}
+
+/// Care needs & assistance preferences — step 3 of registering on behalf of
+/// someone else. Two shapes, chosen by `careFrequency`:
+///
+/// - ONE_TIME: a single visit — `visitDate` + `visitStartTime` /
+///   `visitEndTime` (+ `visitNotes`), a required budget; no weekly schedule,
+///   duration or weekly hours.
+/// - DAILY / WEEKLY / MONTHLY: recurring care — `hoursPerWeek`,
+///   `careDuration`, the weekly schedule in `care_schedule_days` /
+///   `care_schedule_windows`, live-in / emergency needs; budget optional.
+///
+/// Every criterion is a typed column in the provider vocabulary so matching
+/// compares like with like:
+///
+/// - `careTasks` / `requiredQualifications` ↔ provider willing tasks and
+///   qualifications (same enums; GIN-indexed for overlap queries)
+/// - `careFrequency` ↔ `accepts*Jobs`, `hoursPerWeek` ↔ min / max weekly hours
+/// - `needsOvernightCare` / `needsLiveInCare` / `needsEmergencyCover` ↔
+///   `available*`; `requiresCaregiverVehicle` (+ wheelchair) ↔ transportation
+/// - `paymentType` ↔ `acceptsHourly` / `acceptsFixedPrice`, `budgetCents` ↔
+///   `minHourlyRateCents` (hourly), `minYearsExperience` ↔ `yearsOfExperience`
+///
+/// `needsOvernightCare`, `requiresCaregiverVehicle` and `petsInHome` are
+/// derived server-side from the tasks / schedule (e.g. the "Transportation /
+/// driving" task implies a car) so the form never asks the same thing twice.
+/// Answers that already had a home stay in `seekers_info` (start urgency,
+/// preferred caregiver gender / language, home accessibility, cultural
+/// considerations).
+model CarePreferences {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  careTasks CareTask[]
+
+  careFrequency CareFrequency
+
+  /// One-time visits only: the day (UTC calendar date) and same-day hours
+  /// (`HH:mm`) of the visit, plus what it is about.
+  visitDate      DateTime? @db.Date
+  visitStartTime String?
+  visitEndTime   String?
+  visitNotes     String?
+
+  /// Recurring care only: estimated weekly hours and expected duration.
+  hoursPerWeek Int?
+  careDuration CareDuration?
+
+  /// The requested days / hours (or the visit's date / time) can move a little.
+  scheduleFlexible    Boolean
+  needsOvernightCare  Boolean
+  needsLiveInCare     Boolean
+  needsEmergencyCover Boolean
+
+  requiresCaregiverVehicle            Boolean
+  /// Only meaningful when `requiresCaregiverVehicle`; false otherwise.
+  requiresWheelchairAccessibleVehicle Boolean
+  petsInHome                          Boolean
+  specialRequirements                 String?
+
+  requiredQualifications ProfessionalQualification[]
+  minYearsExperience     Int?
+
+  paymentType PaymentType
+  /// Most the family would pay, in cents: per hour (HOURLY), or for the
+  /// visit / per visit (FIXED_PRICE). Required for one-time visits.
+  budgetCents Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([careTasks], type: Gin)
+  @@index([careFrequency])
+  @@index([visitDate])
+  @@index([paymentType, budgetCents])
+  @@map("care_preferences")
+}
+
+/// A weekday care is needed on (step 3), read like `provider_working_days`:
+/// ALL_DAY (any time that day) or AVAILABLE_WINDOWS (only inside the
+/// `care_schedule_windows` of that day). BLOCKED_WINDOWS is not used here.
+model CareScheduleDay {
+  userId    String              @db.Uuid
+  /// 0 = Sunday … 6 = Saturday
+  dayOfWeek Int
+  mode      DayAvailabilityMode
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, dayOfWeek])
+  @@index([dayOfWeek, mode])
+  @@map("care_schedule_days")
+}
+
+/// Hours care is needed on a weekday. `HH:mm` strings (string comparison
+/// works for range queries); overnight windows set `endsNextDay` exactly like
+/// `provider_availability`.
+model CareScheduleWindow {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String  @db.Uuid
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  endsNextDay Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([dayOfWeek, startTime, endTime])
+  @@map("care_schedule_windows")
+}
+
+/// The registrant of a seeker account opened on behalf of someone else
+/// (a loved one, a friend, a person under guardianship) — step 1 of that
+/// registration flow. The registrant *is* the account holder, so their
+/// name, surname and email stay on `users`; this table keeps what is specific
+/// to acting for somebody else. The care recipient's own profile (later steps)
+/// is stored separately; `seekers_info.careFor` is `OTHER` for these accounts.
+///
+/// - `userId`: FK to `User.id` (1:1 — one registrants_info row per account)
+/// - `phone`: US number in E.164 form (`+1XXXXXXXXXX`); the registrant is the
+///   contact person for caregivers
+/// - `relationship` / `relationshipOther`: how the registrant relates to the
+///   care recipient, with free text when `OTHER`
+/// - `consentConfirmedAt`: when the registrant confirmed they are allowed to
+///   arrange care and share information for the recipient
+model RegistrantsInfo {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+
+  phone             String
+  relationship      RegistrantRelationship
+  relationshipOther String?
+
+  consentConfirmedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([relationship])
+  @@map("registrants_info")
 }
 
 /// Provider personal information collected in onboarding step 1, kept off the
@@ -582,7 +859,7 @@ model ProvidersInfo {
   userId String @unique @db.Uuid
 
   dateOfBirth DateTime        @db.Date
-  gender      ProviderGender?
+  gender      Gender?
   /// US phone number in E.164 form (`+1XXXXXXXXXX`). Confirmation is handled
   /// in a later step.
   phone       String

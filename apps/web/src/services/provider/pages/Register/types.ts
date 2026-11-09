@@ -1,7 +1,6 @@
 import dayjs, { type Dayjs } from "dayjs";
 import type {
   AvailabilityStart,
-  DayAvailabilityMode,
   ProviderGender,
   ProviderProfile,
   ProviderServiceProfile,
@@ -9,7 +8,17 @@ import type {
   VehicleType,
   WorkType,
 } from "../../../../queries/provider";
-import { TIME_FORMAT } from "./workPreferenceOptions";
+import { GENDER_OPTIONS } from "../../../../utils/gender";
+import { centsToDollars } from "../../../../utils/money";
+import {
+  EMPTY_DAY_SCHEDULE,
+  EMPTY_WEEK_SCHEDULE,
+  formatTime,
+  weekScheduleFromSaved,
+  type DayScheduleForm,
+  type TimeWindowForm,
+  type WeekScheduleForm,
+} from "../../../../utils/weeklySchedule";
 import type {
   CareServiceCategory,
   CareSkill,
@@ -17,7 +26,7 @@ import type {
   ClientGroup,
   ProfessionalQualification,
   SpokenLanguage,
-} from "./serviceOptions";
+} from "../../../../utils/careOptions";
 
 /**
  * Provider onboarding steps, in order. Steps 1 and 2 are filled in locally
@@ -67,15 +76,11 @@ export type ProviderPersonalInfoErrors = Partial<
   Record<ProviderPersonalInfoField, string>
 >;
 
+/** Shared with care recipients (`utils/gender`). */
 export const PROVIDER_GENDER_OPTIONS: {
   value: ProviderGender;
   label: string;
-}[] = [
-  { value: "female", label: "Female" },
-  { value: "male", label: "Male" },
-  { value: "non_binary", label: "Non-binary" },
-  { value: "prefer_not_to_say", label: "Prefer not to say" },
-];
+}[] = GENDER_OPTIONS;
 
 export const EMPTY_PROVIDER_PERSONAL_INFO: ProviderPersonalInfoForm = {
   name: "",
@@ -176,22 +181,11 @@ export const servicesJobsFormFromProfile = (
 
 // ─── Step 4: availability & work preferences ─────────────────────────────────
 
-export type TimeWindowForm = {
-  start: Dayjs | null;
-  end: Dayjs | null;
-  /** The window ends on the following day (overnight hours). */
-  endsNextDay: boolean;
-};
-
-export type DayScheduleForm = {
-  enabled: boolean;
-  mode: DayAvailabilityMode;
-  windows: TimeWindowForm[];
-};
+export type { DayScheduleForm, TimeWindowForm };
 
 export type ProviderWorkPreferencesForm = {
   /** Keyed by day of week (0 = Sunday … 6 = Saturday). */
-  days: Record<number, DayScheduleForm>;
+  days: WeekScheduleForm;
   workType: WorkType | "";
   availabilityStart: AvailabilityStart;
   availableFrom: Dayjs | null;
@@ -219,16 +213,10 @@ export type ProviderWorkPreferencesForm = {
 /** Error keys: form fields plus `day-<n>` for a day's schedule. */
 export type ProviderWorkPreferencesErrors = Partial<Record<string, string>>;
 
-export const EMPTY_DAY_SCHEDULE: DayScheduleForm = {
-  enabled: false,
-  mode: "all_day",
-  windows: [],
-};
+export { EMPTY_DAY_SCHEDULE, formatTime };
 
 export const EMPTY_PROVIDER_WORK_PREFERENCES: ProviderWorkPreferencesForm = {
-  days: Object.fromEntries(
-    [0, 1, 2, 3, 4, 5, 6].map((day) => [day, EMPTY_DAY_SCHEDULE]),
-  ),
+  days: EMPTY_WEEK_SCHEDULE,
   workType: "",
   availabilityStart: "immediate",
   availableFrom: null,
@@ -252,38 +240,12 @@ export const EMPTY_PROVIDER_WORK_PREFERENCES: ProviderWorkPreferencesForm = {
   matchingNotes: "",
 };
 
-const timeFromString = (value: string): Dayjs =>
-  dayjs(`1970-01-01T${value}:00`);
-
-const centsToDollars = (cents: number): string =>
-  (cents / 100).toFixed(cents % 100 === 0 ? 0 : 2);
-
 /** Maps saved step 4 preferences back into the form (resume / edit). */
 export const workPreferencesFormFromSaved = (
   saved: ProviderWorkPreferences,
 ): ProviderWorkPreferencesForm => ({
   ...EMPTY_PROVIDER_WORK_PREFERENCES,
-  days: Object.fromEntries(
-    [0, 1, 2, 3, 4, 5, 6].map((day) => {
-      const workingDay = saved.workingDays.find(
-        (item) => item.dayOfWeek === day,
-      );
-      return [
-        day,
-        workingDay
-          ? {
-              enabled: true,
-              mode: workingDay.mode,
-              windows: workingDay.windows.map((window) => ({
-                start: timeFromString(window.start),
-                end: timeFromString(window.end),
-                endsNextDay: window.endsNextDay,
-              })),
-            }
-          : EMPTY_DAY_SCHEDULE,
-      ];
-    }),
-  ),
+  days: weekScheduleFromSaved(saved.workingDays),
   workType: saved.workType,
   availabilityStart: saved.availabilityStart,
   availableFrom: saved.availableFrom ? dayjs(saved.availableFrom) : null,
@@ -306,5 +268,3 @@ export const workPreferencesFormFromSaved = (
   minHourlyRate: centsToDollars(saved.minHourlyRateCents),
   matchingNotes: saved.matchingNotes ?? "",
 });
-
-export const formatTime = (value: Dayjs): string => value.format(TIME_FORMAT);

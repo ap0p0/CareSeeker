@@ -41,6 +41,24 @@ export class SeekerController {
     };
   }
 
+  /**
+   * Registration on behalf of someone else — step 1: the registrant (the
+   * person opening the account). JSON body: `name`, `surname`, `email`,
+   * `password` (+ optional `confirmPassword`), `phone` (US), `relationship`
+   * (+ `relationshipOther` when `other`) and `consentToActOnBehalf: true`.
+   */
+  @Post('register/on-behalf')
+  @HttpCode(HttpStatus.CREATED)
+  async registerOnBehalf(@Body() body: unknown) {
+    const user = await this.seekerService.registerOnBehalf(body);
+
+    return {
+      success: true,
+      message: 'Care seeker account created successfully',
+      data: user,
+    };
+  }
+
   @UseGuards(SupabaseJwtGuard)
   @Get('me')
   seekerMe(@Req() req: AuthRequest) {

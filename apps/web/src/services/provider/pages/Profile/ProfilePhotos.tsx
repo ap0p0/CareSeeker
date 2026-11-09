@@ -1,6 +1,6 @@
 import { Avatar, Stack, Typography } from "@mui/material";
 import { accountSettingsPath } from "../AccountSettings/settingsTabs";
-import { OverviewCard } from "../Overview/sections/OverviewCard";
+import { OverviewCard } from "../../../../components/OverviewCard";
 import ProviderProfileSectionPage from "./ProviderProfileSectionPage";
 
 const ProfilePhotos = () => (

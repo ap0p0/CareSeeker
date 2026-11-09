@@ -5,6 +5,7 @@ import {
   getApiErrorStatus,
   httpClient,
 } from "../../api/httpClient";
+import type { Gender } from "../../utils/gender";
 import { ProviderAuthApiError } from "./errors";
 import { PROVIDER_REGISTER_MUTATION } from "./keys";
 
@@ -13,11 +14,8 @@ const REGISTER_PROVIDER_PATH = "/provider/register" as const;
 export const DUPLICATE_EMAIL_MESSAGE =
   "An account with this email already exists.";
 
-export type ProviderGender =
-  | "female"
-  | "male"
-  | "non_binary"
-  | "prefer_not_to_say";
+/** Shared with care recipients (`utils/gender`). */
+export type ProviderGender = Gender;
 
 /**
  * Onboarding step 1 payload. Sent as `multipart/form-data` because it carries

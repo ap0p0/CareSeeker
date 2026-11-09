@@ -12,7 +12,7 @@ import {
   DetailRow,
   MissingSection,
   OverviewCard,
-} from "./OverviewCard";
+} from "../../../../../components/OverviewCard";
 
 type CompensationTravelCardProps = {
   preferences: ProviderWorkPreferences | null;
