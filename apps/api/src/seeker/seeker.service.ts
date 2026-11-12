@@ -220,7 +220,8 @@ export class SeekerService {
     const overview = await this.seekerRepository.getOverview(userId);
     const recentActivity = [
       ...overview.recentJobs.map((job) => ({
-        id: job.id,
+        // Public job id: links are `/jobs/<jobId>`.
+        id: job.jobId,
         type: 'job',
         label: job.title,
         status: lowerCaseEnum(job.status),
@@ -265,7 +266,7 @@ export class SeekerService {
     const history = await this.seekerRepository.listHistory(userId);
 
     return history.map((job) => ({
-      id: job.id,
+      jobId: job.jobId,
       title: job.title,
       description: job.description,
       location: job.location,

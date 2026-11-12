@@ -10,9 +10,16 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../../../supabase/supabase";
 import { SEEKER_ACCESS_DENIED_MESSAGE, type ClientAppUser } from "./seekerMe";
-import { useVerifySeekerAccessMutation } from "../../../queries/client";
+import {
+  DEMO_SEEKER,
+  endDemoSession,
+  isDemoSession,
+  startDemoSession,
+  useVerifySeekerAccessMutation,
+} from "../../../queries/client";
 
 export type ClientGateOutcome =
   | "seeker"
@@ -24,6 +31,10 @@ export type ClientGateOutcome =
 type ClientAuthContextValue = {
   initialized: boolean;
   seekerUser: ClientAppUser | null;
+  /** Signed in to the sample-data demo (no real account, no API). */
+  isDemo: boolean;
+  /** "Explore with sample data": signs in to the demo. */
+  startDemo: () => void;
   accessDeniedMessage: string | null;
   clearAccessDeniedMessage: () => void;
   signOut: () => Promise<void>;
@@ -54,6 +65,12 @@ async function applyClientSession(
     user?: ClientAppUser;
   }>,
 ): Promise<ClientGateOutcome> {
+  // A demo session never asks the API who is signed in.
+  if (isDemoSession()) {
+    setState(demoState());
+    return "seeker";
+  }
+
   let effective = session;
 
   if (!effective?.access_token) {
@@ -117,9 +134,30 @@ const initialState: ClientAuthState = {
   accessDeniedMessage: null,
 };
 
+function demoState(): ClientAuthState {
+  return {
+    initialized: true,
+    seekerUser: DEMO_SEEKER,
+    accessDeniedMessage: null,
+  };
+}
+
 export function ClientAuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<ClientAuthState>(initialState);
+  // A demo survives reloads: no need to wait for (or ask) the auth client.
+  const [state, setState] = useState<ClientAuthState>(() =>
+    isDemoSession() ? demoState() : initialState,
+  );
+  const [isDemo, setIsDemo] = useState(isDemoSession);
+  const queryClient = useQueryClient();
   const { mutateAsync: verifySeekerAccess } = useVerifySeekerAccessMutation();
+
+  const startDemo = useCallback(() => {
+    startDemoSession();
+    // Nothing from a previous session may show up in the demo.
+    queryClient.clear();
+    setIsDemo(true);
+    setState(demoState());
+  }, [queryClient]);
 
   const clearAccessDeniedMessage = useCallback(() => {
     setState((prev) => ({ ...prev, accessDeniedMessage: null }));
@@ -141,9 +179,21 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
   }, [verifySeekerAccess]);
 
   const signOut = useCallback(async () => {
+    if (isDemoSession()) {
+      endDemoSession();
+      // Sample data must not linger for the next (real) session.
+      queryClient.clear();
+      setIsDemo(false);
+      setState({
+        initialized: true,
+        seekerUser: null,
+        accessDeniedMessage: null,
+      });
+      return;
+    }
     setState((prev) => ({ ...prev, accessDeniedMessage: null }));
     await supabase.auth.signOut();
-  }, []);
+  }, [queryClient]);
 
   useEffect(() => {
     let cancelled = false;
@@ -176,6 +226,8 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
     () => ({
       initialized: state.initialized,
       seekerUser: state.seekerUser,
+      isDemo,
+      startDemo,
       accessDeniedMessage: state.accessDeniedMessage,
       clearAccessDeniedMessage,
       signOut,
@@ -185,6 +237,8 @@ export function ClientAuthProvider({ children }: { children: ReactNode }) {
       state.initialized,
       state.seekerUser,
       state.accessDeniedMessage,
+      isDemo,
+      startDemo,
       clearAccessDeniedMessage,
       signOut,
       verifySeekerGateFromSession,

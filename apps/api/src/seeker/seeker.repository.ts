@@ -55,7 +55,9 @@ export class SeekerRepository {
           where: {
             seekerId: userId,
             deletedAt: null,
-            status: { in: [JobStatus.OPEN, JobStatus.IN_PROGRESS] },
+            status: {
+              in: [JobStatus.OPEN, JobStatus.PAUSED, JobStatus.IN_PROGRESS],
+            },
           },
         }),
         this.prisma.savedProvider.count({
@@ -77,7 +79,7 @@ export class SeekerRepository {
           orderBy: { updatedAt: 'desc' },
           take: 5,
           select: {
-            id: true,
+            jobId: true,
             title: true,
             status: true,
             updatedAt: true,
@@ -138,7 +140,12 @@ export class SeekerRepository {
       where: {
         seekerId: userId,
         OR: [
-          { status: { in: [JobStatus.COMPLETED, JobStatus.CANCELLED] } },
+          // Finished jobs: the archive.
+          {
+            status: {
+              in: [JobStatus.COMPLETED, JobStatus.CANCELLED, JobStatus.CLOSED],
+            },
+          },
           { deletedAt: { not: null } },
         ],
       },

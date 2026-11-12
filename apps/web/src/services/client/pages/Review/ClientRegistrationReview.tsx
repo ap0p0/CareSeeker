@@ -29,6 +29,7 @@ import {
   CareRecipientEditor,
   RegistrantEditor,
 } from "../../components/profile-editors";
+import { newJobPath } from "../NewJob/jobStartMode";
 import CarePreferencesCard from "./sections/CarePreferencesCard";
 import CareRecipientCard from "./sections/CareRecipientCard";
 import RegistrantCard from "./sections/RegistrantCard";
@@ -116,10 +117,12 @@ const ClientRegistrationReview = () => {
     setConfirming(next);
     try {
       await confirmMutation.mutateAsync();
+      // Registration opens the job post prefilled from these answers (the
+      // app's "Add New Job" asks how to start instead).
       navigate(
-        SEEKER_ROUTE_PATHS[
-          next === "job" ? SeekerRoute.NewJob : SeekerRoute.Dashboard
-        ],
+        next === "job"
+          ? newJobPath("prefill")
+          : SEEKER_ROUTE_PATHS[SeekerRoute.Dashboard],
         { replace: true },
       );
     } catch (error) {

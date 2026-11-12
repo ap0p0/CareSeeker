@@ -12,6 +12,10 @@ import {
 import ClientDashboard from "../services/client/pages/ClientDashboard";
 import ClientLayout from "../services/client/layout/ClientLayout";
 import ClientLoginPage from "../services/client/pages/Login/ClientLogin";
+import EditJobPage from "../services/client/pages/Job/EditJobPage";
+import JobPage from "../services/client/pages/Job/JobPage";
+import NewJobPage from "../services/client/pages/NewJob/NewJobPage";
+import OpenJobsPage from "../services/client/pages/OpenJobs/OpenJobsPage";
 import ClientNotFound from "../services/client/pages/NotFound";
 import ClientRegisterPage from "../services/client/pages/Register/ClientRegister";
 import ClientRegistrationReview from "../services/client/pages/Review/ClientRegistrationReview";
@@ -46,11 +50,19 @@ export const clientRouter = createBrowserRouter(
             />
             <Route
               path={SEEKER_ROUTE_PATHS[SeekerRoute.Jobs]}
-              element={<ClientSectionPage title="Open Jobs" />}
+              element={<OpenJobsPage />}
             />
             <Route
               path={SEEKER_ROUTE_PATHS[SeekerRoute.NewJob]}
-              element={<ClientSectionPage title="Add New Job" />}
+              element={<NewJobPage />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.JobDetails]}
+              element={<JobPage />}
+            />
+            <Route
+              path={SEEKER_ROUTE_PATHS[SeekerRoute.EditJob]}
+              element={<EditJobPage />}
             />
             <Route
               path={SEEKER_ROUTE_PATHS[SeekerRoute.History]}

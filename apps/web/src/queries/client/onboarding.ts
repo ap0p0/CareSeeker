@@ -1,5 +1,7 @@
 import { getApiErrorMessage, httpClient } from "../../api/httpClient";
 import { requireClientAuthHeaders } from "./authHeaders";
+import { isDemoSession } from "./demoMode";
+import { demoOnboardingStatus } from "./demoProfile";
 import type { CarePreferences } from "./carePreferences";
 import type { CareRecipient } from "./careRecipient";
 import { ClientAuthApiError } from "./errors";
@@ -23,6 +25,9 @@ export type SeekerOnboardingStatus = {
 
 export const fetchSeekerOnboardingStatus =
   async (): Promise<SeekerOnboardingStatus> => {
+    // A demo session is a registered, confirmed account (no API).
+    if (isDemoSession()) return demoOnboardingStatus();
+
     const headers = await requireClientAuthHeaders();
 
     try {
