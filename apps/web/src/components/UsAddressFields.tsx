@@ -22,6 +22,8 @@ type UsAddressFieldsProps = {
    * `false` when entering somebody else's.
    */
   autoFill?: boolean;
+  /** `false`: city, state and ZIP only (e.g. a job post's location). */
+  withStreet?: boolean;
 };
 
 /**
@@ -35,24 +37,27 @@ const UsAddressFields = ({
   disabled = false,
   idPrefix,
   autoFill = true,
+  withStreet = true,
 }: UsAddressFieldsProps) => {
   const autoComplete = (hint: string) => (autoFill ? hint : "off");
   const stateLabelId = `${idPrefix}-state-label`;
 
   return (
     <Stack spacing={2}>
-      <TextField
-        name="addressLine1"
-        label="Street address"
-        autoComplete={autoComplete("address-line1")}
-        value={value.addressLine1}
-        onChange={(event) => onChange("addressLine1", event.target.value)}
-        error={Boolean(errors.addressLine1)}
-        helperText={errors.addressLine1}
-        fullWidth
-        disabled={disabled}
-        required
-      />
+      {withStreet ? (
+        <TextField
+          name="addressLine1"
+          label="Street address"
+          autoComplete={autoComplete("address-line1")}
+          value={value.addressLine1}
+          onChange={(event) => onChange("addressLine1", event.target.value)}
+          error={Boolean(errors.addressLine1)}
+          helperText={errors.addressLine1}
+          fullWidth
+          disabled={disabled}
+          required
+        />
+      ) : null}
       <TextField
         name="city"
         label="City"

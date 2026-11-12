@@ -22,8 +22,12 @@ import {
 } from "../labels";
 
 type CarePreferencesCardProps = {
-  preferences: CarePreferences;
-  onEdit: () => void;
+  /** Saved care preferences, or a job's care details (same shape). */
+  preferences: Omit<CarePreferences, "updatedAt">;
+  /** Omitted: no Edit button (e.g. a job whose requirements are locked). */
+  onEdit?: () => void;
+  /** Defaults to "Care needs & preferences". */
+  title?: string;
 };
 
 const Subheading = ({ children }: { children: string }) => (
@@ -36,6 +40,7 @@ const Subheading = ({ children }: { children: string }) => (
 const CarePreferencesCard = ({
   preferences,
   onEdit,
+  title = "Care needs & preferences",
 }: CarePreferencesCardProps) => {
   const { visit, recurring, caregiverPreferences } = preferences;
   const flags = careFlagLabels(preferences);
@@ -45,7 +50,7 @@ const CarePreferencesCard = ({
 
   return (
     <OverviewCard
-      title="Care needs & preferences"
+      title={title}
       description={frequencyLabel(preferences.careFrequency)}
       onEdit={onEdit}
     >

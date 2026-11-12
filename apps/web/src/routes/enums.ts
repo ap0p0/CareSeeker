@@ -55,6 +55,8 @@ export enum SeekerRoute {
   RegistrationReview = "registrationReview",
   Jobs = "jobs",
   NewJob = "newJob",
+  JobDetails = "jobDetails",
+  EditJob = "editJob",
   History = "history",
   SavedProviders = "savedProviders",
   Explore = "explore",
@@ -73,6 +75,9 @@ export const SEEKER_ROUTE_PATHS: Record<SeekerRoute, string> = {
   [SeekerRoute.RegistrationReview]: "/register/review",
   [SeekerRoute.Jobs]: "/jobs",
   [SeekerRoute.NewJob]: "/jobs/new",
+  /** A job's own page: `jobPath()` in `services/client/pages/Job/jobLinks.ts`. */
+  [SeekerRoute.JobDetails]: "/jobs/:jobId",
+  [SeekerRoute.EditJob]: "/jobs/:jobId/edit",
   [SeekerRoute.History]: "/history",
   [SeekerRoute.SavedProviders]: "/saved",
   [SeekerRoute.Explore]: "/explore",

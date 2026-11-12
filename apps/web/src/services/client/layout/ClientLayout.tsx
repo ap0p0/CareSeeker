@@ -12,7 +12,9 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import ReviewsOutlinedIcon from "@mui/icons-material/ReviewsOutlined";
 import TravelExploreOutlinedIcon from "@mui/icons-material/TravelExploreOutlined";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import SlideshowOutlinedIcon from "@mui/icons-material/SlideshowOutlined";
 import {
+  Alert,
   BottomNavigation,
   BottomNavigationAction,
   Box,
@@ -118,7 +120,7 @@ const ClientLayout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useClientAuth();
+  const { signOut, isDemo } = useClientAuth();
   const [loggingOut, setLoggingOut] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     try {
@@ -146,14 +148,21 @@ const ClientLayout = () => {
     }
   }, [navigate, signOut]);
 
+  // A job's own pages (`/jobs/:jobId[/edit]`) belong to "Open Jobs";
+  // `/jobs/new` has its own entry.
+  const onJobPage =
+    location.pathname.startsWith(`${SEEKER_ROUTE_PATHS[SeekerRoute.Jobs]}/`) &&
+    location.pathname !== SEEKER_ROUTE_PATHS[SeekerRoute.NewJob];
+
   const bottomNavValue = useMemo(() => {
+    if (onJobPage) return SEEKER_ROUTE_PATHS[SeekerRoute.Jobs];
     const match = navItems.find((item) => {
       const to = SEEKER_ROUTE_PATHS[item.route];
       return location.pathname === to;
     });
 
     return match ? SEEKER_ROUTE_PATHS[match.route] : false;
-  }, [location.pathname]);
+  }, [location.pathname, onJobPage]);
 
   const sidebarTransition = theme.transitions.create(
     ["flex-basis", "max-width", "min-width"],
@@ -167,7 +176,9 @@ const ClientLayout = () => {
     <List dense disablePadding sx={{ py: 1 }}>
       {navItems.map(({ route, label, icon }) => {
         const to = SEEKER_ROUTE_PATHS[route];
-        const end = route === SeekerRoute.Overview;
+        // `/jobs` must not stay highlighted on `/jobs/new`.
+        const end =
+          route === SeekerRoute.Overview || route === SeekerRoute.Jobs;
 
         return (
           <ListItemButton
@@ -175,10 +186,11 @@ const ClientLayout = () => {
             component={NavLink}
             to={to}
             end={end}
+            selected={route === SeekerRoute.Jobs && onJobPage}
             sx={{
               borderRadius: 1,
               mx: 0.5,
-              "&.active": {
+              "&.active, &.Mui-selected": {
                 bgcolor: "action.selected",
                 fontWeight: 600,
               },
@@ -351,6 +363,29 @@ const ClientLayout = () => {
                 Log out
               </Button>
             </Box>
+          ) : null}
+          {isDemo ? (
+            <Alert
+              severity="info"
+              // A lasting notice, not an event: no live announcement.
+              role="note"
+              icon={<SlideshowOutlinedIcon fontSize="inherit" />}
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => void handleLogout()}
+                  disabled={loggingOut}
+                  sx={{ textTransform: "none", fontWeight: 700 }}
+                >
+                  Exit demo
+                </Button>
+              }
+              sx={{ mb: 2 }}
+            >
+              <strong>Demo</strong> — you are exploring CareSeeker with sample
+              data. Nothing is saved to a real account.
+            </Alert>
           ) : null}
           <Outlet />
         </Grid>

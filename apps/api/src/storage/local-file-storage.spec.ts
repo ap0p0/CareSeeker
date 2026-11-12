@@ -85,14 +85,13 @@ describe('LocalFileStorage', () => {
     expect(
       await storage.readSigned(bucket, key, expires + 1, signature),
     ).toBeNull();
-    expect(
-      await storage.readSigned(
-        bucket,
-        key,
-        expires,
-        `${signature.slice(0, -1)}0`,
-      ),
-    ).toBeNull();
+    // Change the last hex digit to a *different* one: forcing it to "0"
+    // was a no-op whenever the signature already ended in "0" (1 in 16).
+    const tampered = `${signature.slice(0, -1)}${
+      signature.endsWith('0') ? '1' : '0'
+    }`;
+    expect(tampered).not.toBe(signature);
+    expect(await storage.readSigned(bucket, key, expires, tampered)).toBeNull();
     expect(await storage.readSigned(bucket, key, 1, signature)).toBeNull();
   });
 });

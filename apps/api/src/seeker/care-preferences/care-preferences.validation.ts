@@ -290,25 +290,21 @@ function parseCaregiverPreferences(
 }
 
 /**
- * `PUT /seeker/care-preferences` — full replacement of step 3. The shape
- * depends on `careFrequency`: one-time visits send `visit` (and a required
- * budget), recurring care sends hours / duration / start / schedule. Fields
- * of the other shape are ignored. All messages are returned together as a
- * single `400 VALIDATION_ERROR`.
+ * Care needs & assistance preferences in the step 3 shape, collecting every
+ * problem into `errors` instead of throwing. The shape depends on
+ * `careFrequency`: one-time visits send `visit` (and a required budget),
+ * recurring care sends hours / duration / start / schedule; fields of the
+ * other shape are ignored. Returns `null` when anything is invalid.
+ *
+ * Shared by `PUT /seeker/care-preferences` (the profile) and job posts,
+ * which carry the same details so both are validated with the same rules.
  */
-export function validateCarePreferencesPayload(
-  rawPayload: unknown,
+export function parseCarePreferences(
+  body: Record<string, unknown>,
+  errors: string[],
   today = new Date(),
-): CarePreferencesInput {
-  if (!isRecord(rawPayload)) {
-    throw new BadRequestException({
-      code: 'VALIDATION_ERROR',
-      message: 'Payload must be an object',
-    });
-  }
-
-  const body = rawPayload;
-  const errors: string[] = [];
+): CarePreferencesInput | null {
+  const errorCountBefore = errors.length;
 
   const careTasks = parseSelection(
     body.careTasks,
@@ -377,17 +373,13 @@ export function validateCarePreferencesPayload(
   );
 
   if (
-    errors.length > 0 ||
+    errors.length > errorCountBefore ||
     !careFrequency ||
     (oneTime ? !visit : !recurring) ||
     !budget ||
     !caregiverPreferences
   ) {
-    throw new BadRequestException({
-      code: 'VALIDATION_ERROR',
-      message: 'Invalid care preferences payload',
-      errors,
-    });
+    return null;
   }
 
   return {
@@ -405,4 +397,33 @@ export function validateCarePreferencesPayload(
     budget,
     caregiverPreferences,
   };
+}
+
+/**
+ * `PUT /seeker/care-preferences` — full replacement of step 3 (see
+ * `parseCarePreferences`). All messages are returned together as a single
+ * `400 VALIDATION_ERROR`.
+ */
+export function validateCarePreferencesPayload(
+  rawPayload: unknown,
+  today = new Date(),
+): CarePreferencesInput {
+  if (!isRecord(rawPayload)) {
+    throw new BadRequestException({
+      code: 'VALIDATION_ERROR',
+      message: 'Payload must be an object',
+    });
+  }
+
+  const errors: string[] = [];
+  const input = parseCarePreferences(rawPayload, errors, today);
+  if (!input) {
+    throw new BadRequestException({
+      code: 'VALIDATION_ERROR',
+      message: 'Invalid care preferences payload',
+      errors,
+    });
+  }
+
+  return input;
 }

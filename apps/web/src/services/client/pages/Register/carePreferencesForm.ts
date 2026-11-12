@@ -236,9 +236,12 @@ export const hasSuggestions = (form: CarePreferencesForm): boolean =>
 
 // ─── Saved data ↔ form ───────────────────────────────────────────────────────
 
-/** Saved step 3 → form. Values the API returns are valid option values. */
+/**
+ * Saved step 3 (or a job post's details, same shape) → form. Values the API
+ * returns are valid option values.
+ */
 export const carePreferencesFormFromSaved = (
-  saved: CarePreferences,
+  saved: Omit<CarePreferences, "updatedAt">,
 ): CarePreferencesForm => ({
   ...EMPTY_CARE_PREFERENCES,
   careFrequency: saved.careFrequency,

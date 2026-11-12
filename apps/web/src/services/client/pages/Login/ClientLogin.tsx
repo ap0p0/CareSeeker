@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { Button, Stack, TextField } from "@mui/material";
+import SlideshowOutlinedIcon from "@mui/icons-material/SlideshowOutlined";
+import { Button, Divider, Stack, TextField, Typography } from "@mui/material";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SEEKER_ROUTE_PATHS, SeekerRoute } from "../../../../routes/enums";
 import { useSignInClientMutation } from "../../../../queries/client";
@@ -15,6 +16,8 @@ const ClientLoginPage = () => {
     accessDeniedMessage,
     clearAccessDeniedMessage,
     verifySeekerGateFromSession,
+    startDemo,
+    isDemo,
   } = useClientAuth();
   const signInMutation = useSignInClientMutation();
   const [formError, setFormError] = useState<string | null>(null);
@@ -23,9 +26,23 @@ const ClientLoginPage = () => {
     return <ClientAuthLoadingScreen />;
   }
 
+  // Signed in (or the demo just started): the demo opens on its jobs.
   if (seekerUser) {
-    return <Navigate to={SEEKER_ROUTE_PATHS[SeekerRoute.Dashboard]} replace />;
+    return (
+      <Navigate
+        to={
+          SEEKER_ROUTE_PATHS[isDemo ? SeekerRoute.Jobs : SeekerRoute.Dashboard]
+        }
+        replace
+      />
+    );
   }
+
+  /** "Explore with sample data" (the redirect above opens its jobs). */
+  const handleDemo = () => {
+    clearAccessDeniedMessage();
+    startDemo();
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -102,6 +119,27 @@ const ClientLoginPage = () => {
         >
           {signInMutation.isPending ? "Signing in..." : "Sign in"}
         </Button>
+
+        <Divider>
+          <Typography variant="caption" color="text.secondary">
+            or
+          </Typography>
+        </Divider>
+
+        <Button
+          variant="outlined"
+          size="large"
+          startIcon={<SlideshowOutlinedIcon />}
+          onClick={handleDemo}
+          disabled={signInMutation.isPending}
+          sx={{ borderRadius: 999, textTransform: "none", fontWeight: 700 }}
+        >
+          Explore with sample data
+        </Button>
+        <Typography variant="caption" color="text.secondary" textAlign="center">
+          A demo with sample jobs — no account needed. Nothing you do in it is
+          saved to a real account.
+        </Typography>
       </Stack>
     </ClientAuthLayout>
   );

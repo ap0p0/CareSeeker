@@ -1,4 +1,7 @@
 import type { CarePreferences } from "../../../../queries/client";
+
+/** Saved care preferences, or a job's care details (same shape). */
+type CareDetails = Omit<CarePreferences, "updatedAt">;
 import {
   CARE_TASK_OPTIONS,
   LANGUAGE_OPTIONS,
@@ -70,7 +73,7 @@ export const caregiverLanguageLabel = (value: string | null) =>
   value ? (labelFor(LANGUAGE_OPTIONS, value) ?? value) : "No preference";
 
 /** e.g. "Up to $30 per hour", "Up to $90 for the whole visit", "Not set". */
-export const budgetLabel = (preferences: CarePreferences): string => {
+export const budgetLabel = (preferences: CareDetails): string => {
   const type = labelFor(PAYMENT_TYPE_OPTIONS, preferences.budget.paymentType);
   if (preferences.budget.amountCents === null)
     return `${type} (no amount given)`;
@@ -82,7 +85,7 @@ export const budgetLabel = (preferences: CarePreferences): string => {
 
 /** Mon → Sun rows of the requested weekly schedule (days without care omitted). */
 export const careScheduleRows = (
-  preferences: CarePreferences,
+  preferences: CareDetails,
 ): { day: string; summary: string }[] =>
   DAY_OPTIONS.flatMap((option) => {
     const day = preferences.recurring?.scheduleDays.find(
@@ -101,7 +104,7 @@ export const careScheduleRows = (
   });
 
 /** Yes-flags of a saved step 3, as chips. */
-export const careFlagLabels = (preferences: CarePreferences): string[] =>
+export const careFlagLabels = (preferences: CareDetails): string[] =>
   [
     preferences.scheduleFlexible ? "Flexible times" : null,
     preferences.needsOvernightCare ? "Overnight care" : null,

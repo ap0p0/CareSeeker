@@ -177,20 +177,18 @@ export function parseGender(
   return normalized as Gender;
 }
 
+/** City, USPS state code and ZIP — an address without the street. */
+export type UsCityStateZip = Omit<UsAddress, 'addressLine1'>;
+
 /**
- * US-only structured address. Every part is required; `state` must be a USPS
- * code (stored upper-cased) and `postalCode` a ZIP or ZIP+4.
+ * City, state and ZIP of a US address. Every part is required; `state` must
+ * be a USPS code (stored upper-cased) and `postalCode` a ZIP or ZIP+4. Used
+ * on its own where the street must not be stored (job posts).
  */
-export function parseAddress(
+export function parseCityStateZip(
   body: Record<string, unknown>,
   errors: string[],
-): UsAddress | null {
-  const addressLine1 = parseRequiredText(
-    body.addressLine1,
-    'addressLine1',
-    ADDRESS_LINE_MAX_LENGTH,
-    errors,
-  );
+): UsCityStateZip | null {
   const city = parseRequiredText(body.city, 'city', CITY_MAX_LENGTH, errors);
 
   const stateRaw = readString(body.state).toUpperCase();
@@ -213,11 +211,34 @@ export function parseAddress(
     postalCode = postalCodeRaw;
   }
 
-  if (!addressLine1 || !city || !state || !postalCode) {
+  if (!city || !state || !postalCode) {
     return null;
   }
 
-  return { addressLine1, city, state, postalCode };
+  return { city, state, postalCode };
+}
+
+/**
+ * US-only structured address. Every part is required; `state` must be a USPS
+ * code (stored upper-cased) and `postalCode` a ZIP or ZIP+4.
+ */
+export function parseAddress(
+  body: Record<string, unknown>,
+  errors: string[],
+): UsAddress | null {
+  const addressLine1 = parseRequiredText(
+    body.addressLine1,
+    'addressLine1',
+    ADDRESS_LINE_MAX_LENGTH,
+    errors,
+  );
+  const cityStateZip = parseCityStateZip(body, errors);
+
+  if (!addressLine1 || !cityStateZip) {
+    return null;
+  }
+
+  return { addressLine1, ...cityStateZip };
 }
 
 export function hasOwn(body: Record<string, unknown>, field: string): boolean {
